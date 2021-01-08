@@ -641,7 +641,8 @@ void header () {
       cout << ":";
       switch (type[ocl]) {
       case BOOL:
-	cout << description[tgt] << "==" << args[tgt][1];
+	// cout << description[tgt] << "==" << args[tgt][1];
+	cout << description[tgt] << "==" << args[tgt][0];
 	break;
       case ENUM:
 	cout << description[tgt] << "==" << args[tgt][item_length - i];
@@ -678,7 +679,8 @@ void header () {
       cout << ":";
       switch (type[ocl]) {
       case BOOL:
-	cout << description[tgt] << "==" << args[tgt][0];
+	// cout << description[tgt] << "==" << args[tgt][0];
+	cout << description[tgt] << "==" << args[tgt][1];
 	break;
       case ENUM:
 	cout << description[tgt] << "!=" << args[tgt][item_length - i];

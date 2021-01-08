@@ -124,19 +124,15 @@ matrix+formula-hybrid.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
 
 #---------------------------------------------------------------------------------------------------
 
-trans: mcp-trans.cpp mcp-trans.pl
+trans: mcp-trans.cpp
 	g++ -O4 -o $(BIN)/mcp-trans mcp-trans.cpp
-	\cp mcp-trans.pl $(BIN)/mcp-trans.pl
 	\cp $(BIN)/mcp-trans ..
-	\cp $(BIN)/mcp-trans.pl ..
 
 #---------------------------------------------------------------------------------------------------
 
-guess: mcp-guess.cpp mcp-guess.pl
+guess: mcp-guess.cpp
 	g++ -O4 -o $(BIN)/mcp-guess mcp-guess.cpp
-	\cp mcp-guess.pl $(BIN)/mcp-guess.pl
 	\cp $(BIN)/mcp-guess ..
-	\cp $(BIN)/mcp-guess.pl ..
 
 #---------------------------------------------------------------------------------------------------
 
@@ -171,9 +167,7 @@ install:
 	\cp $(BIN)/mcp-pthread ..
 	\cp $(BIN)/mcp-hybrid ..
 	\cp $(BIN)/mcp-trans ..
-	\cp $(BIN)/mcp-trans.pl ..
 	\cp $(BIN)/mcp-guess ..
-	\cp $(BIN)/mcp-guess.pl ..
 	\cp $(BIN)/mcp-cnf ..
 	\cp $(BIN)/mcp-split ..
 	\cp $(BIN)/mcp-check ..

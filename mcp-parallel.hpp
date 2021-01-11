@@ -42,7 +42,7 @@ Formula learnBijunctive (ofstream &process_outfile, const Matrix &T, const Matri
 // void OneToOne (ofstream &process_outfile, const int &i);
 // void OneToAll (ofstream &process_outfile, const int &i);
 // void OneToAllNosection (ofstream &process_outfile, const int &i);
-void split_action (ofstream &popr, const int &process_id);
+void split_action (ofstream &popr, ofstream &latpr, const int &process_id);
 void crash();
 
 //==================================================================================================

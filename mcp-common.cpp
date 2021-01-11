@@ -71,10 +71,12 @@ int cluster         = SENTINEL;
 string tpath        = "/tmp/";		// directory where the temporary files will be stored
 bool np_fit	    = false;
 int chunkLIMIT      = 4096;		// heavily hardware dependent; must be optimized
+string latex        = "";		// file to store latex output
 
 ifstream infile;
 ofstream outfile;
-string formula_output;			// prefix of failes, where formulas will be stored
+ofstream latexfile;
+string formula_output;			// prefix of files, where formulas will be stored
 
 const string action_strg[]    = {"One to One", "One to All Others", "One to All Others, Nosection"};
 const string closure_strg[]   = {"Horn",       "dual Horn",  "bijunctive", "affine", "CNF"};
@@ -307,6 +309,8 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
 	       (arg == "--tpath"
 		|| arg == "-tp")) {
       tpath = argv[++argument];
+    } else if (arg == "--latex") {
+      latex = argv[++argument];
     } else if (arg == "--debug") {
       debug = true;
     } else

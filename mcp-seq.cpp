@@ -62,6 +62,18 @@ void adjust () {			// adjusts the input parameters
     }
   }
 
+  if (latex.length() > 0) {
+    if (latex.find(".") == string::npos
+	|| latex.length() < 4
+	|| latex.substr(latex.length()-4) != ".tex")
+      latex += ".tex";
+    latexfile.open(latex);
+    if (!latexfile.is_open()){
+      cerr << "+++ Cannot open latex file " << latex << endl;
+      exit(2);
+    }
+  }
+
   if (offset < 0 && print != pDIMACS) {
     cout << "+++ WARNING: offset reset to 0" << endl;
     offset = 0;
@@ -84,6 +96,9 @@ void print_arg () {
   cout << "@@@ version       = " << version << endl;
   cout << "@@@ input         = " << input << endl;
   cout << "@@@ output        = " << output << endl;
+  cout << "@@@ latex output  = "
+       << (latex.length() > 0 ? latex : "no")
+       << endl;
   cout << "@@@ clustering    = "
        << (cluster == SENTINEL ? "no" : "yes, epsilon = " + to_string(cluster))
        << endl;
@@ -487,14 +502,33 @@ Formula post_prod(const vector<int> &A, const Matrix &F, const Formula &formula)
     cout << "+++ " << pcl_strg[closure]
 	 << " formula before set cover [" << formula.size() << "] =" << endl;
     cout << formula2string(A, formula) << endl;
+    if (latex.length() > 0) {
+      latexfile << "% " << pcl_strg[closure]
+	 << " formula before set cover [" << formula.size() << "] =" << endl;
+      latexfile << "\\varphi = " << endl;
+      latexfile << formula2latex(A, formula) << endl << endl;
+    }
+    
     schf = SetCover(F, formula);
     cout << "+++ " << pcl_strg[closure]
 	 << " formula after set cover [" << schf.size() << "] ="  << endl;
     cout << formula2string(A, schf) << endl;
+    if (latex.length() > 0) {
+      latexfile << "% " << pcl_strg[closure]
+		<< " formula after set cover [" << schf.size() << "] ="  << endl;
+      latexfile << "\\varphi = " << endl;
+      latexfile << formula2latex(A, schf) << endl << endl;
+    }
   } else {
     cout << "+++ " << pcl_strg[closure]
 	 << " formula [" << formula.size() << "] =" << endl;
     cout << formula2string(A, formula) << endl;
+    if (latex.length() > 0) {
+      latexfile << "% " << pcl_strg[closure]
+		<< " formula [" << formula.size() << "] =" << endl;
+      latexfile << "\\varphi = " << endl;
+      latexfile << formula2latex(A, formula) << endl << endl;
+    }    
     schf = formula;
   }
 
@@ -504,17 +538,15 @@ Formula post_prod(const vector<int> &A, const Matrix &F, const Formula &formula)
     schf = polswap_formula(schf);
     cout << "+++ final dual Horn formula [" << schf.size() << "] =" << endl;
     cout << formula2string(A, schf) << endl;
+    if (latex.length() > 0) {
+      latexfile << "% swapping the formula back to dual Horn" << endl;
+      latexfile << "% final dual Horn formula [" << schf.size() << "] =" << endl;
+      latexfile << "\\varphi = " << endl;
+      latexfile << formula2latex(A, schf) << endl << endl;
+    }
   }
   return schf;
 }
-
-// Formula post_prod(const Matrix &F, const Formula &formula) {
-//   vector<int> names;
-//   for (int i = 0; i < formula[0].size(); ++i)
-//     names.push_back(i);
-
-//   return post_prod(names, F, formula);
-// }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

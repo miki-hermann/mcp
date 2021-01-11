@@ -85,9 +85,11 @@ extern string tpath;		// directory where the temporary files will be stored
 extern bool np_fit;
 extern int chunkLIMIT;		// heavily hardware dependent; must be optimized
 extern Arch arch;
+extern string latex;		// file to store latex output
 
 extern ifstream infile;
 extern ofstream outfile;
+extern ofstream latexfile;
 extern string formula_output;
 
 extern const string action_strg[];

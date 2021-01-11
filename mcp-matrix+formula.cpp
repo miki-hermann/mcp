@@ -31,7 +31,11 @@ using namespace std;
 
 //------------------------------------------------------------------------------
 
-const int MTXLIMIT     = 4000;
+const int MTXLIMIT   = 4000;
+
+// const string neg[2]  = {"-", "\\neg "};
+// const string disj[2] = {" + ", " \\lor "};
+// const string conj[2] = {"* ", "\\land "};
 
 Group_of_Matrix group_of_matrix;
 vector<string> grps;
@@ -94,9 +98,6 @@ string clause2dimacs (const vector<int> &names, const Clause &clause) {
   return output;
 }
 
-// The following function needs to be overloaded. We need it once with and the
-// second time without the names.
-// First version WITH names
 string formula2dimacs (const vector<int> &names, const Formula &formula) {
   // transforms formula into readable clausal form in DIMACS format to print
   if (formula.empty())
@@ -191,6 +192,91 @@ string formula2string (const vector<int> &names, const Formula &formula) {
     output += (times == true) ? "\n\t* " : "\t  ";
     times = true;
     output += clause2string(names, clause);
+  }
+  return output;
+}
+
+string literal2latex (const int &litname, const Literal lit) {
+  string output;
+  if (varswitch) {
+    vector<string> new_names = split(varnames[litname], ':');
+    
+    if (new_names.size() > 1)		// positive or negative
+      output +=
+	lit == lneg && print == pCLAUSE
+	? new_names[nNEGATIVE]
+	: new_names[nPOSITIVE];
+    else				// own name only
+      output += (lit == lneg && print == pCLAUSE
+		 ? "\\neg " + new_names[nOWN]
+		 : new_names[nOWN]);
+  } else				// variable without name
+    output += (lit == lneg && print == pCLAUSE)
+      ? "\\neg " + varid + "_" + to_string(offset + litname)
+      : varid + "_" + to_string(offset + litname);
+  return output;
+}
+
+string rlcl2latex (const vector<int> &names, const Clause &clause) {
+  string output;
+  bool lor = false;
+  for (int lit = 0; lit < clause.size(); ++lit) {
+    if (clause[lit] != lnone) {
+      if (lor == true)
+	output += " \\lor ";
+      else
+	lor = true;
+      output += literal2latex(names[lit], clause[lit]);
+    }
+  }
+  return output;
+}
+
+string impl2latex (const vector<int> &names, const Clause &clause) {
+  string output;
+  for (int lit = 0; lit < clause.size(); ++lit)
+    if (clause[lit] == lneg)
+      output += literal2latex(names[lit], lneg) + " ";
+  output += "\\to";
+  for (int lit = 0; lit < clause.size(); ++lit)
+    if (clause[lit] == lpos)
+      output += " " + literal2latex(names[lit], lpos);
+  return output;
+}
+
+string clause2latex (const vector<int> &names, const Clause &clause) {
+  string output = "(";
+  if (print == pCLAUSE) {
+    output += rlcl2latex(names, clause);
+  } else if (print == pIMPL) {
+    output += impl2latex(names, clause);
+  } else if (print == pMIX) {
+    int pneg = 0;
+    int ppos = 0;
+    for (int lit = 0; lit < clause.size(); ++lit)
+      if (clause[lit] == lneg)
+	pneg++;
+      else if (clause[lit] == lpos)
+	ppos++;
+    output += (pneg == 0 || ppos == 0)
+      ? rlcl2latex(names, clause)
+      : impl2latex(names, clause);
+  }
+  output += ')';
+  return output;
+}
+
+string formula2latex (const vector<int> &names, const Formula &formula) {
+  // transforms formula into readable clausal form in LaTeX format to print
+  if (formula.empty())
+    return " ";
+
+  string output;
+  bool land = false;
+  for (Clause clause : formula) {
+    output += (land == true) ? "\n\t\\land " : "\t  ";
+    land = true;
+    output += clause2latex(names, clause);
   }
   return output;
 }

@@ -41,8 +41,9 @@ Arch arch = archPTHREAD;
 
 //--------------------------------------------------------------------------------------------------
 
-void thread_split (ofstream thread_outfile[], string basename, int rank) {
-  string filename = basename + "-" + to_string(rank) + ".txt";
+void thread_split (ofstream thread_outfile[], ofstream thread_latexfile[],
+		   string basename, int rank) {
+  string filename  = basename + "-" + to_string(rank) + ".txt";
   // semaphore.lock();
   thread_outfile[rank].open(filename);
   // semaphore.unlock();
@@ -55,12 +56,30 @@ void thread_split (ofstream thread_outfile[], string basename, int rank) {
     << "+++ Start output of thread " << rank
     << endl << endl;
 
-  split_action(thread_outfile[rank], rank);
+  if (latex.length() > 0) {
+    string latexname = basename + "-" + to_string(rank) + ".tex";
+    thread_latexfile[rank].open(filename);
+    if (! thread_latexfile[rank].is_open()) {
+      cerr << "+++ Cannot open latex file " << latexname << endl;
+      exit(2);
+    }
+    thread_latexfile[rank]
+    << endl
+    << "% Start output of thread " << rank
+    << endl << endl;
+  }
+
+  split_action(thread_outfile[rank], thread_latexfile[rank], rank);
   
   thread_outfile[rank] << "+++ End output of thread " << rank << endl;
   // semaphore.lock();
   thread_outfile[rank].close();
   // semaphore.unlock();
+
+  if (latex.length() > 0) {
+    thread_latexfile[rank] << "% End output of thread " << rank << endl;
+    thread_latexfile[rank].close();
+  }
 }
 
 int main(int argc, char **argv)
@@ -79,14 +98,16 @@ int main(int argc, char **argv)
   vector<thread> threads;
   const string temp_prefix = tpath + "mcp-tmp-";
   const string basename = temp_prefix + to_string(start_time);
-  ofstream *thread_outfile = new ofstream[grps.size()];
+  ofstream *thread_outfile   = new ofstream[grps.size()];
+  ofstream *thread_latexfile = new ofstream[grps.size()];
 
   for (int rank = 0; rank < grps.size(); ++rank)
-    threads.push_back(thread(thread_split, thread_outfile, basename, rank));
+    threads.push_back(thread(thread_split, thread_outfile, thread_latexfile, basename, rank));
 
   for (auto &t : threads)
     t.join();
   delete [] thread_outfile;
+  delete [] thread_latexfile;
 
   for (int rank = 0; rank < grps.size(); ++rank) {
     string filename = basename + "-" + to_string(rank) + ".txt";
@@ -100,6 +121,18 @@ int main(int argc, char **argv)
     in.close();
     remove(filename.c_str());
     // semaphore.unlock();
+
+    if (latex.length() > 0) {
+      string latexname = basename + "-" + to_string(rank) + ".tex";
+      ifstream in(latexname);
+
+      while (getline(in, line))
+	latexfile << line << endl;
+      latexfile << endl;
+      // semaphore.lock();
+      in.close();
+      remove(latexname.c_str());
+    }
   }
 
   time_t finish_time = time(nullptr);

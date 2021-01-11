@@ -66,6 +66,18 @@ void adjust () {				// adjust input parameters
     }
   }
 
+  if (latex.length() > 0) {
+    if (latex.find(".") == string::npos
+	|| latex.length() < 4
+	|| latex.substr(latex.length()-4) != ".tex")
+      latex += ".tex";
+    latexfile.open(latex);
+    if (!latexfile.is_open()){
+      cerr << "+++ Cannot open latex file " << latex << endl;
+      exit(2);
+    }
+  }
+
   if (offset < 0 && print != pDIMACS) {
     outfile << "+++ WARNING: offset reset to 0" << endl;
     offset = 0;
@@ -88,6 +100,9 @@ void print_arg () {
   outfile << "@@@ version       = " << version << endl;
   outfile << "@@@ input         = " << input << endl;
   outfile << "@@@ output        = " << output << endl;
+  outfile << "@@@ latex output  = "
+	  << (latex.length() > 0 ? latex : "no")
+	  << endl;
   outfile << "@@@ clustering    = "
 	  << (cluster == SENTINEL ? "no" : "yes, epsilon = " + to_string(cluster))
 	  << endl;
@@ -480,7 +495,7 @@ Formula learnBijunctive (ofstream &process_outfile, const Matrix &T, const Matri
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Formula post_prod(ofstream &process_outfile,
+Formula post_prod(ofstream &process_outfile, ofstream &latex_outfile,
 	       const vector<int> &A, const Matrix &F, const Formula &formula) {
   Formula schf;
   if (setcover == true) {
@@ -509,17 +524,18 @@ Formula post_prod(ofstream &process_outfile,
   return schf;
 }
 
-Formula post_prod(ofstream &process_outfile, const Matrix &F, const Formula &formula) {
+Formula post_prod(ofstream &process_outfile, ofstream &latex_outfile,
+		  const Matrix &F, const Formula &formula) {
   vector<int> names;
   for (int i = 0; i < formula[0].size(); ++i)
     names.push_back(i);
 
-  return post_prod(process_outfile, names, F, formula);
+  return post_prod(process_outfile, latex_outfile, names, F, formula);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OneToOne (ofstream &process_outfile, const int &i) {
+void OneToOne (ofstream &process_outfile, ofstream &latex_outfile, const int &i) {
   // one group as positive agains one group of negative examples
 
   // for (int i = 0; i < grps.size(); ++i) {
@@ -605,7 +621,7 @@ void OneToOne (ofstream &process_outfile, const int &i) {
 	  ? learnCNFlarge(FsectA)
 	  : learnCNFexact(TsectA);
 
-      Formula schf = post_prod(process_outfile, A, FsectA, formula);
+      Formula schf = post_prod(process_outfile, latex_outfile, A, FsectA, formula);
       if (! formula_output.empty())
 	write_formula(grps[i], grps[j], A, schf);
     }
@@ -615,7 +631,7 @@ void OneToOne (ofstream &process_outfile, const int &i) {
   // }
 }
 
-void OneToAll (ofstream &process_outfile, const int &i) {
+void OneToAll (ofstream &process_outfile, ofstream &latex_outfile, const int &i) {
   // one group of positive exaples against all other groups together as negative examples
   
   // for (int i = 0; i < grps.size(); ++i) {
@@ -710,7 +726,7 @@ void OneToAll (ofstream &process_outfile, const int &i) {
 	? learnCNFlarge(FsectA)
 	: learnCNFexact(TsectA);
 
-    Formula schf = post_prod(process_outfile, A, FsectA, formula);
+    Formula schf = post_prod(process_outfile, latex_outfile, A, FsectA, formula);
     if (! formula_output.empty())
       write_formula(grps[i], A, schf);
   }
@@ -719,7 +735,7 @@ void OneToAll (ofstream &process_outfile, const int &i) {
   // }
 }
 
-void OneToAllNosection (ofstream &process_outfile, const int &i) {
+void OneToAllNosection (ofstream &process_outfile, ofstream &latex_outfile, const int &i) {
   // one group of positive exaples against all other groups together as negative examples
   // no section is done
 
@@ -801,7 +817,7 @@ void OneToAllNosection (ofstream &process_outfile, const int &i) {
 	? learnCNFlarge(F)
 	: learnCNFexact(T);
 
-    Formula schf = post_prod(process_outfile, F, formula);
+    Formula schf = post_prod(process_outfile, latex_outfile, F, formula);
     if (! formula_output.empty())
       write_formula(grps[i], names, schf);
   }
@@ -810,16 +826,16 @@ void OneToAllNosection (ofstream &process_outfile, const int &i) {
   // }
 }
 
-void split_action (ofstream &popr, const int &process_id) {
+void split_action (ofstream &popr, ofstream &latpr, const int &process_id) {
   switch (action) {
   case aONE:
-    OneToOne (popr, process_id);
+    OneToOne (popr, latpr, process_id);
     break;
   case aALL:
-    OneToAll (popr, process_id);
+    OneToAll (popr, latpr, process_id);
     break;
   case aNOSECT:
-    OneToAllNosection (popr, process_id);
+    OneToAllNosection (popr, latpr, process_id);
     break;
   }
 }

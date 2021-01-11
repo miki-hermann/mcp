@@ -66,5 +66,6 @@ void print_matrix (const Group_of_Matrix &matrix);
 vector<string> split (const string &strg, char delimiter);
 string formula2dimacs (const vector<int> &names, const Formula &formula);
 string formula2string (const vector<int> &names, const Formula &formula);
+string formula2latex (const vector<int> &names, const Formula &formula);
 bool sat_clause (const Row &tuple, const Clause &clause);
 bool sat_formula (const Row &tuple, const Formula &formula);

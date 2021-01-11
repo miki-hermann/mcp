@@ -72,7 +72,10 @@ int main(int argc, char **argv)
   const string temp_prefix = tpath + "mcp-tmp-";
   const string basename = temp_prefix + to_string(start_time);
   // ofstream *process_outfile = new ofstream[grps.size()];	// replaced with smart pointer
+  // ofstream *latex_outfile = new ofstream[grps.size()];	// replaced with smart pointer
   auto process_outfile = make_unique<ofstream []>(grps.size());
+  auto latex_outfile = make_unique<ofstream []>(grps.size());
+    
 
   int ierr = MPI_Init(&argc, &argv);
   if (ierr != 0) {
@@ -95,7 +98,8 @@ int main(int argc, char **argv)
     }
   }
   
-  string filename = basename + "-" + to_string(process_rank) + ".txt";
+  string filename  = basename + "-" + to_string(process_rank) + ".txt";
+  string latexname = basename + "-" + to_string(process_rank) + ".tex";
 
   if (process_rank < grps.size()) {
     // semaphore.lock();
@@ -106,14 +110,26 @@ int main(int argc, char **argv)
       exit(2);
     }
     process_outfile[process_rank] << "+++ Start output of process " << process_rank << endl << endl;
+    if (latex.length() > 0) {
+      latex_outfile[process_rank].open(latexname);
+      if (! latex_outfile[process_rank].is_open()) {
+	cerr << "+++ Cannot open latex file " << latexname << endl;
+	exit(2);
+      }
+      latex_outfile[process_rank] << "% Start output of process " << process_rank << endl << endl;
+    }
   
     for (int process_id = process_rank; process_id < grps.size(); process_id += num_procs)
-      split_action(process_outfile[process_rank], process_id);
+      split_action(process_outfile[process_rank], latex_outfile[process_rank], process_id);
 
     process_outfile[process_rank] << "+++ End output of process " << process_rank << endl;
     // semaphore.lock();
     process_outfile[process_rank].close();
     // semaphore.unlock();
+    if (latex.length() > 0) {
+      latex_outfile[process_rank] << "% End output of process " << process_rank << endl;
+      latex_outfile[process_rank].close();
+    }
   }
 
   // MPI_Barrier(MPI_COMM_WORLD); 
@@ -121,10 +137,11 @@ int main(int argc, char **argv)
 
   if (process_rank == 0) {
     // delete [] process_outfile;	// useless, since we use smart pointers
+    // delete [] latex_outfile;		// useless, since we use smart pointers
 
     int gsize = grps.size();
     for (int proc_id = 0; proc_id < min(num_procs, gsize); ++proc_id) {
-      string filename = basename + "-" + to_string(proc_id) + ".txt";
+      string filename  = basename + "-" + to_string(proc_id) + ".txt";
 
       ifstream in(filename);
       string line;
@@ -136,6 +153,16 @@ int main(int argc, char **argv)
       in.close();
       remove(filename.c_str());
       // semaphore.unlock();
+
+      if (latex.length() > 0) {
+	string latexname = basename + "-" + to_string(proc_id) + ".tex";
+	ifstream in(latexname);
+	while (getline(in, line))
+	  latexfile << line << endl;
+	latexfile << endl;
+	in.close();
+	remove(latexname.c_str());
+      }
     }
 
     time_t finish_time = time(nullptr);
@@ -145,6 +172,8 @@ int main(int argc, char **argv)
 
     outfile << "+++ end of run +++" << endl;
     outfile.close();
+    if (latex.length() > 0)
+      latexfile.close();
   }
   return 0;
 }

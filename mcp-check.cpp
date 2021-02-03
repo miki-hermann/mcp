@@ -14,10 +14,10 @@
  *	Version: all                                                      *
  *      File:    mcp-check.cpp                                            *
  *                                                                        *
- *      Copyright (c) 2019 - 2020                                         *
+ *      Copyright (c) 2019 - 2021                                         *
  *                                                                        *
  * Given a  formula and  a set  of boolean  vectors, check  which vectors *
- * satisfy  and which  falisfy the  given formula.  Report precision  and *
+ * satisfy  and which  falsify the  given formula.  Report precision  and *
  * recall (https://en.wikipedia.org/wiki/Precision_and_recall).           *
  *                                                                        *
  * This software has been created within the ACCA Project.                *
@@ -151,16 +151,12 @@ void read_formula (vector<int> &names, Formula &formula) {
   //      << ", offset = " << offset
   //      << endl;
 
-  for (int i = 0; i < nvars; ++i) {
-    int lt;
-    cin >> lt;
-    names.push_back(lt-1-offset);
-  }
+  int dummy;
+  for (int i = 0; i < nvars; ++i)
+    cin >> dummy;
 
-  // cerr << "*** names -1 -offset = ";
-  // for (int i = 0; i < nvars; ++i)
-  //   cerr << " " << names[i];
-  // cerr << endl;
+  for (int i = 0; i < arity; ++i)
+    names.push_back(i);
 
   int lit;
   Clause clause(arity, lnone);

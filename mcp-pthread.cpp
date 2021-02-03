@@ -14,7 +14,7 @@
  *	Version: parallel with POSIX threads                              *
  *      File:    mcp-pthread.cpp                                          *
  *                                                                        *
- *      Copyright (c) 2019 - 2020                                         *
+ *      Copyright (c) 2019 - 2021                                         *
  *                                                                        *
  * Given several  Boolean matrices  representing the  presence/absence of *
  * attributes in  observations, this software generates  Horn, dual Horn, *

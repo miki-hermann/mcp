@@ -14,7 +14,7 @@
  *	Version: all                                                      *
  *      File:    mcp-guess.cpp                                            *
  *                                                                        *
- *      Copyright (c) 2019 - 2020                                         *
+ *      Copyright (c) 2019 - 2021                                         *
  *                                                                        *
  * Guess a skeleton of a meta file from a (CSV) data file                 *
  *                                                                        *

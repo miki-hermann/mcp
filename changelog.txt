@@ -1,0 +1,23 @@
+1.04
+- fixed a bug in mcp-check.cpp
+- added LaTeX output
+- mcp-split introduced
+- post_prod introduced
+- write formula to a file (DIMACS form)
+
+1.03c
+ - added print option DIMACS
+ - corrected sorting bug when '--cooking raw'
+ - corrected bug when '--strategy exact' and '--closure Horn'
+ - index of group_of_matrix: int -> string
+ - variables can be named in the matrix
+ - transformation in C++
+ - failure to open input or output file results in exit and not in exception
+ - added options 'peek' and 'section' for printing matrices
+ - when variables have own names, literals made readable
+ - bug correction: 'continue' instead of 'return' when empty formula
+   in sequential for bijunctive 
+ - added mixed printing of formulas
+ - added resolution with binary clause which contracts the target clause
+   (l0 + l1) * (l0 + -l1 + c) => (l0 + l1) * (l0 + c)
+ - added mcp-cnf producting exact CNF formula

@@ -30,9 +30,15 @@
 #include <deque>
 #include <map>
 
+#define GLOBAL_VERSION "1.04-c++-"
+
 using namespace std;
 
 //------------------------------------------------------------------------------
+
+extern string version;
+extern const string print_strg[];
+extern const string display_strg[];
 
 typedef deque<bool> Row;
 typedef deque<Row> Matrix;
@@ -42,6 +48,7 @@ extern vector<string> grps;
 
 enum Action    {aONE    = 0, aALL    = 1, aNOSECT      = 2};
 enum Print     {pVOID   = 0, pCLAUSE = 1, pIMPL        = 2, pMIX       = 3, pDIMACS   = 4};
+enum Display   {yUNDEF  = 0, yHIDE   = 1, yPEEK        = 2, ySECTION   = 3, ySHOW     = 4};
 
 enum Literal {lneg = -1, lnone = 0, lpos = 1};
 typedef deque<Literal> Clause;
@@ -58,6 +65,7 @@ extern Action action;
 extern int arity;
 extern int offset;
 extern Print print;
+extern Display display;
 
 //------------------------------------------------------------------------------
 

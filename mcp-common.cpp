@@ -38,7 +38,7 @@
 
 using namespace std;
 
-string version = GLOBAL_VERSION;
+// string version = GLOBAL_VERSION;
 bool debug = false;
 // string varid = "x";
 // bool varswitch = false;
@@ -61,7 +61,7 @@ Direction direction = dBEGIN;
 // Print print         = pVOID;
 bool setcover       = true;
 Strategy strategy   = sLARGE;
-Display display     = yUNDEF;
+// Display display     = yUNDEF;
 string input        = STDIN;
 string output       = STDOUT;
 bool disjoint       = true;
@@ -85,8 +85,8 @@ const string direction_strg[] = {"begin",      "end",        "optimum",    "rand
 				 "low cardinality", "high cardinality"};
 const string pcl_strg[]       = {"Horn",       "Horn",       "bijunctive", "affine", "cnf"};
 const string strategy_strg[]  = {"large",      "exact"};
-const string print_strg[]     = {"void",       "clause",     "implication", "mixed",   "DIMACS"};
-const string display_strg[]   = {"undefined",  "hide",       "peek",        "section", "show"};
+// const string print_strg[]     = {"void",       "clause",     "implication", "mixed",   "DIMACS"};
+// const string display_strg[]   = {"undefined",  "hide",       "peek",        "section", "show"};
 const string arch_strg[]      = {"seq",        "mpi",        "pthread",    "hybrid"};
 
 //--------------------------------------------------------------------------------------------------

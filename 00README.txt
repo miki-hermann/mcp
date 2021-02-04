@@ -1,4 +1,4 @@
-MULTI-CHARACTERIZATION PROBLEM (MCP) v1.03
+MULTI-CHARACTERIZATION PROBLEM (MCP) v1.04
 ==========================================
 
 Table of contents
@@ -57,7 +57,7 @@ mcp without command-line options is equivalent to
       	  --output STDOUT \
       	  --matrix undefined \
       	  --offset 0 \
-      	  --print implication
+      	  --print mix
 
 1.2 Parallel version with pthreads
 ----------------------------------
@@ -135,7 +135,7 @@ and group 3 contains the single sequence 11101.
 3. Command-line options
 =======================
 
-3.1 Sequentila version
+3.1 Sequential version
 ----------------------
 
 --action [ one | all | nosection ]
@@ -162,12 +162,12 @@ and group 3 contains the single sequence 11101.
 
 
 
---closure [ horn | dualHorn | bijunctive ]
+--closure [ horn | dualHorn | bijunctive | general ]
   default: horn
 
-  Compute Horn, dual Horn, or bijunctive formulas that are satisfied
-  by the positive instances, T, and falsified by the negative
-  instances, F.
+  Compute Horn, dual Horn, bijunctive, or general formulas that are
+  satisfied by the positive instances, T, and falsified by the
+  negative instances, F.
   
 
 

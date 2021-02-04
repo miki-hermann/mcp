@@ -124,15 +124,19 @@ matrix+formula-hybrid.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
 
 #---------------------------------------------------------------------------------------------------
 
-trans: mcp-trans.cpp
+trans: mcp-trans.cpp mcp-trans.pl
 	g++ -O4 -o $(BIN)/mcp-trans mcp-trans.cpp
+	\cp mcp-trans.pl $(BIN)/mcp-trans.pl
 	\cp $(BIN)/mcp-trans ..
+	\cp $(BIN)/mcp-trans.pl ..
 
 #---------------------------------------------------------------------------------------------------
 
-guess: mcp-guess.cpp
+guess: mcp-guess.cpp mcp-guess.pl
 	g++ -O4 -o $(BIN)/mcp-guess mcp-guess.cpp
+	\cp mcp-guess.pl $(BIN)/mcp-guess.pl
 	\cp $(BIN)/mcp-guess ..
+	\cp $(BIN)/mcp-guess.pl ..
 
 #---------------------------------------------------------------------------------------------------
 
@@ -167,7 +171,9 @@ install:
 	\cp $(BIN)/mcp-pthread ..
 	\cp $(BIN)/mcp-hybrid ..
 	\cp $(BIN)/mcp-trans ..
+	\cp $(BIN)/mcp-trans.pl ..
 	\cp $(BIN)/mcp-guess ..
+	\cp $(BIN)/mcp-guess.pl ..
 	\cp $(BIN)/mcp-cnf ..
 	\cp $(BIN)/mcp-split ..
 	\cp $(BIN)/mcp-check ..
@@ -175,10 +181,10 @@ install:
 .PHONY: clean scratch
 
 clean:
-	rm -f $(OBJ)/*.o *~
+	rm -f $(OBJ)/*.o $(BIN)/mcp-*
 
 scratch: clean
-	rm -f $(BIN)/mcp-*
+	rm -f *~
 
 #---------------------------------------------------------------------------------------------------
 # EOF

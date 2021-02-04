@@ -34,7 +34,7 @@
 #include <map>
 #include "mcp-matrix+formula.hpp"
 
-#define GLOBAL_VERSION "1.04-c++-"
+// #define GLOBAL_VERSION "1.04-c++-"
 
 using namespace std;
 
@@ -58,7 +58,7 @@ enum Cooking   {ckRAW   = 0, ckBLEU  = 1, ckMEDIUM     = 2, ckWELLDONE = 3};
 enum Direction {dBEGIN  = 0, dEND    = 1, dOPT         = 2, dRAND      = 3, dLOWCARD  = 4, dHIGHCARD = 5};
 // enum Print     {pVOID   = 0, pCLAUSE = 1, pIMPL        = 2, pMIX       = 3, pDIMACS   = 4};
 enum Strategy  {sLARGE  = 0, sEXACT  = 1};
-enum Display   {yUNDEF  = 0, yHIDE   = 1, yPEEK        = 2, ySECTION   = 3, ySHOW     = 4};
+// enum Display   {yUNDEF  = 0, yHIDE   = 1, yPEEK        = 2, ySECTION   = 3, ySHOW     = 4};
 enum Arch      {archSEQ = 0, archMPI = 1, archPTHREAD  = 2, archHYBRID = 3};
 
 extern const int SENTINEL;
@@ -74,7 +74,7 @@ extern Direction direction;
 // extern Print print;
 extern bool setcover;
 extern Strategy strategy;
-extern Display display;
+// extern Display display;
 extern string input;
 extern string output;
 extern bool disjoint;
@@ -98,8 +98,8 @@ extern const string cooking_strg[];
 extern const string direction_strg[];
 extern const string pcl_strg[];
 extern const string strategy_strg[];
-extern const string print_strg[];
-extern const string display_strg[];
+// extern const string print_strg[];
+// extern const string display_strg[];
 extern const string arch_strg[];
 
 //--------------------------------------------------------------------------------------------------

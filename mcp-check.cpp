@@ -31,6 +31,7 @@
 #include <vector>
 #include <algorithm>
 #include "mcp-matrix+formula.hpp"
+// #include "mcp-common.hpp"
 
 using namespace std;
 
@@ -140,6 +141,18 @@ void adjust_and_open () {
     print = pMIX;
 }
 
+void print_arg () {
+  cout << "@@@ Parameters:" << endl;
+  cout << "@@@ ===========" << endl;
+  cout << "@@@ version       = " << version << endl;
+  cout << "@@@ input         = " << input << endl;
+  cout << "@@@ output        = " << output << endl;
+  cout << "@@@ var. offset   = " << offset << endl;
+  cout << "@@@ print matrix  = " << display_strg[display]
+       << (display == yUNDEF ? " (will be changed)" : "") << endl;
+  cout << "@@@ print formula = " << print_strg[print] << endl << endl;
+}
+
 void read_formula (vector<int> &names, Formula &formula) {
   // formula read instructions
 
@@ -151,9 +164,12 @@ void read_formula (vector<int> &names, Formula &formula) {
   //      << ", offset = " << offset
   //      << endl;
 
+  vector<int> validID;
   int dummy;
-  for (int i = 0; i < nvars; ++i)
+  for (int i = 0; i < nvars; ++i) {
     cin >> dummy;
+    validID.push_back(dummy);
+  }
 
   for (int i = 0; i < arity; ++i)
     names.push_back(i);
@@ -165,7 +181,7 @@ void read_formula (vector<int> &names, Formula &formula) {
       formula.push_back(clause);
       for (int i = 0; i < arity; ++i)
 	clause[i] = lnone;
-    } else if (find(cbegin(names), cend(names), abs(lit)-1-offset) == cend(names)) {
+    } else if (find(cbegin(validID), cend(validID), abs(lit)) == cend(validID)) {
       cerr << "+++ " << abs(lit) << " outside allowed variable names" << endl;
       exit(2);
     } else
@@ -225,6 +241,12 @@ void read_matrix (Group_of_Matrix &matrix) {
   
   if (input != STDIN)
     infile.close();
+
+  if (display == yUNDEF) {
+    display = (numline * arity > MTXLIMIT) ? yHIDE : yPEEK;
+    cout << "@@@ print matrix  = " << display_strg[display]
+       << " (redefined)" << endl;
+  }
 }
 
 // copied from mcp-seq, but slightly changed (use gmtx.size() instead numline)
@@ -302,8 +324,11 @@ void print_result () {
 
 int main(int argc, char **argv)
 {
+  version += "check";
+
   read_arg(argc, argv);
   adjust_and_open();
+  print_arg();
   read_formula(names, formula);
   read_matrix(group_of_matrix);
   print_matrix(group_of_matrix);

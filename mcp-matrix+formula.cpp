@@ -31,7 +31,11 @@ using namespace std;
 
 //------------------------------------------------------------------------------
 
+string version = GLOBAL_VERSION;
 const int MTXLIMIT   = 4000;
+
+const string print_strg[]     = {"void",       "clause",     "implication", "mixed",   "DIMACS"};
+const string display_strg[]   = {"undefined",  "hide",       "peek",        "section", "show"};
 
 // const string neg[2]  = {"-", "\\neg "};
 // const string disj[2] = {" + ", " \\lor "};
@@ -46,6 +50,7 @@ vector<string> varnames;
 
 Action action       = aALL;
 Print print         = pVOID;
+Display display     = yUNDEF;
 int arity           = 0;
 int offset          = 0;
 

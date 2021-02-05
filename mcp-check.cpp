@@ -57,19 +57,19 @@ int tp = 0;		// true positive
 int tn = 0;		// true negative
 int fp = 0;		// false postitive
 int fn = 0;		// false negative
-double tpr = 0.0;	// true positive rate aka sensitivity aka recall
-double tnr = 0.0;	// true negative rate aka specificity aka selectivity
-double ppv = 0.0;	// positive predictive value aka precision
-double npv = 0.0;	// negative predictive value
-double fnr = 0.0;	// false negative rate aka miss rate
-double fpr = 0.0;	// false positive rate aka fall-out
-double fdr = 0.0;	// false discovery rate
-double forate = 0.0;	// false omission rate
-double pt = 0.0;	// prevalence treshhold
-double csi = 0.0;	// critical success index aka threat score
-double accuracy = 0.0;	// accuracy
-double ba = 0.0;	// balanced accuracy
-double f1score = 0.0;	// F1 score
+double tpr = -1.0;	// true positive rate aka sensitivity aka recall
+double tnr = -1.0;	// true negative rate aka specificity aka selectivity
+double ppv = -1.0;	// positive predictive value aka precision
+double npv = -1.0;	// negative predictive value
+double fnr = -1.0;	// false negative rate aka miss rate
+double fpr = -1.0;	// false positive rate aka fall-out
+double fdr = -1.0;	// false discovery rate
+double forate = -1.0;	// false omission rate
+double pt = -1.0;	// prevalence treshhold
+double csi = -1.0;	// critical success index aka threat score
+double accuracy = -1.0;	// accuracy
+double ba = -1.0;	// balanced accuracy
+double f1score = -1.0;	// F1 score
 
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -304,6 +304,14 @@ void sat_test (const Group_of_Matrix &matrix, const Formula &formula) {
 	  tn++;
       }
   }
+  if (tp+fn != 0) {
+    tpr = 1.0 * tp / (1.0*tp + 1.0*fn);
+    fnr = 1.0 - tpr;
+  }
+  if (tn+fp != 0)
+    tnr = 1.0 * tn / (1.0*tn + 1.0*fp);
+  if (tp+fp != 0)
+    ppv = 1.0 * tp / (1.0*tp + 1.0*fp);
 }
 
 void print_result () {
@@ -314,6 +322,26 @@ void print_result () {
   cout << "+++ true  negative = " << tn << endl;
   cout << "+++ false positive = " << fp << endl;
   cout << "+++ false negative = " << fn << endl;
+  cout << "+++ sensitivity    = ";
+  if (tpr < 0.0)
+    cout << "---" << endl;
+  else
+    cout << tpr * 100.0 << "%" << endl;
+  cout << "+++ miss rate      = ";
+  if (fnr < 0.0)
+    cout << "---" << endl;
+  else
+    cout << fnr * 100.0 << "%" << endl;
+  cout << "+++ specificity    = ";
+  if (tnr < 0.0)
+    cout << "---" << endl;
+  else
+    cout << tnr * 100.0 << "%" << endl;
+  cout << "+++ precision      = ";
+  if (ppv < 0.0)
+    cout << "---" << endl;
+  else
+    cout << ppv * 100.0 << "%" << endl;
   
   form_in.close();
   if (output != STDOUT)

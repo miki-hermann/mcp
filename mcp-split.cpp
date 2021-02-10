@@ -111,10 +111,12 @@ void adjust_and_open () {			// adjusts the input parameters
     exit(2);
   }
 
-  if (ratio <= 0 || ratio >= 50) {
-    cerr << "+++ Ratio must be in the interval (0, 50)" << endl;
+  if (ratio <= 0 || ratio >= 100) {
+    cerr << "+++ Ratio must be bigger than 0 and smaller than 100" << endl;
     exit(3);
   }
+  else if (ratio >= 80)
+    cerr << "+++ Your ratio of " << ratio << "% may not produce the desired results" << endl;
 }
 
 void read_input (vector<string> &matlines) {

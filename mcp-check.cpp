@@ -31,7 +31,6 @@
 #include <vector>
 #include <algorithm>
 #include "mcp-matrix+formula.hpp"
-// #include "mcp-common.hpp"
 
 using namespace std;
 
@@ -259,7 +258,7 @@ void print_matrix (const Group_of_Matrix &matrix) {
     grps.push_back(group->first);
     auto gmtx = group->second;
     cout << " [" << gmtx.size() << "]:" << endl;
-    if (arity * gmtx.size() <= MTXLIMIT) {
+    if (display == yPEEK || display == ySHOW) {
       for (auto i = gmtx.begin(); i != gmtx.end(); ++i) {
 	for (auto j = i->begin(); j != i->end(); ++j)
 	  // cout << *j << " ";
@@ -272,6 +271,7 @@ void print_matrix (const Group_of_Matrix &matrix) {
   sort(grps.begin(), grps.end());
   cout << "+++ Number of groups = " << grps.size() << endl;
 
+  cout << endl;
   cout << "+++ Satisfying: " << suffix << endl;
   cout << "+++ Falsifying:";
   for (auto group : grps)
@@ -318,30 +318,46 @@ void print_result () {
   cout << endl;
   cout << "+++ Statistics:" << endl;
   cout << "    ===========" << endl;
-  cout << "+++ true  positive = " << tp << endl;
-  cout << "+++ true  negative = " << tn << endl;
-  cout << "+++ false positive = " << fp << endl;
-  cout << "+++ false negative = " << fn << endl;
-  cout << "+++ sensitivity    = ";
+  cout << "+++ true  positive (tp)  = " << tp << endl;
+  cout << "+++ true  negative (tn)  = " << tn << endl;
+  cout << "+++ false positive (fp)  = " << fp << endl;
+  cout << "+++ false negative (fn)  = " << fn << endl;
+  cout << "+++ sensitivity    (tpr) = ";
   if (tpr < 0.0)
-    cout << "---" << endl;
+    cout << "---"
+	 << "\t [tp / (tp + fn)]"
+	 << endl;
   else
-    cout << tpr * 100.0 << "%" << endl;
-  cout << "+++ miss rate      = ";
+    cout << tpr * 100.0 << " %"
+	 << "\t [tp / (tp + fn)]"
+	 << endl;
+  cout << "+++ miss rate      (fnr) = ";
   if (fnr < 0.0)
-    cout << "---" << endl;
+    cout << "---"
+	 << "\t [fn / (fn + tp)]"
+	 << endl;
   else
-    cout << fnr * 100.0 << "%" << endl;
-  cout << "+++ specificity    = ";
+    cout << fnr * 100.0 << " %"
+	 << "\t [fn / (fn + tp)]"
+	 << endl;
+  cout << "+++ specificity    (tnr) = ";
   if (tnr < 0.0)
-    cout << "---" << endl;
+    cout << "---"
+	 << "\t [tn / (tn + fp)]"
+	 << endl;
   else
-    cout << tnr * 100.0 << "%" << endl;
-  cout << "+++ precision      = ";
+    cout << tnr * 100.0 << " %"
+	 << "\t [tn / (tn + fp)]"
+	 << endl;
+  cout << "+++ precision      (ppv) = ";
   if (ppv < 0.0)
-    cout << "---" << endl;
+    cout << "---"
+	 << "\t [tp / (tp + fp)]"
+	 << endl;
   else
-    cout << ppv * 100.0 << "%" << endl;
+    cout << ppv * 100.0 << " %"
+	 << "\t [tp / (tp + fp)]"
+	 << endl;
   
   form_in.close();
   if (output != STDOUT)

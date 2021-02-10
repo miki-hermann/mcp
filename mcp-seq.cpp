@@ -757,7 +757,7 @@ void OneToAllNosection () {
   // no section is done
 
   
-  vector<int> names(arity);
+  vector<int> names;
   for (int nms = 0; nms < arity; ++nms)
     names.push_back(nms);
   

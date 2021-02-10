@@ -739,7 +739,7 @@ void OneToAllNosection (ofstream &process_outfile, ofstream &latex_outfile, cons
   // one group of positive exaples against all other groups together as negative examples
   // no section is done
 
-  vector<int> names(arity);
+  vector<int> names;
   for (int nms = 0; nms < arity; ++nms)
     names.push_back(nms);
   

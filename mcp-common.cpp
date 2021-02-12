@@ -1386,16 +1386,17 @@ Formula primality (const Formula &phi, const Matrix &M) {
   auto last = make_unique<int []>(card);	// smart pointer
   // int *last = new int[card];			// hard pointer
   for (Clause clause : phi) {
+    if (clause.size() != lngt) {
+      cerr << "+++ Clause size and vector length do not match" << endl;
+      exit(2);
+    }
     for (int k = 0; k < card; ++k) {
       last[k] = SENTINEL;
       for (int j = 0; j < clause.size(); ++j)
-	for (int i = 0; i < lngt; ++i)
-	  if (M[k][i] == true && clause[j] == lpos
-	      ||
-	      M[k][i] == false && clause[j] == lneg) {
-	    last[k] = j;
-	    break;
-	  }
+	if (M[k][j] == true && clause[j] == lpos
+	    ||
+	    M[k][j] == false && clause[j] == lneg)
+	  last[k] = j;
     }
     Clause cPrime(clause.size(), lnone);
     for (int j = 0; j < clause.size(); ++j) {
@@ -1457,7 +1458,7 @@ Formula learnHornExact (Matrix T) {
 	  || j > succ[m] && m[j] == false)
 	H.push_back(hext(m,j));
 
-  // H = primality(H, T);
+  H = primality(H, T);
   cook(H);
   return H;
 }
@@ -1533,6 +1534,7 @@ Formula learnCNFexact (Matrix T) {
       if (T[ell][i] == false)
 	formula.push_back(negRight(T[ell], i));
   }
+  formula = primality(formula, T);
   cook(formula);
   return formula;
 }

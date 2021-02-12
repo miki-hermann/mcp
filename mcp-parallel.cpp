@@ -453,6 +453,7 @@ Formula learnBijunctive (ofstream &process_outfile, const Matrix &T, const Matri
     	process_outfile << "WARNING: vector " << f
 			<< " not elminated from F" << endl;
 
+    B = primality(B, T);
   } else if (strategy == sLARGE) {
     
     for (int j = 0; j < lngt; ++j) {
@@ -739,9 +740,9 @@ void OneToAllNosection (ofstream &process_outfile, ofstream &latex_outfile, cons
   // one group of positive exaples against all other groups together as negative examples
   // no section is done
 
-  vector<int> names;
+  vector<int> names(arity);
   for (int nms = 0; nms < arity; ++nms)
-    names.push_back(nms);
+    names[nms] = nms;
   
   // for (int i = 0; i < grps.size(); ++i) {
   Matrix T = group_of_matrix[grps[i]];

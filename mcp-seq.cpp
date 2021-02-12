@@ -454,6 +454,7 @@ Formula learnBijunctive (const Matrix &T, const Matrix &F) {
     	cout << "WARNING: vector " << f
 	     << " not elminated from F" << endl;
 
+    B = primality(B, T);
   } else if (strategy == sLARGE) {
     
     for (int j = 0; j < lngt; ++j) {
@@ -757,10 +758,9 @@ void OneToAllNosection () {
   // no section is done
 
   
-  vector<int> names;
+  vector<int> names(arity);
   for (int nms = 0; nms < arity; ++nms)
-    names.push_back(nms);
-  
+    names[nms] = nms;
 
   for (int i = 0; i < grps.size(); ++i) {
     Matrix T = group_of_matrix[grps[i]];

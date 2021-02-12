@@ -124,6 +124,7 @@ Row minHorn (const Matrix &M);
 // Formula binres (const Formula &formula);
 // Formula subsumption (Formula formula);
 // Formula redundant (Formula formula);
+Formula primality (const Formula &phi, const Matrix &M);
 Formula SetCover (const Matrix &Universe, const Formula &SubSets);
 void cook (Formula &formula);
 Formula learnHornExact (Matrix T);

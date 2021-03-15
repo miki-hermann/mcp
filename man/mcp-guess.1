@@ -1,0 +1,51 @@
+.\" Copyright (c) 2019-2021 Miki Hermann & Gernot Salzer
+.TH mcp-guess 1 "2021-03-10" "1.04" "MCP System"
+.
+.SH NAME
+mcp-guess - guessing the structure of a CSV file
+.
+.SH SYNOPSIS
+.B mcp-guess
+.RI [\| "OPTION" "\|]\|.\|.\|."
+.
+.SH DESCRIPTION
+.PP
+Guesses the structure of a CSV file and proposes the template of a
+meta-file (cf. \fBmcp-trans\fR). 
+.
+.SH OPTIONS
+.
+.TP
+\fB\-i\fR, \fB\-\-input\fI input-file
+Input file in CSV format. Values in the CSV file can be separated by
+commas, semicolons, space, or tabs. Values can be quoted.
+.IP
+Default: STDIN.
+.
+.TP
+\fB\-o\fR, \fB\-\-output\fI output-file
+Output file containing the template of the \fImeta-file\fR. This
+template must be manually edited to be accepted by \fBmcp-trans\fR. If
+there is no suffix starting with a dot, the software adds \fI.txt\fR
+to the \fIoutput-file\fR.
+.IP
+Default: STDOUT, resp. the \fIbasename\fR of \fIinput-file\fR with
+\fI.txt\fR suffix.
+.
+.
+.SH SEE ALSO
+mcp-trans(1),
+mcp-split(1),
+mcp-seq(1),
+mcp-mpi(1),
+mcp-pthread(1),
+mcp-hybrid(1),
+mcp-check(1)
+.
+.SH BUGS
+There are certanly some.
+.
+.SH AUTHORS
+Miki Hermann <hermann@lix.polytechnique.fr>
+.br
+Gernot Salzer <gernot.salzer@tuwien.ac.at>

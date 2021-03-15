@@ -1,0 +1,80 @@
+.\" Copyright (c) 2019-2021 Miki Hermann & Gernot Salzer
+.TH mcp-trans 1 "2021-03-10" "1.04" "MCP System"
+.
+.SH NAME
+mcp-trans - binarization of data using a meta description
+.
+.SH SYNOPSIS
+.B mcp-trans
+.RI [\| "OPTION" "\|]\|.\|.\|."
+.
+.SH DESCRIPTION
+.PP
+The data is binarized using a meta descitption. The resulting file is
+ready to be used as input for the MCP core.
+.
+.SH OPTIONS
+.TP
+\fB\-i\fR, \fB\-\-input\fI input-file
+Input file to be binarized.
+.IP
+Default: STDIN.
+.
+.TP
+\fB\-o\fR, \fB\-\-output\fI output-file
+Output file of binarized data, ready to be used by the MCP core.
+.IP
+Default: STDOUT.
+.
+.TP
+\fB\-m\fR, \fB\-\-meta\fI meta-file
+Description of the structure of the \fIinput-file\fR containing
+binarization instructions. Format of the \fImeta-file\fR is described
+in \fBmcp-trans\fR(5).
+.
+.TP
+\fB\-\-index \fRlocal | global
+Indexing of variables.
+.IP
+global | glob | g:
+.br
+Indexes of variables are consecutive, irrespective of different
+variable identifiers.
+.IP
+local | loc | l:
+.br
+Indexes are proper for each variable identifier.
+.IP
+Default: local.
+.
+.TP
+.BI "\-\-offset " INTEGER
+Internally, all indices begin with 0. However, when the data is
+displayed in an Excel sheet, the variables may begin in a column
+different from 0. To identify the same variables in an Excel sheet and
+the output of this software, you can define an offset. E.g., the
+offset 1 will shift the variable indices by 1 and therefore first
+variable will have the index 1.
+.IP
+Negative offsets are converted to 0.
+.IP
+Default: 0.
+.
+.
+.SH SEE ALSO
+mcp-trans(5),
+mcp-guess(1),
+mcp-split(1),
+mcp-seq(1),
+mcp-mpi(1),
+mcp-pthread(1),
+mcp-hybrid(1),
+mcp-check(1)
+.
+.SH BUGS
+There are certanly some.
+.
+.SH AUTHORS
+Miki Hermann <hermann@lix.polytechnique.fr>
+.br
+Gernot Salzer <gernot.salzer@tuwien.ac.at>

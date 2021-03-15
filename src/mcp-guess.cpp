@@ -36,8 +36,8 @@
 
 using namespace std;
 
-const float  ENUM_RATIO = 0.01;
-const int    ENUM_MAX   = 20;
+const float  ENUM_RATIO = 0.1;
+const int    ENUM_MAX   = 200;
 const string QMARK      = "?";
 
 enum item {UNDEF = 0, INT = 1, FLOAT = 2, STRING = 3};
@@ -122,10 +122,6 @@ vector<vector<string>> transpose (const vector<vector<string>> &trd) {
   return d;
 }
 
-int max (const int &a, const int &b) {
-  return a >= b ? a : b;
-}
-
 int main (int argc, char **argv)
 {
   regex empty_pattern("^[ \t]+$", regex::egrep);
@@ -196,7 +192,7 @@ int main (int argc, char **argv)
 	if (regex_match(data[col][row], result, float_pattern)
 	    ||
 	    regex_match(data[col][row], result, efloat_pattern)) {
-	  flength[col] = max(flength[col], result.str(1).length());
+	  flength[col] = max(flength[col], int(result.str(1).length()));
 	  type[col] = FLOAT;
 	} else if (data[col][row] != QMARK
 		   &&
@@ -224,7 +220,7 @@ int main (int argc, char **argv)
 	else if (regex_match(data[col][row], result, float_pattern)
 		 ||
 		 regex_match(data[col][row], result, efloat_pattern)) {
-	  flength[col] = max(flength[col], result.str(1).length());
+	  flength[col] = max(flength[col], int(result.str(1).length()));
 	  type[col] = FLOAT;
 	} else if(data[col][row] != QMARK)
 	  type[col] = STRING;

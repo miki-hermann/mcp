@@ -1,4 +1,5 @@
 1.04
+- fixed bug in OneToAllNosection in mcp-seq.cpp and mcp-parallel.cpp
 - fixed a bug in mcp-check.cpp
 - added LaTeX output
 - mcp-split introduced

@@ -1,0 +1,88 @@
+.\" Copyright (c) 2019-2021 Miki Hermann & Gernot Salzer
+.TH mcp-check 1 "2021-03-10" "1.04" "MCP System"
+.
+.SH NAME
+mcp-check - checking the accuracy of a formula
+.
+.SH SYNOPSIS
+.B mcp-check
+.RI [\| "OPTION" "\|]\|.\|.\|."
+.
+.SH DESCRIPTION
+.PP
+Takes a formula produced by the MCP core and checks its accuracy
+against a set of Boolean vectors prefixed by a group identifier. The
+accuracy of the checked formula is reported in terms of true positives
+(tp), true negatives (tn), false positive (fp), false negatives (fn),
+sensitivity (tp / (tp + fn)), miss rate (fn / (fn + tp)), specificity
+(tn / (tn + fp)), and precision (tp / (tp + fp)).
+.
+.SH OPTIONS
+.
+.TP
+\fB\-i\fR, \fB\-\-input\fI input-file
+Boolean vectors prefixed by group identifiers used to check the
+formulas accuracy.
+.IP
+Default: STDIN.
+.
+.TP
+\fB\-o\fR, \fB\-\-output\fI output-file
+Report of the checking run.
+.IP
+Default: STDOUT.
+.
+.TP
+\fB\-l\fR, \fB\-\-log\fR, \fB\-\-logic\fR, \fB\-\-formula\fI formula-file
+File containing the formula produced by MCP core. The
+\fIformula-file\fR has the name \fIformula-prefix_G.log\fR when it has
+been produced by the option "\fB\-\-formula \fIformula-prefix\fR" for
+some group \fIG\fR.
+.
+.TP
+\fB\-\-print\fR clause | implication | mix | dimacs
+Printing format of the used formula.
+.IP
+clause | cl:
+.br
+Print each clause as a disjunction of positive and negative literals.
+.br
+Example: (-x0 + x1) * (x0 + -x1).
+.IP
+implication | impl | im:
+.br
+Print each clause as an implication.
+.br
+Example: (x0 -> x1) * (x1 -> x0).
+.IP
+mix:
+.br
+If there are only literals of one polarity in a clause, then print as
+"clause", otherwise as "implication".
+.IP
+dimacs | DIMACS:
+.br
+Print the formula in DIMACS format, one clause per line (implies
+\fB\-\-offset\fR greater than 0).
+.IP
+Default: mix.
+.PP
+See whatever
+.
+.
+.SH SEE ALSO
+mcp-guess(1),
+mcp-trans(1),
+mcp-split(1),
+mcp-seq(1),
+mcp-mpi(1),
+mcp-pthread(1),
+mcp-hybrid(1)
+.
+.SH BUGS
+There are certanly some.
+.
+.SH AUTHORS
+Miki Hermann <hermann@lix.polytechnique.fr>
+.br
+Gernot Salzer <gernot.salzer@tuwien.ac.at>

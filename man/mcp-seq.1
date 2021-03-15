@@ -1,0 +1,318 @@
+.\" Copyright (c) 2019-2021 Miki Hermann & Gernot Salzer
+.TH MCP-SEQ 1 "2021-03-09" "1.04" "MCP System"
+.
+.SH NAME
+mcp-seq \- MCP core, sequential version
+.br
+mcp-mpi \- MCP core, MPI version
+.br
+mcp-pthread \- MCP core, POSIX threads version
+.br
+mcp-hybrid \- MCP core, hybrid version
+.
+.SH SYNOPSIS
+.B mcp-seq
+.RI [\| "OPTION" "\|]\|.\|.\|."
+.br
+.R mpirun [\| "MPI options" \|]
+.B mcp-mpi
+.RI [\| "OPTION" "\|]\|.\|.\|."
+.br
+.B mcp-pthread
+.RI [\| "OPTION" "\|]\|.\|.\|."
+.br
+.R mpirun [\| "MPI options" \|]
+.B mcp-hybrid
+.RI [\| "OPTION" "\|]\|.\|.\|."
+.
+.SH DESCRIPTION
+.PP
+MCP core generates Horn, dual Horn, bijunctive, or CNF formulas from
+positive and negative examples presented by Boolean matrices
+representing the presence/absence of attributes in observations.
+.
+.SH OPTIONS
+.
+.TP
+\fB\-i\fR, \fB\-\-input\fI input-file
+Input file containing Boolean vectors prefixed by group
+identifiers. The Boolean values must be separated by space.
+.IP
+Default: STDIN
+.
+.TP
+\fB\-o\fR, \fB\-\-output\fI output-file
+Output file containing the run of the MCP core.
+.IP
+Default: STDOUT
+
+.TP
+\fB\-a\fR, \fB\-\-action \fRone | all | nosection
+.IP
+one:
+.br
+Take each group in turn as the positive instances T and some other
+group as negative instances F. For a total of n groups, this will
+result in n*(n-1) formulas, each characterising one group in relation
+to some other group.
+.IP
+all:
+.br
+Take each group in turn as the positive instances T and all other
+groups together as negative instances F. For a total of n groups, this
+will result in n formulas, each characterising one group in relation
+to the union of all other groups.
+.IP
+nosection | nosect:
+.br
+Like "all", but no columns are removed.
+.IP
+Default: all.
+.
+.TP
+\fB\-c\fR, \fB\-\-closure \fRHorn | dualHorn | bijunctive | cnf
+.IP
+Horn | horn | h:
+.br
+dualHorn | dualhorn | dh:
+.br
+bijunctive | bij | b:
+.br
+cnf | CNF:
+.br
+Compute Horn, dual Horn, bijunctive, or general CNF formulas,
+respectively.
+.IP
+Default: Horn.
+.
+.TP
+\fB-d\fR, \fB\-\-direction\fR begin | end | lowcard | highcard | random
+.IP
+begin | b:
+.br
+Prefer columns to the left (at the begin) of the matrix.  Columns are
+removed from the right, skipping columns whose removal would render
+the problem unsolvable.
+.IP
+end | e:
+.br
+Prefer columns to the right (at the end) of the matrix.  Columns are
+removed from the left, skipping columns whose removal would render the
+problem unsolvable.
+.IP
+lowcard | lcard | lc:
+.br
+Prefer columns with a lower Hamming weight (more zeros), by starting
+to remove columns with high Hamming weight (many ones).
+.IP
+highcard | hcard | hc:
+.br
+Prefer columns with a higher Hamming weight (more ones), by starting
+to remove columns with small Hamming weight (many zeros).
+.IP
+random | rand | r:
+.br
+Try to remove columns in random order.
+.IP
+Default: begin.
+.
+.TP
+\fB\-s\fR, \fB\-\-strategy\fR large | exact
+.IP
+large | lg | l:
+.br
+The generated formulas characterize the largest closure containing T
+that does not yet intersect with F.
+.IP
+exact | ex | e:
+.br
+The generated formulas characterize the largest closure containing T
+that does not yet intersect with F.
+.IP
+Default: large.
+.
+.TP
+\fB\-\-cooking\fR, \fB\-\-cook\fR raw | bleu | medium | welldone
+Redundancy elimination.
+.IP
+raw | r:
+.br
+No redundancy elimination.
+.IP
+bleu | bl:
+.br
+Performs unit resolution, by removing all literals from clauses that
+are complementary to some unit clause.
+.IP
+medium | med:
+.br
+Performs unit resolution (see above) and subsumption.  A clause
+subsumes another one if it is a subset for the latter.
+.IP
+welldone | well | done | all:
+.br
+Performs unit resolution and subsumption (see above).  Moreover,
+clauses that are implied by several other ones are removed.
+.IP
+Default: welldone.
+.
+.TP
+\fB\-sc\fR, \fB\-\-setcover\fR yes | no
+.IP
+yes | y:
+.br
+A formula is computed from the sets of positive T and negative F
+examples, which are presented in form of sets of tuples, but not all
+are actually needed when the large strategy is applied; the formula as
+a set of clauses is minimized with respect to the falsified tuples
+from the set of negative examplesby means of a set cover algorithm.
+.IP
+no | n:
+No set cover is executed.
+.IP
+Default: yes for "\fB--strategy\fR large", no otherwise.
+.
+.TP
+\fB\-l\fR, \fB\-\-logic\fR, \fB\-\-formula\fI STRING
+Prefix \fISTRING\fR for the formula files "\fISTRING_G.log\fR" for each
+group \fIG\fR.
+.IP
+Default: No formula output is generated.
+.
+.TP
+\fB\-m\fR, \fB\-\-mtx\fR, \fB\-\-matrix\fR undefined | hide | peek | section | show
+Printing of the input and output matrices.
+.IP
+undefined | undef | u:
+.br
+Printing of the input matrices is undefined; their status will be
+deduced later from the arity and size of the input. The matrices after
+minimal section will NOT be printed.
+.IP
+hide | no:
+No matrices will be printed.
+.IP
+peek:
+.br
+The input matrices will be printed, the matrices after minimal section
+will NOT be printed.
+.IP
+section:
+.br
+The input matrices will NOT be printed, the matrices after minimal
+section will be printed.
+.IP
+show | yes | y:
+.br
+Both the input matrices and matrices after minimal section will be
+printed.
+.IP
+Default: undefined.
+.
+.TP
+\fB\-\-print\fR clause | implication | mix | dimacs
+Printing format of the generated formulas.
+.IP
+clause | cl:
+.br
+Print each clause as a disjunction of positive and negative literals
+.br
+Example: (-x0 + x1) * (x0 + -x1).
+.IP
+implication | impl | im:
+.br
+Print each clause as an implication.
+.br
+Example: (x0 -> x1) * (x1 -> x0).
+.IP
+mix:
+.br
+If there are only literals of one polarity in a clause, then print as
+"clause", otherwise as "implication".
+.IP
+dimacs | DIMACS:
+.br
+Print the formula in DIMACS format, one clause per line (implies
+\fB\-\-offset\fR greater than 0).
+.IP
+Default: clause for "\fB\-\-closure\fR bijunctive", mix otherwise.
+.
+.TP
+\fB\-\-latex\fI latex-file
+Defines $\fIlatex-file\fR where all formula from the run are stored in
+LaTeX format.
+.IP
+Default: No LaTeX output file is produced.
+.
+.TP
+\fB\-\-offset\fR, \fB\-\-shift\fI INTEGER
+Internally, all indices begin with 0. However, when the data is
+displayed in an Excel sheet, the variables may begin in a column
+different from 0. To identify the same variables in an Excel sheet and
+the output of this software, you can define an offset. E.g., the
+offset 1 will shift the variable indices by 1 and therefore first
+variable will have the index 1.
+.IP
+Negative offsets are converted to 0.
+.IP
+Default: 0.
+.
+.TP
+\fB\-\-cluster\fR, \fB\-\-epsilon\fR, \fB\-eps\fI INTEGER
+Cluster the columns of the input Boolean matrix with epsilon radius of
+\fIINTEGER\fR. If 0 is selected, it is equivalent to identifying equal
+columns. If a negative integer is selected, no clustering is
+performed. A variant of DBSCAN without noise and treshold is
+implemented.
+.IP
+Default: -1.
+.
+.TP
+\fB\-tp\fR, \fB\-\-tpath\fI PATH
+(Only for the parallel versions)
+.br
+Path to intermediate files for parallel versions.
+.IP
+Default: /tmp.
+.
+.TP
+\fB\-ch\fR, \fB\-\-chunk\fI INTEGER
+(Only for \fBmcp-pthread\fR and \fBmcp-hybrid\fR)
+.br
+Matrices are treated in parallel by chunks of \fIINTEGER\fR rows.
+.IP
+Default: 4000.
+.
+.TP
+\fB\-\-fit\fR yes | no
+(Only for \fBmcp-mpi\fR and \fBmcp-hybrid\fR)
+.br
+For efficiency reasons, we can require to run the parallel software
+with the number of processes equal to the number of groups. This is
+done by the command
+.IP
+.in +4n
+.EX
+# mpirun -np \fIINTEGER \fBmcp-mpi\fR --fit yes 
+.EE
+.in
+.IP
+where \fIINTEGER\fR is the number of processes.
+.IP
+Default: no.
+.
+.
+.SH SEE ALSO
+mcp-guess(1),
+mcp-trans(1),
+mcp-split(1),
+mcp-check(1),
+mpirun(1)
+.
+.SH BUGS
+There are certainly some.
+.
+.SH AUTHORS
+Miki Hermann <hermann@lix.polytechnique.fr>
+.br
+Gernot Salzer <gernot.salzer@tuwien.ac.at>

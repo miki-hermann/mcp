@@ -1,0 +1,95 @@
+.\" Copyright (c) 2019-2021 Miki Hermann & Gernot Salzer
+.TH mcp-trans 5 "2021-03-10" "1.04" "MCP System"
+.
+.SH NAME
+mcp-trans \- meta-file syntax
+.
+.SH DESCRIPTION
+.PP
+The \fImeta-file\fR is a text file that describes the structure of the
+original file which will be binarized, as well as the binarization
+style of each coordinate.
+.PP
+White space can be freely introduced among the commands. Everything
+beginning by the symbol \fB#\fR until the end of line is a
+comment. Each transformation command terminates by the sign \fB;\fR
+(semicolon).
+.PP
+Each transformation command has the following form:
+.PP
+.in +4n
+.EX
+.IB "identifier " = " coordinate " : " indicator " ;
+.EE
+.in
+.PP
+The symbols \fB=\fR, \fB:\fR, and \fB;\fR are syntactic sugar for a
+better orientation of the parser. The \fIidentifier\fR (a string) will
+become the name of the variable for the given \fIcoordinate\fR (an
+integer). The \fIindicator\fR has one of the following forms.
+.PP
+.in +4n
+.EX
+.B ident
+.R \fBbool\fR	'[' \fIelem_0 elem_1\fR ']'
+.R \fBenum\fR	'[' \fIelem\fR\|.\|.\|. ']'
+.R \fBup\fR	'[' \fIelem\fR\|.\|.\|. ']'
+.R \fBdown\fR	'[' \fIelem\fR\|.\|.\|. ']'
+.R \fBint\fR	\fImin max\fR
+.R \fBdj\fR	\fIn min max\fR
+.R \fBover\fR	\fIn min max l\fR
+.R \fBspan\fR	\fIl min max\fR
+.R \fBwarp\fR	\fIl0 min max l1\fR
+.EE
+.in
+.PP
+where the semantics of these indicators is described below. The
+elements \fIelem\fR are arbitrary strings, \fImin\fR and \fImax\fR are
+numeric values; \fIn\fR, \fIl\fR, \fIl0\fR, and \fIl1\fR are positive
+integer values.
+.TP 7
+.B ident
+This is the group identifier. The corresponding \fIidentifier\fR will
+become the group prefix.
+.TP
+.B bool
+Boolean two-element set.
+.TP
+.B enum
+Enumerated set of elements.
+.TP
+.B up
+Enumerated set of increasing elements.
+.TP
+.B down
+Enumerated set of decreasing elements.
+.TP
+.B int
+Integers in the range between \fImin\fR and \fImax\fR.
+.TP
+.B dj
+Continuous interval [\fImin\fR, \fImax\fR) cut into \fIn\fR disjoint
+chunks.
+.TP
+.B over
+Continuous interval [\fImin\fR, \fImax\fR) cut into \fIn\fR chunks
+with overlaps of length \fIl\fR.
+.TP
+.B span
+Continuous interval [\fImin\fR, \fImax\fR) cut into disjoint chunks,
+each of length \fIl\fR.
+.TP
+.B warp
+Continuous interval [\fImin\fR, \fImax\fR) cut into chunks of length
+\fIl0\fR, with overlaps of length \fIl1\fR.
+.
+.SH SEE ALSO
+mcp-trans(1)
+.
+.SH BUGS
+There are certanly some.
+.
+.SH AUTHORS
+Miki Hermann <hermann@lix.polytechnique.fr>
+.br
+Gernot Salzer <gernot.salzer@tuwien.ac.at>

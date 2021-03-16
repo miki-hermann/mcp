@@ -28,11 +28,11 @@
 
 BIN = ../bin
 
-.PHONY: compile only-seq seq export clean scratch
+.PHONY: compile compile-no-mpi seq export clean scratch
 
 compile: seq mpi pthread hybrid trans guess cnf split check
 
-only-seq: seq pthread trans guess cnf split check
+compile-no-mpi: seq pthread trans guess cnf split check
 
 #---------------------------------------------------------------------------------------------------
 

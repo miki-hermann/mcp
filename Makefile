@@ -23,12 +23,19 @@
 ##*                                                                        *
 ##**************************************************************************
 
-.PHONY: compile man install clean scratch
+.PHONY: no-mpi compile compile-no-mpi man install clean scratch
 
 all: compile man install
 
+no-mpi: compile-no-mpi man install
+
 compile:
 	$(MAKE) -C src
+	$(MAKE) -C src export
+	$(MAKE) -C src clean
+
+compile-no-mpi:
+	$(MAKE) -C src compile-no-mpi
 	$(MAKE) -C src export
 	$(MAKE) -C src clean
 
@@ -36,9 +43,7 @@ man:
 	$(MAKE) -C man
 
 install: 
-	sudo cp -f mcp-check mcp-cnf mcp-guess mcp-hybrid mcp-mpi mcp-pthread \
-		mcp-seq mcp-split mcp-trans \
-		/usr/local/bin/
+	sudo cp -f mcp-* /usr/local/bin/
 
 clean:
 	rm -f $(OBJ)/*.o $(BIN)/mcp-*

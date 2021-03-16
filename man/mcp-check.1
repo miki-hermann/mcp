@@ -33,9 +33,9 @@ Report of the checking run.
 Default: STDOUT.
 .
 .TP
-\fB\-l\fR, \fB\-\-log\fR, \fB\-\-logic\fR, \fB\-\-formula\fI formula-file
+\fB\-\-formula\fI formula-file
 File containing the formula produced by MCP core. The
-\fIformula-file\fR has the name \fIformula-prefix_G.log\fR when it has
+\fIformula-file\fR has the name \fIformula-prefix_G.log\fR if it has
 been produced by the option "\fB\-\-formula \fIformula-prefix\fR" for
 some group \fIG\fR.
 .
@@ -43,13 +43,13 @@ some group \fIG\fR.
 \fB\-\-print\fR clause | implication | mix | dimacs
 Printing format of the used formula.
 .IP
-clause | cl:
+clause:
 .br
 Print each clause as a disjunction of positive and negative literals.
 .br
 Example: (-x0 + x1) * (x0 + -x1).
 .IP
-implication | impl | im:
+implication:
 .br
 Print each clause as an implication.
 .br
@@ -60,15 +60,13 @@ mix:
 If there are only literals of one polarity in a clause, then print as
 "clause", otherwise as "implication".
 .IP
-dimacs | DIMACS:
+dimacs:
 .br
 Print the formula in DIMACS format, one clause per line (implies
 \fB\-\-offset\fR greater than 0).
 .IP
 Default: mix.
 .PP
-See whatever
-.
 .
 .SH SEE ALSO
 mcp-guess(1),

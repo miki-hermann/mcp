@@ -1,0 +1,14 @@
+x-axis =  0: enum [1 2 3 4 5 6 7 8 9];
+y-axis =  1: enum [2 3 4 5 6 8 9];
+# month  =  2: enum [jan feb mar apr may jun jul aug sep oct nov dec];
+month  =  2: ident;
+day    =  3: enum [mon tue wed thu fri sat sun];
+ffmc   =  4: dj  10  18.7   96.21;
+dmc    =  5: dj  10   1.1  291.31;
+dc     =  6: dj  10   7.9  860.61;
+isi    =  7: dj  10   0.0   56.11;
+temp   =  8: dj  10   2.2   33.31;
+rh     =  9: int 15   100;
+wind   = 10: dj  10   0.4    9.41;
+rain   = 11: dj  10   0.0    6.41;
+area   = 12: dj  10   0.0 1090.841;

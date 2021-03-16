@@ -1,0 +1,12 @@
+# sample_code_number =  0: int 61634 13454352;	# card 645
+clump_thickness      =  1: up [1 2 3 4 5 6 7 8 9 10];	# card 10 consecutive
+uni_cell_size        =  2: up [1 2 3 4 5 6 7 8 9 10];	# card 10 consecutive
+uni_cell_shape       =  3: up [1 2 3 4 5 6 7 8 9 10];	# card 10 consecutive
+marginal_adhesion    =  4: up [1 2 3 4 5 6 7 8 9 10];	# card 10 consecutive
+single_ep_cell_size  =  5: up [1 2 3 4 5 6 7 8 9 10];	# card 10 consecutive
+bare_nuclei          =  6: up [1 2 3 4 5 6 7 8 9 10];	# card 10 consecutive
+bland_chromatin      =  7: up [1 2 3 4 5 6 7 8 9 10];	# card 10 consecutive
+normal_nucleoli      =  8: up [1 2 3 4 5 6 7 8 9 10];	# card 10 consecutive
+mitoses              =  9: up [1 2 3 4 5 6 7 8 9 10];	# card 9
+# id10               = 10: bool [benign malignant];	# card 2
+class = 10: ident;

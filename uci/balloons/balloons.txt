@@ -1,0 +1,6 @@
+color	= 0: bool [YELLOW PURPLE];
+size	= 1: bool [LARGE SMALL];
+act	= 2: bool [STRETCH DIP];
+age	= 3: bool [ADULT CHILD];
+# inflated= 4: bool [F T];
+class   = 4: ident;

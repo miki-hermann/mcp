@@ -1,0 +1,10 @@
+sex	= 0: enum [M F I];
+length	= 1: dj 15 0.075 0.8151;
+diam	= 2: dj 15 0.055 0.651;
+height	= 3: dj 15 0.0   1.131;
+whole	= 4: dj 15 0.002 2.8256;
+shucked	= 5: dj 15 0.001 1.4881;
+viscera = 6: dj 15 0.0005 0.7601;
+shell	= 7: dj 15 0.00  1.006;
+# rings   = 8: int 1 29;
+ringid	= 8: ident;

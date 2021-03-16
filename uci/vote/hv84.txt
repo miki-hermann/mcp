@@ -1,0 +1,17 @@
+party                                  =  0: ident;
+handicapped-infants                    =  1: bool [n y];
+water-project-cost-sharing             =  2: bool [n y];
+adoption-of-the-budget-resolution      =  3: bool [n y];
+physician-fee-freeze                   =  4: bool [n y];
+el-salvador-aid                        =  5: bool [n y];
+religious-groups-in-schools            =  6: bool [n y];
+anti-satellite-test-ban                =  7: bool [n y];
+aid-to-nicaraguan-contras              =  8: bool [n y];
+mx-missileid9                          =  9: bool [n y];
+immigration                            = 10: bool [n y];
+synfuels-corporation-cutback           = 11: bool [n y];
+education-spending                     = 12: bool [n y];
+superfund-right-to-sue                 = 13: bool [n y];
+crime                                  = 14: bool [n y];
+duty-free-exports                      = 15: bool [n y];
+export-administration-act-south-africa = 16: bool [n y];

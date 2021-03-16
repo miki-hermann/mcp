@@ -1,0 +1,5 @@
+sepal_length = 0: dj 20 4.3 7.91;
+sepal_width  = 1: dj 20 2.0 4.41;
+petal_length = 2: dj 20 1.0 6.91;
+petal_width  = 3: dj 20 0.1 2.51;
+class        = 4: ident;

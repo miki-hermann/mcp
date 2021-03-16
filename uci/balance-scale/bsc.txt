@@ -1,0 +1,5 @@
+class-name	= 0: ident;
+left-weight	= 1: int 1 5;	# card 5 consecutive
+left-distance	= 2: int 1 5;	# card 5 consecutive
+right-weight	= 3: int 1 5;	# card 5 consecutive
+right-distance	= 4: int 1 5;	# card 5 consecutive

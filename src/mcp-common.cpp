@@ -1,17 +1,17 @@
 /**************************************************************************
  *                                                                        *
  *                                                                        *
- *	       Multiple Characterization Problem (MCP)                    *
+ *	       Multiple Characterization Problem (MCP)                        *
  *                                                                        *
- *	Author:   Miki Hermann                                            *
- *	e-mail:   hermann@lix.polytechnique.fr                            *
- *	Address:  LIX (CNRS UMR 7161), Ecole Polytechnique, France         *
+ *	Author:   Miki Hermann                                                *
+ *	e-mail:   hermann@lix.polytechnique.fr                                *
+ *	Address:  LIX (CNRS UMR 7161), Ecole Polytechnique, France            *
  *                                                                        *
- *	Author: Gernot Salzer                                             *
- *	e-mail: gernot.salzer@tuwien.ac.at                                *
- *	Address: Technische Universitaet Wien, Vienna, Austria            *
+ *	Author: Gernot Salzer                                                 *
+ *	e-mail: gernot.salzer@tuwien.ac.at                                    *
+ *	Address: Technische Universitaet Wien, Vienna, Austria                *
  *                                                                        *
- *	Version: common to all                                            *
+ *	Version: common to all                                                *
  *      File:    mcp-common.cpp                                           *
  *                                                                        *
  *      Copyright (c) 2019 - 2021                                         *

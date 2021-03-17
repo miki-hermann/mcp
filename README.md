@@ -48,7 +48,7 @@ Additionally, the distribution contains the following files:
 The subdirectories of this distribution are:
  - *src*   containing the sources of the MCP system,
  - *man*   containing the manual pages,
- - *paper* containing the PDF document mcp-sat.pdf with a detailed description of the MCP system
+ - *paper* containing the PDF document `mcp-sat.pdf` with a detailed description of the MCP system
  - *bin*   is necessary for compilation, and
  - *uci*   containing several examples from the UCI Machine Learning
          Repository, treated by the MCP system.

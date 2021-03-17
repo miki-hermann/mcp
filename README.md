@@ -108,8 +108,8 @@ to be treated by the MCP system. These examples are
 
 All  examples  are  equipped   with  a  `Makefile`,  facilitating  the
 execution of  the MCP system on  them. Some of these  examples use the
-parallel modules mcp-mpi or mcp-hybrid.   If you did not install them,
-please replace  the commands `mpirun mcp-mpi`  and `mpirun mcp-hybrid`
-by `mcp-pthread`.
+parallel modules  `mcp-mpi` or `mcp-hybrid`.   If you did  not install
+them,  please  replace  the  commands  `mpirun  mcp-mpi`  and  `mpirun
+mcp-hybrid` by `mcp-pthread`.
 
 EOF

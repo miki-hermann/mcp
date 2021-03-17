@@ -4,13 +4,7 @@
 
 * [Brief Description](#brief-description)
 * [Compilation and Installation](#compilation-and-installation)
-   1.1 Outline of the distribution
-   1.2 Compilation
-   1.3 Invocation
 * [UCI Examples](#uci-examples)
-   2.1 Header section
-   2.2 Data section
-   2.3 Sample input file
 
 
 
@@ -52,12 +46,11 @@ Additionally, the distribution contains the following files:
 ### Outline of the distribution
 
 The subdirectories of this distribution are:
- - src   containing the sources of the MCP system,
- - man   containing the manual pages,
- - paper containing the PDF document mcp-sat.pdf with a detailed
-   	 description of the MCP system
- - bin   is necessary for compilation,
- - uci   containing several examples from the UCI Machine Learning
+ - *src*   containing the sources of the MCP system,
+ - *man*   containing the manual pages,
+ - *paper* containing the PDF document mcp-sat.pdf with a detailed description of the MCP system
+ - *bin*   is necessary for compilation,
+ - *uci*   containing several examples from the UCI Machine Learning
          Repository, treated by the MCP system
 
 ### Compilation
@@ -77,9 +70,9 @@ two variants of the MCP core.
 ### Invocation
 
 To compile and install the MCP system, write the command
-...
+```
    make
-...
+```
 in the root directory of this unpacked tarball. The system then
 
    - compiles the sources,
@@ -92,24 +85,25 @@ You need to have superuser privileges to execute the last two parts.
 
 If you do  not have MPI installed, compile and  install the MCP system
 (without the modules mcp-mpi and mcp-hybrid) by the command
-...
+```
     make no-mpi
-...
+```
+
 ## UCI Examples
 
 The  uci subdirectory  contains the  following examples  from the  [UCI
 Machine Learning Repository](http://archive.ics.uci.edu/ml/), prepared
 to be treated by the MCP system. These examples are
 
- - abalone (identifying abalone with~27 rings),
- - balance-scale (identifying psychological experiments balancing a scale),
- - balloons (a toy example, where specific formulas are required to be produced),
- - breast-cancer-wisconsin (identifying benign and malignant breast cancer cases in Wisconsin),
- - car (identifying very good cars),
- - forest-fire (predicting forest fires in July, August, and September),
- - iris (identifying three types of iris flowers),
- - mushroom (identifying edible and poisonous mushrooms), and
- - vote ( identifying democrats and republicans in the House of Representatives).
+ - **abalone** (identifying abalone with~27 rings),
+ - **balance-scale** (identifying psychological experiments balancing a scale),
+ - **balloons** (a toy example, where specific formulas are required to be produced),
+ - **breast-cancer-wisconsin** (identifying benign and malignant breast cancer cases in Wisconsin),
+ - **car** (identifying very good cars),
+ - **forest-fire** (predicting forest fires in July, August, and September),
+ - **iris** (identifying three types of iris flowers),
+ - **mushroom** (identifying edible and poisonous mushrooms), and
+ - **vote** (identifying democrats and republicans in the House of Representatives).
 
 All examples are equipped with  a Makefile, facilitating the execution
 of the  MCP system on  them. Some of  these examples use  the parallel

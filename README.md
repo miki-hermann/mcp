@@ -59,8 +59,8 @@ A C++ compiler satisfying at least  the C++17 revision is necessary to
 successfully  compile the  MCP system,  mainly for  the use  of `auto`
 types and POSIX threads. Only  the standard library is used, therefore
 there is no need to install any additional C++ libraries.  The g++ GNU
-Project compiler  is used  in the  Makefile. If  you have  a different
-compiler, please modify the Makefile according to your installation.
+Project compiler  is used  in the  `Makefile`. If  you have  a different
+compiler, please modify the `Makefile` according to your installation.
 
 You need to  have installed the Message Passing Interface  (MPI) to be
 able to compile the modules `mcp-mpi` and `mcp-hybrid`.  However, this
@@ -70,7 +70,7 @@ this two variants of the MCP core.
 ### Invocation
 
 To compile and install the MCP system, write the command
-```
+```Makefile
    make
 ```
 in the root directory of this unpacked tarball. The system then
@@ -85,7 +85,7 @@ You need to have superuser privileges to execute the last two parts.
 
 If you do  not have MPI installed, compile and  install the MCP system
 (without the modules mcp-mpi and mcp-hybrid) by the command
-```
+```Makefile
     make no-mpi
 ```
 
@@ -106,10 +106,10 @@ to be treated by the MCP system. These examples are
  - **vote**                    (identifying democrats and republicans in the House of
                                 Representatives according to the 1984 US Congressional Voting Records).
 
-All examples are equipped with  a Makefile, facilitating the execution
-of the  MCP system on  them. Some of  these examples use  the parallel
-modules mcp-mpi  or mcp-hybrid.  If  you did not install  them, please
-replace  the  commands `mpirun  mcp-mpi`  and  `mpirun mcp-hybrid`  by
-`mcp-pthread`.
+All  examples  are  equipped   with  a  `Makefile`,  facilitating  the
+execution of  the MCP system on  them. Some of these  examples use the
+parallel modules mcp-mpi or mcp-hybrid.   If you did not install them,
+please replace  the commands `mpirun mcp-mpi`  and `mpirun mcp-hybrid`
+by `mcp-pthread`.
 
 EOF

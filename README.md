@@ -1,23 +1,20 @@
-MULTI-CHARACTERIZATION PROBLEM (MCP) v1.04
-==========================================
+# MULTI-CHARACTERIZATION PROBLEM (MCP) v1.04
 				   
-Table of contents
-=================
+## Table of contents
 
-0. Brief Description
-1. Compilation and Installation
+* [Brief Description](#brief-description)
+* [Compilation and Installation](#compilation-and-installation)
    1.1 Outline of the distribution
    1.2 Compilation
    1.3 Invocation
-2. UCI Examples
+* [UCI Examples](#uci-examples)
    2.1 Header section
    2.2 Data section
    2.3 Sample input file
 
 
 
-0. Brief Description
---------------------
+## Brief Description
 
 This  is  the   MCP  system  designed  to  transform   Big  Data  into
 propositional formulas. It consists of  several modules. The main part
@@ -47,11 +44,12 @@ Additionally, the distribution contains the following files:
     LICENCE   (GNU General Public Licence v.3, under which this software is distributed),
     Makefile  (for the compilation and installation of the MCP system)
 
-1. Compilation and Installation
--------------------------------
+## Compilation and Installation
+* [Outline of the distribution](#outline-of-the-distribution)
+* [Compilation](#compilation)
+* [Invocation](#invocation)
 
-1.1 Outline of the distribution
--------------------------------
+### Outline of the distribution
 
 The subdirectories of this distribution are:
  - src   containing the sources of the MCP system,
@@ -62,8 +60,7 @@ The subdirectories of this distribution are:
  - uci   containing several examples from the UCI Machine Learning
          Repository, treated by the MCP system
 
-1.2 Compilation
----------------
+### Compilation
 
 A C++ compiler satisfying at least  the C++17 revision is necessary to
 successfully  compile the  MCP system,  mainly for  the use  of "auto"
@@ -77,13 +74,12 @@ able to compile the modules  mcp-mpi and mcp-hybrid.  However, this is
 not an absolute necessity. The  MCP system functions even without this
 two variants of the MCP core.
 
-1.3 Invocation
---------------
+### Invocation
 
 To compile and install the MCP system, write the command
-
+...
    make
-
+...
 in the root directory of this unpacked tarball. The system then
 
    - compiles the sources,
@@ -96,14 +92,13 @@ You need to have superuser privileges to execute the last two parts.
 
 If you do  not have MPI installed, compile and  install the MCP system
 (without the modules mcp-mpi and mcp-hybrid) by the command
-
+...
     make no-mpi
+...
+## UCI Examples
 
-2. UCI Examples
----------------
-
-The  uci subdirectory  contains the  following examples  from the  UCI
-Machine Learning Repository (http://archive.ics.uci.edu/ml/), prepared
+The  uci subdirectory  contains the  following examples  from the  [UCI
+Machine Learning Repository](http://archive.ics.uci.edu/ml/), prepared
 to be treated by the MCP system. These examples are
 
  - abalone (identifying abalone with~27 rings),

@@ -84,7 +84,7 @@ in the root directory of this unpacked tarball. The system then
 You need to have superuser privileges to execute the last two parts.
 
 If you do  not have MPI installed, compile and  install the MCP system
-(without the modules mcp-mpi and mcp-hybrid) by the command
+(without the modules `mcp-mpi` and `mcp-hybrid`) by the command
 ```Makefile
     make no-mpi
 ```

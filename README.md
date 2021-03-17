@@ -56,7 +56,7 @@ The subdirectories of this distribution are:
 ### Compilation
 
 A C++ compiler satisfying at least  the C++17 revision is necessary to
-successfully  compile the  MCP system,  mainly for  the use  of "auto"
+successfully  compile the  MCP system,  mainly for  the use  of `auto`
 types and POSIX threads. Only  the standard library is used, therefore
 there is no need to install any additional C++ libraries.  The g++ GNU
 Project compiler  is used  in the  Makefile. If  you have  a different
@@ -95,7 +95,7 @@ The  uci subdirectory  contains the  following examples  from the  [UCI
 Machine Learning Repository](http://archive.ics.uci.edu/ml/), prepared
 to be treated by the MCP system. These examples are
 
- - **abalone** (identifying abalone with~27 rings),
+ - **abalone** (identifying abalone with 27 rings),
  - **balance-scale** (identifying psychological experiments balancing a scale),
  - **balloons** (a toy example, where specific formulas are required to be produced),
  - **breast-cancer-wisconsin** (identifying benign and malignant breast cancer cases in Wisconsin),

@@ -17,7 +17,7 @@ Table of contents
 
 
 0. Brief Description
-====================
+--------------------
 
 This  is  the   MCP  system  designed  to  transform   Big  Data  into
 propositional formulas. It consists of  several modules. The main part
@@ -48,7 +48,7 @@ Additionally, the distribution contains the following files:
     Makefile  (for the compilation and installation of the MCP system)
 
 1. Compilation and Installation
-===============================
+-------------------------------
 
 1.1 Outline of the distribution
 -------------------------------
@@ -100,7 +100,7 @@ If you do  not have MPI installed, compile and  install the MCP system
     make no-mpi
 
 2. UCI Examples
-===============
+---------------
 
 The  uci subdirectory  contains the  following examples  from the  UCI
 Machine Learning Repository (http://archive.ics.uci.edu/ml/), prepared

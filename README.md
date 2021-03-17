@@ -1,5 +1,5 @@
-	      MULTI-CHARACTERIZATION PROBLEM (MCP) v1.04
-	      ==========================================
+MULTI-CHARACTERIZATION PROBLEM (MCP) v1.04
+==========================================
 				   
 Table of contents
 =================

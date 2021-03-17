@@ -49,9 +49,9 @@ The subdirectories of this distribution are:
  - *src*   containing the sources of the MCP system,
  - *man*   containing the manual pages,
  - *paper* containing the PDF document mcp-sat.pdf with a detailed description of the MCP system
- - *bin*   is necessary for compilation,
+ - *bin*   is necessary for compilation, and
  - *uci*   containing several examples from the UCI Machine Learning
-         Repository, treated by the MCP system
+         Repository, treated by the MCP system.
 
 ### Compilation
 
@@ -108,7 +108,7 @@ to be treated by the MCP system. These examples are
 All examples are equipped with  a Makefile, facilitating the execution
 of the  MCP system on  them. Some of  these examples use  the parallel
 modules mcp-mpi  or mcp-hybrid.  If  you did not install  them, please
-replace  the  commands "mpirun  mcp-mpi"  and  "mpirun mcp-hybrid"  by
-"mcp-pthread".
+replace  the  commands `mpirun  mcp-mpi`  and  `mpirun mcp-hybrid`  by
+`mcp-pthread`.
 
 EOF

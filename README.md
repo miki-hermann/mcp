@@ -15,7 +15,7 @@ propositional formulas. It consists of  several modules. The main part
 is the MCP core. In addition to  the core there are prequel and sequel
 supporting modules.
 
-MCP core has for variants:
+MCP core has four variants:
 
     mcp-seq     (sequential),
     mcp-mpi     (parallel using the Message Passing Interface),

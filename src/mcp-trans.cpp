@@ -30,6 +30,7 @@
 #include <set>
 #include <vector>
 #include <unordered_map>
+#include "mcp-matrix+formula.hpp"
 
 using namespace std;
 
@@ -92,7 +93,7 @@ int linecount  = 0;
 #define NOSTRING " #=:;?[]"
 #define DIGITS   "0123456789"
 
-int offset = 0;
+// int offset = 0;
 Index idx  = LOCAL;
 
 string input   = STDIN;
@@ -786,15 +787,7 @@ void matrix () {
 	(line2[i] == '"' || line2[i] == ',' || line2[i] == ';' ? ' ' : line2[i]);
     line = line + ' ';
 
-    vector<string> chunk;
-    while (line.size() > 1) {
-      auto pos = line.find_first_not_of(' ');
-      line.erase(0, pos);
-      pos = line.find_first_of(' ');
-      chunk.push_back(line.substr(0, pos));
-      line.erase(0,pos);
-    }
-
+    vector<string> chunk = split(line, ' ');
     cout << chunk[ident];
     int mypos;
     for (int tgt = 1; tgt < target.size(); ++tgt) {

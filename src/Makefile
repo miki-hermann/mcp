@@ -30,9 +30,9 @@ BIN = ../bin
 
 .PHONY: compile compile-no-mpi seq export clean scratch
 
-compile: seq mpi pthread hybrid trans guess cnf split check
+compile: seq mpi pthread hybrid trans guess cnf split check sparse
 
-compile-no-mpi: seq pthread trans guess cnf split check
+compile-no-mpi: seq pthread trans guess cnf split check sparse
 
 #---------------------------------------------------------------------------------------------------
 
@@ -121,8 +121,10 @@ matrix+formula-hybrid.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
 
 #---------------------------------------------------------------------------------------------------
 
-trans: mcp-trans.cpp
-	g++ -O4 -o $(BIN)/mcp-trans mcp-trans.cpp
+trans: mcp-trans.cpp matrix+formula-trans.o
+	g++ -O4 -o $(BIN)/mcp-trans mcp-trans.cpp mcp-matrix+formula-trans.o
+matrix+formula-trans.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
+	g++ -c -O4 -o mcp-matrix+formula-trans.o mcp-matrix+formula.cpp
 
 #---------------------------------------------------------------------------------------------------
 
@@ -150,6 +152,18 @@ mcp-check.o: mcp-check.cpp mcp-matrix+formula.hpp
 
 matrix+formula-check.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
 	g++ -O4 -c -o mcp-matrix+formula-check.o mcp-matrix+formula.cpp
+
+#---------------------------------------------------------------------------------------------------
+
+sparse: matrix+formula-sparse.o mcp-sparse.o
+	g++ -O4 -o $(BIN)/mcp-sparse mcp-sparse.o \
+				   mcp-matrix+formula-sparse.o
+
+mcp-sparse.o: mcp-sparse.cpp mcp-matrix+formula.hpp
+	g++ -O4 -c -o mcp-sparse.o mcp-sparse.cpp
+
+matrix+formula-sparse.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
+	g++ -O4 -c -o mcp-matrix+formula-sparse.o mcp-matrix+formula.cpp
 
 #---------------------------------------------------------------------------------------------------
 

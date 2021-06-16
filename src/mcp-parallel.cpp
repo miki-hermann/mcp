@@ -223,16 +223,16 @@ void clustering(Matrix &batch) {
 	
 	outfile << "\t(center = "
 		<< (varswitch ? varnames[cindex] : varid + to_string(cindex))
-		<< ", delta = " << to_string(hdistance)
-		<< ", mean distance = " << to_string(mean_dist)
-		<< ", std.dev. = " << to_string(std_dev)
+		<< ", delta = " << hdistance
+		<< ", mean distance = " << mean_dist
+		<< ", std.dev. = " << std_dev
 		<< ")";
       }
       outfile << endl;
     }
 
   outfile << "+++ Number of clusters = "
-	  << to_string(number_of_clusters)
+	  << number_of_clusters
 	  << endl;
 
   batch = transpose(new_tr);

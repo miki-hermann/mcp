@@ -66,6 +66,37 @@ Print the formula in DIMACS format, one clause per line (implies
 \fB\-\-offset\fR greater than 0).
 .IP
 Default: mix.
+.
+.TP
+\fB\-m\fR, \fB\-\-matrix\fR undefined | hide | peek | section | show
+Controls how input and output matrices are printed.
+.IP
+undefined:
+.br
+Printing of the input matrices is undefined; their status will be
+deduced later from the arity and size of the input. The matrices after
+computing a minimal section will NOT be printed.
+.IP
+hide:
+No matrices will be printed.
+.IP
+peek:
+.br
+The input matrices will be printed, the matrices after minimal section
+will NOT be printed.
+.IP
+section:
+.br
+The input matrices will NOT be printed, the matrices after minimal
+section will be printed.
+.IP
+show:
+.br
+Both the input matrices and matrices after computing the minimal section will be
+printed.
+.IP
+Default: undefined.
+.
 .PP
 .
 .SH SEE ALSO
@@ -75,7 +106,8 @@ mcp-split(1),
 mcp-seq(1),
 mcp-mpi(1),
 mcp-pthread(1),
-mcp-hybrid(1)
+mcp-hybrid(1),
+mcp-sparse(1)
 .
 .SH BUGS
 There are certanly some.

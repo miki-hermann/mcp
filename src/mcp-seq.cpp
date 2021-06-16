@@ -214,16 +214,16 @@ void clustering(Matrix &batch) {
 	
 	cout << "\t(center = "
 	     << (varswitch ? varnames[cindex] : varid + to_string(cindex))
-	     << ", delta = " << to_string(hdistance)
-	     << ", mean distance = " << to_string(mean_dist)
-	     << ", std.dev. = " << to_string(std_dev)
+	     << ", delta = " << hdistance
+	     << ", mean distance = " << mean_dist
+	     << ", std.dev. = " << std_dev
 	     << ")";
       }
       cout << endl;
     }
 
   cout << "+++ Number of clusters = "
-       << to_string(number_of_clusters)
+       << number_of_clusters
        << endl;
 
   batch = transpose(new_tr);

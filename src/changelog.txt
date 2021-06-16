@@ -1,3 +1,13 @@
+1.04a
+- fixed a bug with non-printable characters
+- added option --matrix to mcp-check
+- added options --enum and --ratio, which allow to specify the maximum number
+  and the maximum rate, respectively, of enumerated items
+- added option --names to mcp-guess, which allows to take coordinate names
+  from a file
+- added mcp-sparse, transforming a file in sparse format into the MCP
+  data format
+
 1.04
 - fixed bug in OneToAllNosection in mcp-seq.cpp and mcp-parallel.cpp
 - fixed a bug in mcp-check.cpp

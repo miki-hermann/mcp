@@ -30,7 +30,7 @@
 #include <deque>
 #include <map>
 
-#define GLOBAL_VERSION "1.04-c++-"
+#define GLOBAL_VERSION "1.04a-c++-"
 
 using namespace std;
 

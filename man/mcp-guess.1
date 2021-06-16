@@ -23,6 +23,15 @@ commas, semicolons, space, or tabs. Values can be quoted.
 Default: STDIN.
 .
 .TP
+\fB\-n\fR, \fB\-\-names\fI name-file
+File with names, one per line, for the coordinates.
+Leading and trailing whitespace is deleted.
+Whitespace between strings is replaced by underscore.
+.IP
+Default: No \fIname-file\fR is used. Coordinate identifiers will have the form
+\fBid \fIINTEGER\fR.
+.
+.TP
 \fB\-o\fR, \fB\-\-output\fI output-file
 Output file containing the template of the \fImeta-file\fR. This
 template must be manually edited to be accepted by \fBmcp-trans\fR. If
@@ -32,6 +41,20 @@ to the \fIoutput-file\fR.
 Default: STDOUT, resp. the \fIbasename\fR of \fIinput-file\fR with
 \fI.txt\fR suffix.
 .
+.TP
+\fB\-e\fR, \fB\-\-enum\fI INTEGER
+Maximum number of items to enumerate. Must be between 3 and 500.
+.IP
+Default: 20
+.
+.TP
+\fB\-r\fR, \fB\-\-ratio\fI FLOAT
+Maximum enumeration ratio between 0.0 and 1.0.
+The ratio is computed as the number of encountered values
+divided by the number of data lines.
+.IP
+Default: 0.01
+.
 .
 .SH SEE ALSO
 mcp-trans(1),
@@ -40,7 +63,8 @@ mcp-seq(1),
 mcp-mpi(1),
 mcp-pthread(1),
 mcp-hybrid(1),
-mcp-check(1)
+mcp-check(1),
+mcp-sparse(1)
 .
 .SH BUGS
 There are certanly some.

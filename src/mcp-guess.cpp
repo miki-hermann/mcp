@@ -36,24 +36,28 @@
 
 using namespace std;
 
-const float  ENUM_RATIO = 0.1;
-const int    ENUM_MAX   = 200;
+float  ENUM_RATIO = 0.01;
+int    ENUM_MAX   = 20;		// 50 80 200 20
 const string QMARK      = "?";
 
 enum item {UNDEF = 0, INT = 1, FLOAT = 2, STRING = 3};
 const string item_name[] = {"undef", "int", "float", "string"};
 
-vector<vector<string>> trdata, data;
+vector<vector<string>> trdata, mydata;
 vector<item> type;
 int row_length = 0;
 int row_count  = 0;
 vector<int> flength;
 bool errorflag = false;
 bool qflag     = false;
+string id      = "id";
+vector<string> id_names;
 
 string input   = STDIN;
+string name    = "";
 string output  = STDOUT;
 ifstream infile;
+ifstream namefile;
 ofstream outfile;
 streambuf *backup;
 
@@ -67,6 +71,15 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
     } else if (arg == "-o"
 	       || arg == "--output") {
       output = argv[++argument];
+    } else if (arg == "-n"
+	       || arg == "--names") {
+      name = argv[++argument];
+    } else if (arg == "-e"
+	       || arg == "--enum") {
+      ENUM_MAX = stoi(argv[++argument]);
+    } else if (arg == "-r"
+	       || arg == "--ratio") {
+      ENUM_RATIO = stof(argv[++argument]);
     } else {
       cerr << "+++ argument error: " << arg << endl;
       exit(1);
@@ -76,6 +89,18 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
   if (input != STDIN && output == STDOUT) {
     string::size_type pos = input.rfind('.');
     output = (pos == string::npos ? input : input.substr(0, pos)) + ".txt";
+  }
+}
+
+void adjust () {
+  if (ENUM_RATIO < 0.0 || ENUM_RATIO > 1.0) {
+    cerr << "*** ENUM_RATIO rest to 0.01" << endl;
+    ENUM_RATIO = 0.01;
+  }
+
+  if (ENUM_MAX < 3 || ENUM_MAX > 500) {
+    cerr << "*** ENUM_MAX reset to 20" << endl;
+    ENUM_MAX = 20;
   }
 }
 
@@ -100,6 +125,14 @@ void IO_open () {
       exit(1);
     }
   }
+
+  if (!name.empty()) {
+    namefile.open(name);
+    if (!namefile.is_open()) {
+      cerr << "+++ Cannot open name file " << name << endl;
+      exit(1);
+    }
+  }
 }
 
 void IO_close () {
@@ -109,6 +142,8 @@ void IO_close () {
     outfile.close();
     cout.rdbuf(backup);
   }
+  if (!name.empty())
+    namefile.close();
 }
 
 vector<vector<string>> transpose (const vector<vector<string>> &trd) {
@@ -129,6 +164,7 @@ int main (int argc, char **argv)
   string line;
 
   read_arg(argc, argv);
+  adjust();
   IO_open();
   
   while (getline(cin, line)) {
@@ -167,78 +203,116 @@ int main (int argc, char **argv)
       row_length = row.size();
     else if (row_length != row.size()) {
       errorflag = true;
-      cout << "+++ item count discrepancy on line " << row_count << endl;
-      cout << "+++ row length = " << row_length
+      cerr << "+++ item count discrepancy on line " << row_count << endl;
+      cerr << "+++ row length = " << row_length
 	   << ", row size = " << row.size() << endl;
     }
   }
 
   if (errorflag) {
-    cout << "+++ errors in data file" << endl;
+    cerr << "+++ errors in data file" << endl;
     exit(1);
   }
-  
-  data = transpose(trdata);
+
+  mydata = transpose(trdata);
   regex int_pattern("^-?[0-9]+$", regex::egrep);
   regex float_pattern("^-?[0-9]*\\.([0-9]+)$", regex::egrep);
   regex efloat_pattern("^-?[0-9]+\\.([0-9]+)e(\\-|\\+)[0-9]+$", regex::egrep);
   smatch result;
-  for (int col = 0; col < data.size(); ++col) {
+  for (int col = 0; col < mydata.size(); ++col) {
     type.push_back(UNDEF);
     flength.push_back(0);
-    for (int row = 0; row < data[col].size(); ++row) {
+    for (int row = 0; row < mydata[col].size(); ++row) {
       switch (type[col]) {
       case INT:
-	if (regex_match(data[col][row], result, float_pattern)
+	if (regex_match(mydata[col][row], result, float_pattern)
 	    ||
-	    regex_match(data[col][row], result, efloat_pattern)) {
+	    regex_match(mydata[col][row], result, efloat_pattern)) {
 	  flength[col] = max(flength[col], int(result.str(1).length()));
 	  type[col] = FLOAT;
-	} else if (data[col][row] != QMARK
+	} else if (mydata[col][row] != QMARK
 		   &&
-		   !regex_match(data[col][row], int_pattern))
+		   !regex_match(mydata[col][row], int_pattern))
 	  type[col] = STRING;
-	else if (data[col][row] == QMARK)
+	else if (mydata[col][row] == QMARK)
 	  qflag = true;
 	break;
       case  FLOAT:
-	if (data[col][row] != QMARK
+	if (mydata[col][row] != QMARK
 	    &&
-	    !regex_match(data[col][row], result, int_pattern)
+	    !regex_match(mydata[col][row], result, int_pattern)
 	    &&
-	    !regex_match(data[col][row], result, float_pattern)
+	    !regex_match(mydata[col][row], result, float_pattern)
 	    &&
-	    !regex_match(data[col][row], result, efloat_pattern)
+	    !regex_match(mydata[col][row], result, efloat_pattern)
 	    )
 	  type[col] = STRING;
-	else if (data[col][row] == QMARK)
+	else if (mydata[col][row] == QMARK)
 	  qflag = true;
 	break;
       case  UNDEF:
-	if (regex_match(data[col][row], result, int_pattern))
+	if (regex_match(mydata[col][row], result, int_pattern))
 	  type[col] = INT;
-	else if (regex_match(data[col][row], result, float_pattern)
+	else if (regex_match(mydata[col][row], result, float_pattern)
 		 ||
-		 regex_match(data[col][row], result, efloat_pattern)) {
+		 regex_match(mydata[col][row], result, efloat_pattern)) {
 	  flength[col] = max(flength[col], int(result.str(1).length()));
 	  type[col] = FLOAT;
-	} else if(data[col][row] != QMARK)
+	} else if(mydata[col][row] != QMARK)
 	  type[col] = STRING;
-	else if (data[col][row] == QMARK)
+	else if (mydata[col][row] == QMARK)
 	  qflag = true;
 	break;
       }
     }
   }
 
-  string fmt = "= %" + to_string(to_string(data.size()).length()) + "d: ";
-  for (int col = 0; col < data.size(); ++col) {
-    vector<string> row = data[col];
+  int id_length = 0;
+  if (!name.empty())
+    while (getline(namefile, line)) {
+      if (line.empty() || regex_match(line, empty_pattern))
+	continue;
+      int lft = 0;
+      while (line[lft] == ' ' || line[lft] == '\t')
+	lft++;
+      int rgt = line.length()-1;
+      while (line[rgt] == ' ' || line[rgt] == '\t')
+	rgt--;
+      string line1 = line.substr(lft, rgt-lft+1);
+      for (int i = 0; i < line1.length(); ++i)
+	if (line1[i] == ' ' || line1[i] == '\t')
+	  line1[i] = '_';
+      id_names.push_back(line1);
+      id_length = max(id_length, int(line1.length()));
+    }
+  else
+    id_length = to_string(mydata.size()).length();
+  int wide = to_string(mydata.size()).length();
+
+  if (!name.empty() && id_names.size() != mydata.size()) {
+    cerr << "*** names versus data discrepancy: data.size";
+    cerr << "(" << mydata.size() << ")";
+    cerr << " != names.size";
+    cerr << "(" << id_names.size() << ")";
+    cerr << endl;
+    IO_close();
+    if (output != STDOUT) {
+      cerr << "*** no otput file generated" << endl;
+      remove(output.c_str());
+    }
+    exit(1);
+  }
+
+  string fmt = "= %" + to_string(to_string(mydata.size()).length()) + "d: ";
+  for (int col = 0; col < mydata.size(); ++col) {
+    vector<string> row = mydata[col];
     vector<int> irow;
     vector<float> frow;
 
-    int wide = to_string(data.size()).length();
-    cout << "id" << left << setw(wide) << col << right;
+    if (!name.empty())
+      cout << left << setw(id_length) << id_names[col] << right;
+    else
+      cout << id << left << setw(wide) << col << right;
     cout << " = " << setw(wide) << col << ": ";
     
     switch (type[col]) {
@@ -309,8 +383,10 @@ int main (int argc, char **argv)
       cout << " consecutive";
     cout << endl;
   }
-  if (qflag)
+  if (qflag) {
     cout << "# missing values represented by '?' encountered" << endl;
+    cerr << "*** missing values represented by '?' encountered" << endl;
+  }
 
   IO_close();
 }

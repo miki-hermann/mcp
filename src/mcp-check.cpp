@@ -26,6 +26,7 @@
  **************************************************************************/
 
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -111,6 +112,26 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
 	print = pDIMACS;
       } else
 	cerr <<  "+++ unknown print option " << prt << endl;
+    } else if (arg == "--matrix"
+	       || arg == "--mtx"
+	       || arg == "-m") {
+      string mtx = argv[++argument];
+      if (mtx == "yes"
+	  || mtx == "y"
+	  || mtx == "show") {
+	display = ySHOW;
+      } else if (mtx == "peek") {
+	display = yPEEK;
+      } else if (mtx == "no"
+		 || mtx == "n"
+		 || mtx == "hide") {
+	display = yHIDE;
+      } else if (mtx == "undefined"
+		 || mtx == "undef"
+		 || mtx == "u") {
+	display = yUNDEF;
+      } else
+	cerr << "+++ unknown matrix print option " << mtx << endl;
     } else
       cerr << "+++ unknown option " << arg << endl;
     ++argument;
@@ -322,42 +343,38 @@ void print_result () {
   cout << "+++ true  negative (tn)  = " << tn << endl;
   cout << "+++ false positive (fp)  = " << fp << endl;
   cout << "+++ false negative (fn)  = " << fn << endl;
+  
   cout << "+++ sensitivity    (tpr) = ";
+  cout << left << setw(7);
   if (tpr < 0.0)
-    cout << "---"
-	 << "\t [tp / (tp + fn)]"
-	 << endl;
+    cout << "---";
   else
-    cout << tpr * 100.0 << " %"
-	 << "\t [tp / (tp + fn)]"
-	 << endl;
+    cout << tpr * 100.0 << " %";
+  cout << right << "\t [tp / (tp + fn)]" << endl;
+  
   cout << "+++ miss rate      (fnr) = ";
+  cout << left << setw(7);
   if (fnr < 0.0)
-    cout << "---"
-	 << "\t [fn / (fn + tp)]"
-	 << endl;
+    cout << "---";
   else
-    cout << fnr * 100.0 << " %"
-	 << "\t [fn / (fn + tp)]"
-	 << endl;
+    cout << fnr * 100.0 << " %";
+  cout << right << "\t [fn / (fn + tp)]" << endl;
+  
   cout << "+++ specificity    (tnr) = ";
+  cout << left << setw(7);
   if (tnr < 0.0)
-    cout << "---"
-	 << "\t [tn / (tn + fp)]"
-	 << endl;
+    cout << "---";
   else
-    cout << tnr * 100.0 << " %"
-	 << "\t [tn / (tn + fp)]"
-	 << endl;
+    cout << tnr * 100.0 << " %";
+  cout << right << "\t [tn / (tn + fp)]" << endl;
+  
   cout << "+++ precision      (ppv) = ";
+  cout << left << setw(7);
   if (ppv < 0.0)
-    cout << "---"
-	 << "\t [tp / (tp + fp)]"
-	 << endl;
+    cout << "---";
   else
-    cout << ppv * 100.0 << " %"
-	 << "\t [tp / (tp + fp)]"
-	 << endl;
+    cout << ppv * 100.0 << " %";
+  cout << right << "\t [tp / (tp + fp)]" << endl;
   
   form_in.close();
   if (output != STDOUT)

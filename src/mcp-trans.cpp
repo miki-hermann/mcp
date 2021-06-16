@@ -378,7 +378,7 @@ void specification () {
       if (token == NUM)
 	row_args.push_back(to_string(minus * stoi(yytext)));
       else if (token == FLOAT)
-	row_args.push_back(to_string(minus * stof(yytext)));
+	row_args.push_back(to_string(minus * stold(yytext)));
       else if (minus == -1) {
 	error("after - must follow num of float");
 	flush(token_string[SCOL], false);
@@ -429,7 +429,7 @@ void specification () {
     if (token == NUM)
       row_args.push_back(to_string(minus * stoi(yytext)));
     else if (token == FLOAT)
-      row_args.push_back(to_string(minus * stof(yytext)));
+      row_args.push_back(to_string(minus * stold(yytext)));
     else {
       error("minimum must be a number");
       flush(token_string[SCOL], true);
@@ -444,7 +444,7 @@ void specification () {
     if (token == NUM)
       row_args.push_back(to_string(minus * stoi(yytext)));
     else if (token == FLOAT)
-      row_args.push_back(to_string(minus * stof(yytext)));
+      row_args.push_back(to_string(minus * stold(yytext)));
     else {
       error("maximum must be a number");
       flush(token_string[SCOL], true);
@@ -478,7 +478,7 @@ void specification () {
     if (token == NUM)
       row_args.push_back(to_string(minus * stoi(yytext)));
     else if (token == FLOAT)
-	row_args.push_back(to_string(minus * stof(yytext)));
+	row_args.push_back(to_string(minus * stold(yytext)));
     else {
       error("minimum must be a number");
       flush(token_string[SCOL], true);
@@ -493,7 +493,7 @@ void specification () {
     if (token == NUM)
       row_args.push_back(to_string(minus * stoi(yytext)));
     else if (token == FLOAT)
-	row_args.push_back(to_string(minus * stof(yytext)));
+	row_args.push_back(to_string(minus * stold(yytext)));
     else {
       error("maximum must be a number");
       flush(token_string[SCOL], true);
@@ -626,7 +626,7 @@ void header () {
     else if (type[ocl] >= DJ && type[ocl] <= OVER)
       item_length = stoi(args[tgt][0]);
     else if (type[ocl] >= SPAN && type[ocl] <= WARP) {
-      float ratio = (stof(args[tgt][2]) - stof(args[tgt][1])) / stof(args[tgt][0]);
+      long double ratio = (stold(args[tgt][2]) - stold(args[tgt][1])) / stold(args[tgt][0]);
       item_length = ratio;
       item_length += (ratio - item_length > 0) ? 1 : 0;
     }
@@ -636,8 +636,8 @@ void header () {
 	       ? item_length - i
 	       : i - 1) + varnum + offset;
 
-      float min, max, ilngt;
-      float over = 0.0;
+      long double min, max, ilngt;
+      long double over = 0.0;
       // positive case
       cout << ":";
       switch (type[ocl]) {
@@ -661,13 +661,13 @@ void header () {
       case OVER:
       case SPAN:
       case WARP:
-	min = stof(args[tgt][1]);
-	max = stof(args[tgt][2]);
+	min = stold(args[tgt][1]);
+	max = stold(args[tgt][2]);
 	ilngt = type[ocl] <= OVER
 	  ? (max - min) / stoi(args[tgt][0])
-	  : stof(args[tgt][0]);
+	  : stold(args[tgt][0]);
 	if (type[ocl] == OVER || type[ocl] == WARP)
-	  over = stof(args[tgt][3]);
+	  over = stold(args[tgt][3]);
 	cout << min + ilngt * (i-1) - over/2
 	     << "<="
 	     << description[tgt]
@@ -699,13 +699,13 @@ void header () {
       case OVER:
       case SPAN:
       case WARP:
-	min = stof(args[tgt][1]);
-	max = stof(args[tgt][2]);
+	min = stold(args[tgt][1]);
+	max = stold(args[tgt][2]);
 	ilngt = type[ocl] <= OVER
 	  ? (max - min) / stoi(args[tgt][0])
-	  : stof(args[tgt][0]);
+	  : stold(args[tgt][0]);
 	if (type[ocl] == OVER || type[ocl] == WARP)
-	  over = stof(args[tgt][3]);
+	  over = stold(args[tgt][3]);
 	cout << description[tgt]
 	     << "<" << min + ilngt * (i-1) - over/2
 	     << "||"
@@ -854,30 +854,30 @@ void matrix () {
 		+
 		" not an integer on coordinate " + to_string(ocl));
       } else if (type[ocl] >= DJ && type[ocl] <= WARP) {
-	float min = stof(args[tgt][1]);
-	float max = stof(args[tgt][2]);
+	long double min = stold(args[tgt][1]);
+	long double max = stold(args[tgt][2]);
 	int icard;
-	float ilngt;
-	float over = 0.0;
+	long double ilngt;
+	long double over = 0.0;
 	if (type[ocl] <= OVER) {
 	  icard = stoi(args[tgt][0]);
 	  ilngt = (max - min) / icard;
 	} else if (type[ocl] >= SPAN) {
-	  ilngt = stof(args[tgt][0]);
-	  float ratio = (max - min) / ilngt;
+	  ilngt = stold(args[tgt][0]);
+	  long double ratio = (max - min) / ilngt;
 	  icard = ratio;
 	  icard += ratio - icard > 0 ? 1 : 0;
 	}
 	if (type[ocl] == OVER || type[ocl] == WARP)
-	  over = stof(args[tgt][3]);
+	  over = stold(args[tgt][3]);
 
 	if (! is_int(chunk[ocl]) && ! is_float(chunk[ocl]))
 	  error(chunk[ocl]
 		+
 		" is not a number on coordinate " + to_string(ocl));
-	else if (stof(chunk[ocl]) < min - over / 2
+	else if (stold(chunk[ocl]) < min - over / 2
 		 ||
-		 stof(chunk[ocl]) >= max + over / 2)
+		 stold(chunk[ocl]) >= max + over / 2)
 	  error(chunk[ocl] +
 		" out of bounds " +
 		to_string(min - over/2) +
@@ -886,9 +886,9 @@ void matrix () {
 		" on coordinate " + to_string(ocl));
 	else
 	  for (int j = 1; j <= icard; ++j)
-	    cout << (stof(chunk[ocl]) >= min + ilngt * (j-1) - over/2
+	    cout << (stold(chunk[ocl]) >= min + ilngt * (j-1) - over/2
 		     &&
-		     stof(chunk[ocl]) <  min + ilngt * j + over/2
+		     stold(chunk[ocl]) <  min + ilngt * j + over/2
 		     ? " 1" : " 0");
       } else {
 	cerr << "+++ you should not be here +++" << endl;

@@ -23,6 +23,7 @@
  *                                                                        *
  **************************************************************************/
 
+#include <iostream>
 #include <sstream>
 #include <vector>
 #include "mcp-matrix+formula.hpp"
@@ -79,8 +80,20 @@ vector<string> split (const string &strg, char delimiter) {
   vector<string> chunks;
   string token;
   istringstream iss(strg);
-  while (getline(iss, token, delimiter))
+
+  if (! isprint(delimiter)) {
+    cerr << "*** delimiter is not printable" << endl;
+    exit(2);
+  }
+
+  while (getline(iss, token, delimiter)) {
+    for (int i = 0; i < token.length(); ++i)
+      if (! isprint(token[i])) {
+	cerr << "*** token on input has a non-printable character" << endl;
+	exit(2);
+      }
     chunks.push_back(token);
+  }
   return chunks;
 }
 

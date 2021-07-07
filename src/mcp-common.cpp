@@ -78,8 +78,7 @@ ofstream outfile;
 ofstream latexfile;
 string formula_output;			// prefix of files, where formulas will be stored
 
-const string action_strg[]    = {"One to One", "One to All Others", "One to All Others, Nosection",
-                                 "Selected to All Others"};
+const string action_strg[]    = {"One to One", "One to All Others", "One to All Others, Nosection"};
 const string closure_strg[]   = {"Horn",       "dual Horn",  "bijunctive", "affine", "CNF"};
 const string cooking_strg[]   = {"raw",        "bleu",       "medium",     "well done"};
 const string direction_strg[] = {"begin",      "end",        "optimum",    "random",
@@ -112,15 +111,6 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
 		 || act == "ns"
 		 || act == "n" ) {
 	action = aNOSECT;
-      } else if (act == "selected"
-		 || act == "select"
-		 || act == "sel"
-		 || act == "s") {
-	if (argument < argc-1) {
-	  action = aSELECTED;
-	  selected = argv[++argument];
-	} else
-	  cerr << "+++ no group selected, revert to default" << endl;
       } else
 	cerr << "+++ unknown action " << act << endl;
     } else if  (arg == "-d"

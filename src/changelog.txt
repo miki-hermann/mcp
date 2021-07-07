@@ -7,7 +7,6 @@
   from a file
 - added mcp-sparse, transforming a file in sparse format into the MCP
   data format
-- added 'selected' option for --action
 
 1.04
 - fixed bug in OneToAllNosection in mcp-seq.cpp and mcp-parallel.cpp

@@ -95,13 +95,6 @@ int main(int argc, char **argv)
   read_matrix(group_of_matrix);
   print_matrix(group_of_matrix);
 
-  if (action == aSELECTED) {
-    cerr << endl;
-    cerr << "*** no need to run the selected action in parallel" << endl;
-    cerr << "*** use mcp-seq to run this example" << endl;
-    exit(2);
-  }
-
   vector<thread> threads;
   const string temp_prefix = tpath + "mcp-tmp-";
   const string basename = temp_prefix + to_string(start_time);

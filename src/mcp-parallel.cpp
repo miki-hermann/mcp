@@ -329,16 +329,6 @@ void print_matrix (const Group_of_Matrix &matrix) {
   }
   sort(grps.begin(), grps.end());
   outfile << "+++ Number of groups = " << grps.size() << endl;
-  
-  if (action == aSELECTED) {
-    if (find(grps.begin(), grps.end(), selected) == grps.end()) {
-      cout << "+++ Selected group " << selected << " does not exist" << endl;
-      exit(2);
-    } else
-      cout << "@@@ selected group   = " << selected << endl;
-  }
-
-  cout << endl;
 }
 
 Formula learnHornLarge (ofstream &process_outfile, const Matrix &T, Matrix F) {

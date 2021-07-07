@@ -46,7 +46,7 @@ typedef map<string, Matrix> Group_of_Matrix;
 extern Group_of_Matrix group_of_matrix;
 extern vector<string> grps;
 
-enum Action    {aONE    = 0, aALL    = 1, aNOSECT      = 2, aSELECTED  = 3};
+enum Action    {aONE    = 0, aALL    = 1, aNOSECT      = 2};
 enum Print     {pVOID   = 0, pCLAUSE = 1, pIMPL        = 2, pMIX       = 3, pDIMACS   = 4};
 enum Display   {yUNDEF  = 0, yHIDE   = 1, yPEEK        = 2, ySECTION   = 3, ySHOW     = 4};
 
@@ -62,7 +62,6 @@ enum NAME {nOWN = 0, nPOSITIVE = 1, nNEGATIVE = 2};
 extern const int MTXLIMIT;
 
 extern Action action;
-extern string selected;
 extern int arity;
 extern int offset;
 extern Print print;

@@ -50,6 +50,7 @@ bool varswitch = false;
 vector<string> varnames;
 
 Action action       = aALL;
+string selected     = "";
 Print print         = pVOID;
 Display display     = yUNDEF;
 int arity           = 0;

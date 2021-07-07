@@ -47,7 +47,7 @@ Output file containing the result of the run of the MCP core.
 Default: STDOUT
 
 .TP
-\fB\-a\fR, \fB\-\-action \fRone | all | nosection
+\fB\-a\fR, \fB\-\-action \fRone | all | nosection | selected\fI STRING\fR
 .IP
 one:
 .br
@@ -66,6 +66,11 @@ to the union of all other groups.
 nosection:
 .br
 Like "all", but no columns are removed.
+.IP
+selected \fI STRING\fR:
+.br
+Like "all", but performed only for the selected group\fI STRING\fR as
+positive instances.
 .IP
 Default: all.
 .

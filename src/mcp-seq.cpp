@@ -69,7 +69,7 @@ void adjust () {			// adjusts the input parameters
       latex += ".tex";
     latexfile.open(latex);
     if (!latexfile.is_open()){
-      cerr << "+++ Cannot open latex file " << latex << endl;
+      cout << "+++ Cannot open latex file " << latex << endl;
       exit(2);
     }
   }
@@ -318,7 +318,17 @@ void print_matrix (const Group_of_Matrix &matrix) {
     }
   }
   sort(grps.begin(), grps.end());
-  cout << "+++ Number of groups = " << grps.size() << endl << endl;
+  cout << "+++ Number of groups = " << grps.size() << endl;
+
+  if (action == aSELECTED) {
+    if (find(grps.begin(), grps.end(), selected) == grps.end()) {
+      cout << "+++ Selected group " << selected << " does not exist" << endl;
+      exit(2);
+    } else
+      cout << "@@@ selected group   = " << selected << endl;
+  }
+
+  cout << endl;
 }
 
 Matrix ObsGeq (const Row &a, const Matrix &M) {
@@ -648,109 +658,114 @@ void OneToOne () {
   }
 }
 
+void SelectedToAll (const string grp) {
+  // selected group of positive exaples against all other groups together as negative examples
+
+  Matrix T = group_of_matrix[grp];
+  Matrix F;
+  vector<string> index;
+  for (int j = 0; j < grps.size(); ++j) {
+    if (grps[j] == grp) continue;
+    F.insert(F.end(), group_of_matrix[grps[j]].begin(), group_of_matrix[grps[j]].end());
+    index.push_back(grps[j]);
+  }
+  sort(index.begin(), index.end());
+
+  if (closure == clDHORN) {
+    cout << "+++ swapping polarity of vectors and treating swapped vectors as Horn" << endl;
+    T = polswap_matrix(T);
+    F = polswap_matrix(F);
+  }
+    
+  Row sect= minsect(T, F);
+  cout << "+++ Section of groups T=" << grp << " and F=( ";
+  for (string coord : index)
+    cout << coord << " ";
+  cout << "):" << endl;
+  if (!disjoint)
+    cout << "+++ Matrices <T> and F are not disjoint, therefore I cannot infer a formula"
+	 << endl << endl;
+  else {
+    int hw = hamming_weight(sect);
+    cout << "+++ Relevant variables [" << hw << "]: ";
+    vector<int> A;
+    for (int k = 0; k < sect.size(); ++k)
+      if (sect[k]) {
+	A.push_back(k);
+	if (varswitch) {
+	  vector<string> new_names = split(varnames[k], ':');
+	  cout << new_names[nOWN];
+	} else
+	  cout << varid << to_string(offset+k);
+	cout << " ";
+      }
+    cout << endl;
+    cout << "+++ A [" << hw << "] = { ";
+    for (int var : A)
+      cout << offset+var << " ";
+    cout << "}" << endl;
+    Matrix TsectA = restrict(sect, T);
+    Matrix FsectA = restrict(sect, F);
+
+    cout << "+++ T|_A [" << TsectA.size() << "]";
+    if (display >= ySECTION) {
+      cout << " = { " << endl;
+      cout << TsectA;
+      cout << "+++ }";
+    }
+    cout << endl;
+
+    cout << "+++ F|_A [" << FsectA.size() << "]";
+    if (display >= ySECTION) {
+      cout << " = { " << endl;
+      cout << FsectA;
+      cout << "+++ }";
+    }
+    cout << endl;
+
+    Matrix HC;
+    if (closure == clHORN || closure == clDHORN) {
+      HC = HornClosure(TsectA);
+      cout << "+++ " << pcl_strg[closure] << "Closure(T|_A) [" << HC.size() << "]";
+      if (display >= ySECTION) {
+	cout << " = { " << endl;
+	cout << HC;
+	cout << "+++ }";
+      }
+      cout << endl;
+    } else if (closure == clBIJUNCTIVE)
+      cout << "+++ " << pcl_strg[closure] << "Closure not computed" << endl;
+
+    Formula formula;
+    if (closure == clHORN || closure == clDHORN)
+      formula =  strategy == sEXACT
+	? learnHornExact(HC)
+	: learnHornLarge(TsectA, FsectA);
+    else if (closure == clBIJUNCTIVE) {
+      formula = learnBijunctive(TsectA, FsectA);
+      if (formula.empty()) {
+	cout << "+++ bijunctive formula not possible for this configuration" << endl << endl;
+	return;
+      }
+    }
+    else if (closure == clCNF)
+      formula = strategy == sLARGE
+	? learnCNFlarge(FsectA)
+	: learnCNFexact(TsectA);
+
+    Formula schf = post_prod(A, FsectA, formula);
+    if (! formula_output.empty())
+      write_formula(grp, A, schf);
+  }
+  disjoint = true;
+  cout << endl;
+}
+
 void OneToAll () {
   // one group of positive exaples against all other groups together as negative examples
   
-  for (int i = 0; i < grps.size(); ++i) {
-    Matrix T = group_of_matrix[grps[i]];
-    Matrix F;
-    vector<string> index;
-    for (int j = 0; j < grps.size(); ++j) {
-      if (j == i) continue;
-      F.insert(F.end(), group_of_matrix[grps[j]].begin(), group_of_matrix[grps[j]].end());
-      index.push_back(grps[j]);
-    }
-    sort(index.begin(), index.end());
-
-    if (closure == clDHORN) {
-      cout << "+++ swapping polarity of vectors and treating swapped vectors as Horn" << endl;
-      T = polswap_matrix(T);
-      F = polswap_matrix(F);
-    }
-    
-    Row sect= minsect(T, F);
-    cout << "+++ Section of groups T=" << grps[i] << " and F=( ";
-    for (string coord : index)
-      cout << coord << " ";
-    cout << "):" << endl;
-    if (!disjoint) {
-      cout << "+++ Matrices <T> and F are not disjoint, therefore I cannot infer a formula"
-	   << endl << endl;
-    } else {
-      int hw = hamming_weight(sect);
-      cout << "+++ Relevant variables [" << hw << "]: ";
-      vector<int> A;
-      for (int k = 0; k < sect.size(); ++k)
-	if (sect[k]) {
-	  A.push_back(k);
-	  if (varswitch) {
-	    vector<string> new_names = split(varnames[k], ':');
-	    cout << new_names[nOWN];
-	  } else
-	    cout << varid << to_string(offset+k);
-	  cout << " ";
-	}
-      cout << endl;
-      cout << "+++ A [" << hw << "] = { ";
-      for (int var : A)
-	cout << offset+var << " ";
-      cout << "}" << endl;
-      Matrix TsectA = restrict(sect, T);
-      Matrix FsectA = restrict(sect, F);
-
-      cout << "+++ T|_A [" << TsectA.size() << "]";
-      if (display >= ySECTION) {
-	cout << " = { " << endl;
-	cout << TsectA;
-	cout << "+++ }";
-      }
-      cout << endl;
-
-      cout << "+++ F|_A [" << FsectA.size() << "]";
-      if (display >= ySECTION) {
-	cout << " = { " << endl;
-	cout << FsectA;
-	cout << "+++ }";
-      }
-      cout << endl;
-
-      Matrix HC;
-      if (closure == clHORN || closure == clDHORN) {
-	HC = HornClosure(TsectA);
-	cout << "+++ " << pcl_strg[closure] << "Closure(T|_A) [" << HC.size() << "]";
-	if (display >= ySECTION) {
-	  cout << " = { " << endl;
-	  cout << HC;
-	  cout << "+++ }";
-	}
-	cout << endl;
-      } else if (closure == clBIJUNCTIVE)
-	cout << "+++ " << pcl_strg[closure] << "Closure not computed" << endl;
-
-      Formula formula;
-      if (closure == clHORN || closure == clDHORN)
-	formula =  strategy == sEXACT
-	  ? learnHornExact(HC)
-	  : learnHornLarge(TsectA, FsectA);
-      else if (closure == clBIJUNCTIVE) {
-	formula = learnBijunctive(TsectA, FsectA);
-	  if (formula.empty()) {
-	    cout << "+++ bijunctive formula not possible for this configuration" << endl << endl;
-	    continue;
-	  }
-      }
-      else if (closure == clCNF)
-	formula = strategy == sLARGE
-	  ? learnCNFlarge(FsectA)
-	  : learnCNFexact(TsectA);
-
-      Formula schf = post_prod(A, FsectA, formula);
-      if (! formula_output.empty())
-	write_formula(grps[i], A, schf);
-    }
-    disjoint = true;
-    cout << endl;
-  }
+  for (int i = 0; i < grps.size(); ++i)
+    SelectedToAll(grps[i]);
 }
 
 void OneToAllNosection () {
@@ -868,6 +883,9 @@ int main(int argc, char **argv)
     break;
   case aNOSECT:
     OneToAllNosection ();
+    break;
+  case aSELECTED:
+    SelectedToAll (selected);
     break;
   }
 

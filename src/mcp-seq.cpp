@@ -764,8 +764,10 @@ void SelectedToAll (const string grp) {
 void OneToAll () {
   // one group of positive exaples against all other groups together as negative examples
   
-  for (int i = 0; i < grps.size(); ++i)
-    SelectedToAll(grps[i]);
+  // for (int i = 0; i < grps.size(); ++i)
+  //   SelectedToAll(grps[i]);
+  for (auto grp : grps)
+    SelectedToAll(grp);
 }
 
 void OneToAllNosection () {

@@ -1,0 +1,6 @@
+wti_variance = 0: dj 20 -7.04210 6.82481;	# card 1338
+wti_skewness = 1: dj 20 -13.77310 12.95161;	# card 1256
+wti_curtosis = 2: dj 20 -5.28610 17.92741;	# card 1270
+entropy = 3: dj 20 -8.548200 2.449501;	# card 1156
+# class = 4: bool [forged genuine];	# card 2 consecutive
+class = 4: ident;

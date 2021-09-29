@@ -1,0 +1,10 @@
+parents  = 0: enum [usual pretentious great_pret];
+has_nurs = 1: down [proper less_proper improper critical very_crit];
+form     = 2: enum [complete completed incomplete foster];
+children = 3: up [1 2 3 more];
+housing  = 4: down [convenient less_conv critical];
+finance  = 5: bool [convenient inconv];
+social   = 6: down [nonprob slightly_prob problematic];
+health   = 7: enum [recommended priority not_recom];
+# id8    = 8: enum [not_recom priority recommend spec_prior very_recom];
+class    = 8: ident;

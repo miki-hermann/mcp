@@ -16,10 +16,17 @@ yellow-small+adult-stretch:
 	mcp-trans -m balloons.txt -i y-s+a-s.data -o y-s+a-s.mat
 	mcp-seq                   -i y-s+a-s.mat  -o y-s+a-s.out
 
-.PHONY: clean scratch
+.PHONY: guess clean scratch
+
+guess:
+	mcp-guess -i adult+stretch.data -n balloons.names -o dummy-a+s.txt
+	mcp-guess -i adult-stretch.data -n balloons.names -o dummy-a-s.txt
+	mcp-guess -i yellow-small.data -n balloons.names -o dummy-y-s.txt
+	mcp-guess -i y-s+a-s.data -n balloons.names -o dummy-y-s+a-s.txt
 
 clean:
 	rm -f *.mat *.out *.lrn *.chk *.log
 
 scratch: clean
 	rm -f *~
+	rm -f dummy.txt

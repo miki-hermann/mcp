@@ -2,7 +2,8 @@ all: setosa versicolor virginica
 
 iris.lrn: iris.data iris.txt
 	mcp-trans -i iris.data -m iris.txt
-	mcp-split -i iris.mat  --ratio 49
+	mcp-uniq  -i iris.mat
+	mcp-split -i iris.unq  --ratio 49
 
 common: iris.lrn
 	mcp-seq   -i iris.lrn  -o iris-hrn.out --formula iris-hrn
@@ -25,10 +26,14 @@ virginica: common
 	mcp-check -i iris.chk  -l iris-cnf_virginica.log  -o iris-cnf_virginica.out
 
 
-.PHONY: clean scratch
+.PHONY: guess clean scratch
+
+guess:
+	mcp-guess -i iris.data -n iris.names -o dummy.txt
 
 clean:
-	rm -f *.mat *.out *.lrn *.chk *.log
+	rm -f *.mat *.unq *.out *.lrn *.chk *.log
 
 scratch: clean
 	rm -f *~
+	rm -f dummy.txt

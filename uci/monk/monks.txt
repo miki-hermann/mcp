@@ -1,0 +1,8 @@
+class        = 0: ident;
+# class        = 0: bool [0 1];		# card 2 consecutive
+head_shape   = 1: enum [1 2 3];	# card 3 consecutive
+body_shape   = 2: enum [1 2 3];	# card 3 consecutive
+is_smiling   = 3: bool [1 2];		# card 2 consecutive
+holding      = 4: enum [1 2 3];	# card 3 consecutive
+jacket_color = 5: enum [1 2 3 4];	# card 4 consecutive
+has_tie      = 6: bool [1 2];	  	# card 2 consecutive

@@ -28,11 +28,13 @@
 
 BIN = ../bin
 
-.PHONY: compile compile-no-mpi seq export clean scratch
+.PHONY: compile compile-no-mpi seq export clean scratch uniq
 
-compile: seq mpi pthread hybrid trans guess cnf split check sparse
+compile: seq mpi pthread hybrid trans guess cnf split check sparse \
+	predict chk2tst uniq
 
-compile-no-mpi: seq pthread trans guess cnf split check sparse
+compile-no-mpi: seq pthread trans guess cnf split check sparse predict \
+	chk2tst uniq
 
 #---------------------------------------------------------------------------------------------------
 
@@ -164,6 +166,42 @@ mcp-sparse.o: mcp-sparse.cpp mcp-matrix+formula.hpp
 
 matrix+formula-sparse.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
 	g++ -O4 -c -o mcp-matrix+formula-sparse.o mcp-matrix+formula.cpp
+
+#---------------------------------------------------------------------------------------------------
+
+predict: matrix+formula-predict.o mcp-predict.o
+	g++ -O4 -o $(BIN)/mcp-predict mcp-predict.o \
+				    mcp-matrix+formula-predict.o
+
+mcp-predict.o: mcp-predict.cpp mcp-matrix+formula.hpp
+	g++ -O4 -c -o mcp-predict.o mcp-predict.cpp
+
+matrix+formula-predict.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
+	g++ -O4 -c -o mcp-matrix+formula-predict.o mcp-matrix+formula.cpp
+
+#---------------------------------------------------------------------------------------------------
+
+chk2tst: matrix+formula-chk2tst.o mcp-chk2tst.o
+	g++ -O4 -o $(BIN)/mcp-chk2tst mcp-chk2tst.o \
+				    mcp-matrix+formula-chk2tst.o
+
+mcp-chk2tst.o: mcp-chk2tst.cpp mcp-matrix+formula.hpp
+	g++ -O4 -c -o mcp-chk2tst.o mcp-chk2tst.cpp
+
+matrix+formula-chk2tst.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
+	g++ -O4 -c -o mcp-matrix+formula-chk2tst.o mcp-matrix+formula.cpp
+
+#---------------------------------------------------------------------------------------------------
+
+uniq: matrix+formula-uniq.o mcp-uniq.o
+	g++ -O4 -o $(BIN)/mcp-uniq mcp-uniq.o \
+			mcp-matrix+formula-uniq.o
+
+mcp-uniq.o: mcp-uniq.cpp mcp-matrix+formula.hpp
+	g++ -O4 -c -o mcp-uniq.o mcp-uniq.cpp
+
+matrix+formula-uniq.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
+	g++ -O4 -c -o mcp-matrix+formula-uniq.o mcp-matrix+formula.cpp
 
 #---------------------------------------------------------------------------------------------------
 

@@ -307,15 +307,8 @@ void print_matrix (const Group_of_Matrix &matrix) {
     grps.push_back(group->first);
     auto gmtx = group->second;
     cout << " [" << gmtx.size() << "]:" << endl;
-    if (display == yPEEK || display == ySHOW) {
-      for (auto i = gmtx.begin(); i != gmtx.end(); ++i) {
-	for (auto j = i->begin(); j != i->end(); ++j)
-	  // cout << *j << " ";
-	  cout << *j;
-	cout << endl;
-      }
-      cout << endl;
-    }
+    if (display == yPEEK || display == ySHOW)
+      cout << gmtx << endl;
   }
   sort(grps.begin(), grps.end());
   cout << "+++ Number of groups = " << grps.size() << endl;

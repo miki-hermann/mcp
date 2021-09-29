@@ -315,30 +315,23 @@ void print_matrix (const Group_of_Matrix &matrix) {
   for (auto group = matrix.begin(); group != matrix.end(); ++group) {
     outfile << "+++ Group " << group->first;
     grps.push_back(group->first);
-    auto gmtx = group->second;
+    Matrix gmtx = group->second;
     outfile << " [" << gmtx.size() << "]:" << endl;
-    if (display == yPEEK || display == ySHOW) {
-      for (auto i = gmtx.begin(); i != gmtx.end(); ++i) {
-	for (auto j = i->begin(); j != i->end(); ++j)
-	  // outfile << *j << " ";
-	  outfile << *j;
-	outfile << endl;
-      }
-      outfile << endl;
-    }
+    if (display == yPEEK || display == ySHOW)
+      outfile << gmtx << endl;
   }
   sort(grps.begin(), grps.end());
   outfile << "+++ Number of groups = " << grps.size() << endl;
   
   if (action == aSELECTED) {
     if (find(grps.begin(), grps.end(), selected) == grps.end()) {
-      cout << "+++ Selected group " << selected << " does not exist" << endl;
+      outfile << "+++ Selected group " << selected << " does not exist" << endl;
       exit(2);
     } else
-      cout << "@@@ selected group   = " << selected << endl;
+      outfile << "@@@ selected group   = " << selected << endl;
   }
 
-  cout << endl;
+  outfile << endl;
 }
 
 Formula learnHornLarge (ofstream &process_outfile, const Matrix &T, Matrix F) {

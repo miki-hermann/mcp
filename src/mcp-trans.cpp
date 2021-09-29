@@ -5,7 +5,7 @@
  *                                                                        *
  *	Author:   Miki Hermann                                            *
  *	e-mail:   hermann@lix.polytechnique.fr                            *
- *	Address:  LIX (CNRS UMR 7161), Ecole Polytechnique, France         *
+ *	Address:  LIX (CNRS UMR 7161), Ecole Polytechnique, France        *
  *                                                                        *
  *	Author: Gernot Salzer                                             *
  *	e-mail: gernot.salzer@tuwien.ac.at                                *
@@ -17,7 +17,8 @@
  *      Copyright (c) 2019 - 2021                                         *
  *                                                                        *
  * Given a meta-description of a data file, this software generates the   *
- * Boolean matrix input for mcp-seq, mcp-mpi, mcp-pthread, and mcp-hybrid.*
+ * Boolean matrix input for mcp-seq, mcp-mpi, mcp-pthread, mcp-hybrid,    *
+ * and mcp-predict.                                                       *
  *                                                                        *
  * This software has been created within the ACCA Project.                *
  *                                                                        *
@@ -55,7 +56,46 @@ enum Token {ERROR  =  0,
 	    DJ     = 17,
 	    OVER   = 18,
 	    SPAN   = 19,
-	    WARP   = 20};
+	    WARP   = 20,
+	    STEP   = 21,
+	    DATE   = 22,
+	    DNUM   = 23,
+	    DVAL   = 24,
+	    TIME   = 25,
+	    TNUM   = 26,
+	    TVAL   = 27,
+	    WEEK   = 28,
+	    MONTH  = 29,
+	    YEAR   = 30,
+	    JAN    = 31,
+	    FEB    = 32,
+	    MAR    = 33,
+	    APR    = 34,
+	    MAY    = 35,
+	    JUN    = 36,
+	    JUL    = 37,
+	    AUG    = 38,
+	    SEP    = 39,
+	    OCT    = 40,
+	    NOV    = 41,
+	    DEC    = 42,
+	    MON    = 43,
+	    TUE    = 44,
+	    WED    = 45,
+	    THU    = 46,
+	    FRI    = 47,
+	    SAT    = 48,
+	    SUN    = 49,
+	    PIVOT  = 50
+};
+enum Token_Type {
+  GENERAL_T = 0,
+  DATE_T    = 1,
+  TIME_T    = 2,
+  WEEK_T    = 3,
+  MONTH_T   = 4,
+  YEAR_T    = 5
+};
 const string token_string[] = {"ERROR",
 			       "EQUAL",
 			       "COLON",
@@ -76,7 +116,38 @@ const string token_string[] = {"ERROR",
 			       "DJ",
 			       "OVER",
 			       "SPAN",
-			       "WARP"};
+			       "WARP",
+			       "STEP",
+			       "DATE",
+			       "DNUM",
+			       "DVAL",
+			       "TIME",
+			       "TNUM",
+			       "TVAL",
+			       "WEEK",
+			       "MONTH",
+			       "YEAR",
+			       "JAN",
+			       "FEB",
+			       "MAR",
+			       "APR",
+			       "MAY",
+			       "JUN",
+			       "JUL",
+			       "AUG",
+			       "SEP",
+			       "OCT",
+			       "NOV",
+			       "DEC",
+			       "MON",
+			       "TUE",
+			       "WED",
+			       "THU",
+			       "FRI",
+			       "SAT",
+			       "SUN",
+			       "PIVOT"
+};
 
 string msrc;				// meta source
 int lineno = 0;				// line number
@@ -87,7 +158,7 @@ bool errorflag = false;
 int qmarkcount = 0;
 int linecount  = 0;
 
-#define SENTINEL -1
+// #define SENTINEL -1
 #define STDIN    "STDIN"
 #define STDOUT   "STDOUT"
 #define NOSTRING " #=:;?[]"
@@ -96,20 +167,26 @@ int linecount  = 0;
 // int offset = 0;
 Index idx  = LOCAL;
 
-string input   = STDIN;
-string output  = STDOUT;
-string metaput = " ";
+string input    = STDIN;
+string output   = STDOUT;
+string metaput  = "";
+string pivotput = "";
 
 ifstream infile;
 ifstream metafile;
 ofstream outfile;
+ofstream pvtfile;
 streambuf *backup;
 
+Token_Type t_type = GENERAL_T;
 set<string> symtab;
 string desc;
 vector<string> description = {" "};
 int orig_column;
 int ident = SENTINEL;
+bool IDpresent = true;
+int pivot = SENTINEL;
+bool PVTpresent = false;
 unordered_map<int, Token> type;
 vector<int> target = {SENTINEL};
 vector<vector<string>> args;
@@ -129,22 +206,39 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
     } else if (arg == "-m"
 	       || arg == "--meta") {
       metaput = argv[++argument];
+    } else if (arg == "--pivot"
+	       || arg == "--pvt") {
+      pivotput = argv[++argument];
     } else if (arg == "--index") {
-      ++argument;
-      if (argv[argument] == "l"
-	  || argv[argument] == "loc"
-	  || argv[argument] == "local")
+      string idxpar = argv[++argument];
+      if (idxpar == "l"
+	  || idxpar == "loc"
+	  || idxpar == "local")
 	idx = LOCAL;
-      else if (argv[argument] == "g"
-	       || argv[argument] == "glob"
-	       || argv[argument] == "global")
+      else if (idxpar == "g"
+	       || idxpar == "glob"
+	       || idxpar == "global")
 	idx = GLOBAL;
       else {
-	cerr << "+++ argument error: " << arg << " " << argv[argument] << endl;
+	cerr << "+++ argument error: " << arg << " " << idxpar << endl;
 	exit(1);
       }
     } else if (arg == "--offset") {
       offset = stoi(argv[++argument]);
+    } else if (arg == "--ident") {
+      string idpar = argv[++argument];
+      if (idpar == "yes"
+	  || idpar == "y"
+	  || idpar == "1")
+	IDpresent = true;
+      else if (idpar == "no"
+	       || idpar == "n"
+	       || idpar == "0")
+	IDpresent = false;
+      else {
+	cerr << "+++ argument error: " << arg << " " << idpar << endl;
+	exit(1);
+      }
     } else {
       cerr << "+++ argument error: " << arg << endl;
       exit(1);
@@ -155,7 +249,7 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
     string::size_type pos = input.rfind('.');
     output = (pos == string::npos ? input : input.substr(0, pos)) + ".mat";
   }
-  if (metaput == " ") {
+  if (metaput.empty()) {
     cerr << "+++ argument error: no metafile" << endl;
     exit(1);
   }
@@ -239,6 +333,7 @@ Token yylex () {
   } else if (msrc[0] == ';') {
     anything = false;
     msrc.erase(0,1);
+    t_type = GENERAL_T;
     token = SCOL;
   } else if (msrc[0] == '[') {
     anything = true;
@@ -254,36 +349,62 @@ Token yylex () {
   } else if (msrc[0] == '?') {
     msrc.erase(0,1);
     token = QMARK;
-  } else if (msrc.substr(0, 5) == "ident" && !isalnum(msrc[5])) {
+  } else if (t_type == GENERAL_T && msrc.substr(0, 5) == "ident" && !isalnum(msrc[5])) {
     msrc.erase(0,5);
     token = IDENT;
-  } else if (msrc.substr(0, 4) == "bool" &&  !isalnum(msrc[4])) {
+  } else if (t_type == GENERAL_T && msrc.substr(0, 5) == "pivot" && !isalnum(msrc[5])) {
+    msrc.erase(0,5);
+    token = PIVOT;
+  } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "bool" &&  !isalnum(msrc[4])) {
     msrc.erase(0,4);
     token = BOOL;
-  } else if (msrc.substr(0, 4) == "enum" &&  !isalnum(msrc[4])) {
+  } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "enum" &&  !isalnum(msrc[4])) {
     msrc.erase(0,4);
     token = ENUM;
-  } else if (msrc.substr(0, 2) == "up" &&  !isalnum(msrc[2])) {
+  } else if (t_type == GENERAL_T && msrc.substr(0, 2) == "up" &&  !isalnum(msrc[2])) {
     msrc.erase(0,2);
     token = UP;
-  } else if (msrc.substr(0, 4) == "down" &&  !isalnum(msrc[4])) {
+  } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "down" &&  !isalnum(msrc[4])) {
     msrc.erase(0,4);
     token = DOWN;
-  } else if (msrc.substr(0, 3) == "int" &&  !isalnum(msrc[3])) {
+  } else if (t_type == GENERAL_T && msrc.substr(0, 3) == "int" &&  !isalnum(msrc[3])) {
     msrc.erase(0,3);
     token = INT;
-  } else if (msrc.substr(0, 2) == "dj" &&  !isalnum(msrc[2])) {
+  } else if (t_type == GENERAL_T && msrc.substr(0, 2) == "dj" &&  !isalnum(msrc[2])) {
     msrc.erase(0,2);
     token = DJ;
-  } else if (msrc.substr(0, 4) == "over" &&  !isalnum(msrc[4])) {
+  } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "over" &&  !isalnum(msrc[4])) {
     msrc.erase(0,4);
     token = OVER;
-  } else if (msrc.substr(0, 4) == "span" &&  !isalnum(msrc[4])) {
+  } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "span" &&  !isalnum(msrc[4])) {
     msrc.erase(0,4);
     token = SPAN;
-  } else if (msrc.substr(0, 4) == "warp" &&  !isalnum(msrc[4])) {
+  } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "warp" &&  !isalnum(msrc[4])) {
     msrc.erase(0,4);
     token = WARP;
+  } else if (msrc.substr(0, 4) == "step" &&  !isalnum(msrc[4])) {
+    msrc.erase(0,4);
+    token = STEP;
+  } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "date" &&  !isalnum(msrc[4])) {
+    msrc.erase(0,4);
+    t_type = DATE_T;
+    token = DATE;
+  } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "time" &&  !isalnum(msrc[4])) {
+    msrc.erase(0,4);
+    t_type = TIME_T;
+    token = TIME;
+  } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "week" &&  !isalnum(msrc[4])) {
+    msrc.erase(0,4);
+    t_type = WEEK_T;
+    token = WEEK;
+  } else if (t_type == GENERAL_T && msrc.substr(0, 5) == "month" &&  !isalnum(msrc[5])) {
+    msrc.erase(0,5);
+    t_type = MONTH_T;
+    token = MONTH;
+  } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "year" &&  !isalnum(msrc[4])) {
+    msrc.erase(0,4);
+    t_type = YEAR_T;
+    token = YEAR;
   } else if (msrc[0] == '.') {			// float
     auto nodigit = msrc.find_first_not_of(DIGITS, 1);
     yytext = msrc.substr(0, nodigit);
@@ -334,8 +455,25 @@ void specification () {
   int minus;
   Token spec = yylex();
   if (spec == IDENT) {
+    if (ident != SENTINEL) {
+      error("double ident");
+      flush(token_string[SCOL], true);
+      return;
+    }
     ident = orig_column;
     description[0] = desc;
+    return;
+  } else if (spec == PIVOT) {
+    if (pivot != SENTINEL) {
+      error("double pivot");
+      flush(token_string[SCOL], true);
+      return;
+    }
+    pivot = orig_column;
+    if (input != STDIN && pivotput.empty()) {
+      string::size_type pos = input.rfind('.');
+      pivotput = (pos == string::npos ? input : input.substr(0, pos)) + ".pvt";
+    }
     return;
   } else {
     description.push_back(desc);
@@ -565,8 +703,12 @@ void program () {
   
   while (msrc.size() > 0)
     command_line();
-  if (ident == SENTINEL)
-    error("no identifier");
+  if (ident == SENTINEL && IDpresent)
+    error("missing identifier");
+  else if (ident != SENTINEL && !IDpresent)
+    error("superfluous identifier");
+  if (pivot == SENTINEL && PVTpresent)
+    error("missing pivot");
 }
 
 int position (string &item, vector<string> &list) {
@@ -597,6 +739,15 @@ void IO_open () {
       exit(1);
     }
   }
+
+  if (! pivotput.empty()) {
+    pvtfile.open(pivotput);
+    PVTpresent = true;
+    if (! pvtfile.is_open()) {
+      cerr << "+++ Cannot open pivot file " << pivotput << endl;
+      exit(1);
+    }
+  }
 }
 
 void IO_close () {
@@ -606,6 +757,8 @@ void IO_close () {
     outfile.close();
     cout.rdbuf(backup);
   }
+  if (! pivotput.empty())
+    pvtfile.close();
 }
 
 void header () {
@@ -788,9 +941,24 @@ void matrix () {
     line = line + ' ';
 
     vector<string> chunk = split(line, ' ');
-    cout << chunk[ident];
+    if (chunk.size() < target.size()) {
+      error(to_string(target.size())
+	    +
+	    " elements required, but only "
+	    +
+	    to_string(chunk.size())
+	    +
+	    " present");
+      return;
+    }
+    if (IDpresent)
+      cout << chunk[ident];
+    if (PVTpresent)
+      pvtfile << chunk[pivot] << endl;
     int mypos;
     for (int tgt = 1; tgt < target.size(); ++tgt) {
+      // if (tgt == pivot)
+      // 	continue;
       int ocl = target[tgt];
       if (type[ocl] == BOOL) {
 	mypos = position(chunk[ocl], args[tgt]);
@@ -930,10 +1098,16 @@ int main(int argc, char **argv)
       remove(output.c_str());
       cerr << "+++ output file " << output << " deleted" << endl;
     }
+    if (PVTpresent) {
+      remove(pivotput.c_str());
+      cerr << "+++ pivot file " << pivotput << " deleted" << endl;
+    }
     cerr << "+++ runtime errors in data file " << input << endl;
   } else {
     if (output != STDOUT)
       cerr << "+++ output file " << output << " generated" << endl;
+    if (PVTpresent)
+      cerr << "+++ pivot file " << pivotput << " generated" << endl;
     cerr << "+++ transformation successful" << endl;
   }
   return 0;

@@ -98,13 +98,13 @@ problem unsolvable.
 .IP
 lowcard:
 .br
-Prefer columns with a lower Hamming weight (more zeros), by starting
-to remove columns with high Hamming weight (many ones).
+Prefer columns with a lower Hamming weight (more zeros) in the positive part,
+by starting to remove columns with high Hamming weight (many ones).
 .IP
 highcard:
 .br
-Prefer columns with a higher Hamming weight (more ones), by starting
-to remove columns with small Hamming weight (many zeros).
+Prefer columns with a higher Hamming weight (more ones) in the positive part,
+by starting to remove columns with small Hamming weight (many zeros).
 .IP
 random:
 .br
@@ -302,6 +302,8 @@ mcp-trans(1),
 mcp-split(1),
 mcp-check(1),
 mcp-sparse(1),
+mcp-chk2tst(1),
+mcp-predict(1),
 mpirun(1)
 .
 .SH BUGS

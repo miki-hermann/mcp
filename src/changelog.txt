@@ -1,21 +1,30 @@
+1.04b (preparation for new module mcp-predict)
+ - mcp-uniq introduced
+ - deleted c++ from version, since there are only c++ sources now
+ - added accuracy to statistics in mcp-check
+ - added option '--ident yes/no' in mcp-trans
+ - read_formula moved into mcp-matrix+formula
+ - mcp-chk2tst transforms *.chk to *.tst; technical module for mcp-predict
+ - corrected bug in mcp-trans, when number of elements on line != expected
+
 1.04a
-- fixed a bug with non-printable characters
-- added option --matrix to mcp-check
-- added options --enum and --ratio, which allow to specify the maximum number
-  and the maximum rate, respectively, of enumerated items
-- added option --names to mcp-guess, which allows to take coordinate names
-  from a file
-- added mcp-sparse, transforming a file in sparse format into the MCP
-  data format
-- added 'selected' option for --action
+ - fixed a bug with non-printable characters
+ - added option --matrix to mcp-check
+ - added options --enum and --ratio, which allow to specify the maximum number
+   and the maximum rate, respectively, of enumerated items
+ - added option --names to mcp-guess, which allows to take coordinate names
+   from a file
+ - added mcp-sparse, transforming a file in sparse format into the MCP
+   data format
+ - added 'selected' option for --action
 
 1.04
-- fixed bug in OneToAllNosection in mcp-seq.cpp and mcp-parallel.cpp
-- fixed a bug in mcp-check.cpp
-- added LaTeX output
-- mcp-split introduced
-- post_prod introduced
-- write formula to a file (DIMACS form)
+ - fixed bug in OneToAllNosection in mcp-seq.cpp and mcp-parallel.cpp
+ - fixed a bug in mcp-check.cpp
+ - added LaTeX output
+ - mcp-split introduced
+ - post_prod introduced
+ - write formula to a file (DIMACS form)
 
 1.03c
  - added print option DIMACS

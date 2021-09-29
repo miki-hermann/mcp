@@ -31,6 +31,7 @@ integer). The \fIindicator\fR has one of the following forms.
 .in +4n
 .EX
 .B ident
+.B pivot
 .R \fBbool\fR	'[' \fIelem_0 elem_1\fR ']'
 .R \fBenum\fR	'[' \fIelem\fR\|.\|.\|. ']'
 .R \fBup\fR	'[' \fIelem\fR\|.\|.\|. ']'
@@ -51,6 +52,10 @@ integer values.
 .B ident
 This is the group identifier. The corresponding \fIidentifier\fR will
 become the group prefix.
+.TP
+.B pivot
+This is the pivot identifier. The corresponding \fIidentifier\fR will
+become the pivot value.
 .TP
 .B bool
 Boolean two-element set.

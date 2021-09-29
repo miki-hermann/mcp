@@ -33,6 +33,12 @@ binarization instructions. Format of the \fImeta-file\fR is described
 in \fBmcp-trans\fR(5).
 .
 .TP
+\fB\-\-pvt\fR, \fB\-\-pivot\fI pivot-file
+Pivot output file, where values for the pivot coordinate will be stored.
+.IP
+Default: The \fIbasename\fR of \fIinput-file\fR with \fI.pvt\fR suffix.
+.
+.TP
 \fB\-\-index \fRlocal | global
 Indexing of variables.
 .IP
@@ -44,6 +50,18 @@ local:
 Indexes are proper for each variable identifier.
 .IP
 Default: local.
+.
+.TP
+\fB\-\-ident \fRyes | no
+Should the group identifier, leading each matrix row, be present?
+.IP
+yes:
+Group identifier present.
+.IP
+no:
+Group identifier absent.
+.IP
+Default: yes.
 .
 .TP
 .BI "\-\-offset " INTEGER
@@ -68,7 +86,9 @@ mcp-mpi(1),
 mcp-pthread(1),
 mcp-hybrid(1),
 mcp-check(1),
-mcp-sparse(1)
+mcp-sparse(1),
+mcp-chk2tst(1),
+mcp-predict(1)
 .
 .SH BUGS
 There are certanly some.

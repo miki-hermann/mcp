@@ -5,7 +5,7 @@
  *                                                                        *
  *	Author:   Miki Hermann                                            *
  *	e-mail:   hermann@lix.polytechnique.fr                            *
- *	Address:  LIX (CNRS UMR 7161), Ecole Polytechnique, France         *
+ *	Address:  LIX (CNRS UMR 7161), Ecole Polytechnique, France        *
  *                                                                        *
  *	Author: Gernot Salzer                                             *
  *	e-mail: gernot.salzer@tuwien.ac.at                                *
@@ -26,13 +26,16 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <algorithm>
 #include "mcp-matrix+formula.hpp"
 
 using namespace std;
 
 //------------------------------------------------------------------------------
 
-string version = GLOBAL_VERSION;
+string version       = GLOBAL_VERSION;
+const int SENTINEL   = -1;
+const double RSNTNL  = -1.0;
 const int MTXLIMIT   = 4000;
 
 const string print_strg[]     = {"void",       "clause",     "implication", "mixed",   "DIMACS"};
@@ -53,6 +56,7 @@ Action action       = aALL;
 string selected     = "";
 Print print         = pVOID;
 Display display     = yUNDEF;
+string suffix;
 int arity           = 0;
 int offset          = 0;
 
@@ -298,4 +302,87 @@ string formula2latex (const vector<int> &names, const Formula &formula) {
     output += clause2latex(names, clause);
   }
   return output;
+}
+
+void read_formula (vector<int> &names, Formula &formula) {
+  // formula read instructions
+
+  int nvars;
+  cin >> suffix >> arity >> nvars >> offset;
+
+  // cerr << "*** suffix = " << suffix
+  //      << ", arity = " << arity
+  //      << ", #vars = " << nvars
+  //      << ", offset = " << offset
+  //      << endl;
+
+  vector<int> validID;
+  int dummy;
+  for (int i = 0; i < nvars; ++i) {
+    cin >> dummy;
+    validID.push_back(dummy);
+  }
+
+  for (int i = 0; i < arity; ++i)
+    names.push_back(i);
+
+  int lit;
+  Clause clause(arity, lnone);
+  while (cin >> lit)
+    if (lit == 0) {			// end of clause in DIMACS
+      formula.push_back(clause);
+      for (int i = 0; i < arity; ++i)
+	clause[i] = lnone;
+    } else if (find(cbegin(validID), cend(validID), abs(lit)) == cend(validID)) {
+      cerr << "+++ " << abs(lit) << " outside allowed variable names" << endl;
+      exit(2);
+    } else
+      clause[abs(lit)-1-offset] = lit < 0 ? lneg : lpos;
+}
+
+ostream& operator<< (ostream &output, const Row &row) {
+  // overloading ostream to print a row
+  // transforms a tuple (row) to a printable form
+  // for (bool bit : row)
+  for (int i = 0; i < row.size(); ++i)
+    // output << to_string(bit); // bit == true ? 1 : 0;
+    // output << to_string(row[i]);
+    output << row[i];
+  return output;
+}
+
+ostream& operator<< (ostream &output, const Matrix &M) {
+  // overloading ostream to print a matrix
+  // transforms a matrix to a printable form
+  for (Row row : M)
+    output << "\t" << row << "\n";
+  return output;
+}
+
+void push_front (Row &row1, const Row &row2) {
+  Row newrow(row1.size()+row2.size(), row2.to_ulong());
+  row1.resize(newrow.size());
+  row1 <<= row2.size();
+  newrow |= row1;
+  row1 = newrow;
+}
+
+void push_front (Row &row, const bool b) {
+  Row newrow(row.size()+1, b);
+  row.resize(newrow.size());
+  row <<= 1;
+  row |= newrow;
+}
+
+bool front (const Row &row) {
+  return row[0];
+}
+
+bool back (const Row &row) {
+  return row[row.size()-1];
+}
+
+void pop_front (Row &row) {
+  row >>= 1;
+  row.resize(row.size()-1);
 }

@@ -183,11 +183,11 @@ void cleanup (const int &matsize, const int &checksize) {
   learnfile.close();
   checkfile.close();
 
-  cerr << "@@@ check ratio = " << ratio << "%" << endl;
-  cerr << "@@@ learn " << learn_output << ": "
+  cerr << "+++ check ratio = " << ratio << "%" << endl;
+  cerr << "+++ learn " << learn_output << ": "
        << matsize - checksize
        << endl;
-  cerr << "@@@ check " << check_output << ": "
+  cerr << "+++ check " << check_output << ": "
        << checksize
        << endl;
 }

@@ -48,7 +48,7 @@ map<Row, int> pred;		// predecessor function for Zanuttini's algorithm
 map<Row, int> succ;		// successor function for Zanuttini's algorithm
 map<Row, vector<int>> sim;	// sim table for Zanuttini's algorithm
 
-const int SENTINEL     = -1;
+// const int SENTINEL     = -1;
 const string STDIN     = "STDIN";
 const string STDOUT    = "STDOUT";
 // const int MTXLIMIT     = 4000;
@@ -356,26 +356,13 @@ int hamming_distance (const Row &u, const Row &v) {
 bool operator>= (const Row &a, const Row &b) {
   // overloading >=
   // is row a >= row b?
+  if (a.size() != b.size())
+    throw;
+
   for (int i = 0; i < a.size(); ++i) {
     if (a[i] < b[i]) return false;
   }
   return true;
-}
-
-ostream& operator<< (ostream &output, const Row &row) {
-  // overloading ostream to print a row
-  // transforms a tuple (row) to a printable form
-  for (bool bit : row)
-    output << to_string(bit); // bit == true ? 1 : 0;
-  return output;
-}
-
-ostream& operator<< (ostream &output, const Matrix &M) {
-  // overloading ostream to print a matrix
-  // transforms a matrix to a printable form
-  for (Row row : M)
-    output << "\t" << row << "\n";
-  return output;
 }
 
 Row Min (const Row &a, const Row &b) {
@@ -388,7 +375,8 @@ Row Min (const Row &a, const Row &b) {
 
 Row MIN (const Matrix &M) {
   // computes the minimal tuple of the whole matrix
-  Row m(M[0].size(), true);
+  Row m(M[0].size());
+  m.set();
   for (Row row : M)
     m = Min(m, row);
   return m;
@@ -464,8 +452,9 @@ Matrix section (const Row &alpha, const Matrix &A) {
 }
 
 int hamming_weight (const Row &row) {	// Hamming weight of a tuple
-  int sum = accumulate(cbegin(row), cend(row), 0);
-  return sum;
+  // int sum = accumulate(cbegin(row), cend(row), 0);
+  // int sum = row.count();
+  return row.count();
 }
 
 Matrix join (const Matrix &head, const Matrix &tail) {
@@ -478,8 +467,10 @@ Matrix join (const Matrix &head, const Matrix &tail) {
   Matrix join;  
   for (int i = 0; i < head.size(); ++i) {
     Row row = head[i];
-    auto row_it = back_inserter(row);
-    copy(tail[i].begin(), tail[i].end(), row_it);
+    // auto row_it = back_inserter(row);
+    // copy(tail[i].begin(), tail[i].end(), row_it);
+    for (int j = 0; j < tail[i].size(); ++j)
+      row.push_back(tail[i][j]);
     join.push_back(row);
   }
   return join;
@@ -490,13 +481,13 @@ Row minsect (const Matrix &T, const Matrix &F) {
   const int lngt  = T[0].size();
   const int Tsize = T.size();
   const int Fsize = F.size();
-  
+
   if (inadmissible(T,F)) {
     disjoint = false;
     Row emptyrow(lngt, false);
     return emptyrow;
   }
-  
+
   Row A(lngt, true);
   if (direction == dBEGIN) {
     // from right to left; favors variables on the left
@@ -506,12 +497,13 @@ Row minsect (const Matrix &T, const Matrix &F) {
       Row Tcolumn, Fcolumn;
       // if (!Thead.empty())
       for (int j = 0; j < Tsize; ++j) {
-	Tcolumn.push_back(Thead[j].back());
+	// Tcolumn.push_back(Thead[j].back());
+	Tcolumn.push_back(back(Thead[j]));
 	Thead[j].pop_back();
       }
       // if (!Fhead.empty())
       for (int j = 0; j < Fsize; ++j) {
-	Fcolumn.push_back(Fhead[j].back());
+	Fcolumn.push_back(back(Fhead[j]));
 	Fhead[j].pop_back();
       }
       Matrix Ta = join(Thead, Ttail);
@@ -520,22 +512,23 @@ Row minsect (const Matrix &T, const Matrix &F) {
 	A[i] = true;
 	if (Ttail.empty())
 	  for (int j = 0; j < Tsize; ++j) {
-	    Row row;
-	    row.push_back(Tcolumn[j]);
+	    Row row(1, Tcolumn[j]);
 	    Ttail.push_back(row);
 	  }
 	else
 	  for (int j = 0; j < Tsize; ++j)
-	    Ttail[j].push_front(Tcolumn[j]);
+	    // Ttail[j].push_front(Tcolumn[j]);
+	    push_front(Ttail[j], Tcolumn[j]);
 	if (Ftail.empty())
 	  for (int j = 0; j < Fsize; ++j) {
-	    Row row;
-	    row.push_back(Fcolumn[j]);
+	    Row row(1, Fcolumn[j]);
+	    // row.push_back(Fcolumn[j]);
 	    Ftail.push_back(row);
 	  }
 	else
 	  for (int j = 0; j < Fsize; ++j)
-	    Ftail[j].push_front(Fcolumn[j]);
+	    // Ftail[j].push_front(Fcolumn[j]);
+	    push_front(Ftail[j], Fcolumn[j]);
       }
       // for (int i = lngt-1; i >= 0; --i) {
       //   A[i] = false;
@@ -551,13 +544,15 @@ Row minsect (const Matrix &T, const Matrix &F) {
       Row Tcolumn, Fcolumn;
       // if (!Ttail.empty())
       for (int j = 0; j < Tsize; ++j) {
-	Tcolumn.push_back(Ttail[j].front());
-	Ttail[j].pop_front();
+	// Tcolumn.push_back(Ttail[j].front());
+	Tcolumn.push_back(front(Ttail[j]));
+	pop_front(Ttail[j]);
       }
       // if (!Ftail.empty())
       for (int j = 0; j < Fsize; ++j) {
-	Fcolumn.push_back(Ftail[j].front());
-	Ftail[j].pop_front();
+	// Fcolumn.push_back(front(Ftail[j]));
+	Fcolumn.push_back(front(Ftail[j]));
+	pop_front(Ftail[j]);
       }
       Matrix Ta = join(Thead, Ttail);
       Matrix Fa = join(Fhead, Ftail);
@@ -565,8 +560,8 @@ Row minsect (const Matrix &T, const Matrix &F) {
 	A[i] = true;
 	if (Thead.empty())
 	  for (int j = 0; j < Tsize; ++j) {
-	    Row row;
-	    row.push_back(Tcolumn[j]);
+	    Row row(1, Tcolumn[j]);
+	    // row.push_back(Tcolumn[j]);
 	    Thead.push_back(row);
 	  }
 	else
@@ -574,8 +569,8 @@ Row minsect (const Matrix &T, const Matrix &F) {
 	    Thead[j].push_back(Tcolumn[j]);
 	if (Fhead.empty())
 	  for (int j = 0; j < Fsize; ++j) {
-	    Row row;
-	    row.push_back(Fcolumn[j]);
+	    Row row(1, Fcolumn[j]);
+	    // row.push_back(Fcolumn[j]);
 	    Fhead.push_back(row);
 	  }
 	else
@@ -591,35 +586,37 @@ Row minsect (const Matrix &T, const Matrix &F) {
   } else if (direction == dOPT) {	// optimum = exponential
     // search for the smallest number of selected columns
     cerr << "+++ Optimal direction takes forever" << endl;
+    cerr << "+++ Therefore it has been suspended" << endl;
+    exit(99);
 
-    Matrix Q;
-    int mincard = lngt;
-    Row minsct(lngt,false);
-    Q.push_back(minsct);
-    int counter = 0;
-    while (! Q.empty()) {
-      if (++counter % 10000 == 0)
-	cerr << "*** loop " << counter << ", \t|queue| = " << Q.size() << endl;
-      A = Q.front();
-      Q.pop_front();
-      Matrix Ta = section(A,T);
-      Matrix Fa = section(A,F);
-      if (inadmissible(Ta,Fa)) {
-	for (int i = 0; i < lngt; ++i)
-	  if (A[i] == false) {
-	    A[i] = true;
-	    Q.push_back(A);
-	    A[i] = false;
-	  }
-      } else {
-	int hw = hamming_weight(A);
-	if (hw < mincard) {
-	  mincard = hw;
-	  minsct = A;
-	}
-      }
-    }
-    A = minsct;
+    // Matrix Q;
+    // int mincard = lngt;
+    // Row minsct(lngt,false);
+    // Q.push_back(minsct);
+    // int counter = 0;
+    // while (! Q.empty()) {
+    //   if (++counter % 10000 == 0)
+    // 	cerr << "*** loop " << counter << ", \t|queue| = " << Q.size() << endl;
+    //   A = Q.front();
+    //   Q.pop_front();
+    //   Matrix Ta = section(A,T);
+    //   Matrix Fa = section(A,F);
+    //   if (inadmissible(Ta,Fa)) {
+    // 	for (int i = 0; i < lngt; ++i)
+    // 	  if (A[i] == false) {
+    // 	    A[i] = true;
+    // 	    Q.push_back(A);
+    // 	    A[i] = false;
+    // 	  }
+    //   } else {
+    // 	int hw = hamming_weight(A);
+    // 	if (hw < mincard) {
+    // 	  mincard = hw;
+    // 	  minsct = A;
+    // 	}
+    //   }
+    // }
+    // A = minsct;
   } else if (direction == dRAND) {	// random order
     random_device rd;
     static uniform_int_distribution<int> uni_dist(0,lngt-1);
@@ -648,13 +645,13 @@ Row minsect (const Matrix &T, const Matrix &F) {
       Row Tcolumn, Fcolumn;
       // if (!Ttail.empty())
       for (int j = 0; j < Tsize; ++j) {
-	Tcolumn.push_back(Ttail[j].front());
-	Ttail[j].pop_front();
+	Tcolumn.push_back(front(Ttail[j]));
+	pop_front(Ttail[j]);
       }
       // if (!Ftail.empty())
       for (int j = 0; j < Fsize; ++j) {
-	Fcolumn.push_back(Ftail[j].front());
-	Ftail[j].pop_front();
+	Fcolumn.push_back(front(Ftail[j]));
+	pop_front(Ftail[j]);
       }
       Matrix Ta = join(Thead, Ttail);
       Matrix Fa = join(Fhead, Ftail);
@@ -662,8 +659,8 @@ Row minsect (const Matrix &T, const Matrix &F) {
 	A[coord[i]] = true;
 	if (Thead.empty())
 	  for (int j = 0; j < Tsize; ++j) {
-	    Row row;
-	    row.push_back(Tcolumn[j]);
+	    Row row(1, Tcolumn[j]);
+	    // row.push_back(Tcolumn[j]);
 	    Thead.push_back(row);
 	  }
 	else
@@ -671,8 +668,8 @@ Row minsect (const Matrix &T, const Matrix &F) {
 	    Thead[j].push_back(Tcolumn[j]);
 	if (Fhead.empty())
 	  for (int j = 0; j < Fsize; ++j) {
-	    Row row;
-	    row.push_back(Fcolumn[j]);
+	    Row row(1, Fcolumn[j]);
+	    // row.push_back(Fcolumn[j]);
 	    Fhead.push_back(row);
 	  }
 	else
@@ -695,11 +692,16 @@ Row minsect (const Matrix &T, const Matrix &F) {
 	card[i] += t[i];
 	indicator[i] += t[i];
       }
-    for (Row f : F)
-      for (int i = 0; i < f.size(); ++i) {
-	card[i] += f[i];
-	indicator[i] += f[i];
-      }
+    // for (Row f : F)
+    //   for (int i = 0; i < f.size(); ++i) {
+    // 	card[i] += f[i];
+    // 	indicator[i] += f[i];
+    //   }
+    // for (Row f : F)
+    //   for (int i = 0; i < f.size(); ++i) {
+    // 	card[i] -= f[i];
+    // 	indicator[i] -= f[i];
+    //   }
 
     if (direction == dLOWCARD)
       sort(indicator.begin(), indicator.end(), greater<int>());
@@ -732,13 +734,13 @@ Row minsect (const Matrix &T, const Matrix &F) {
       Row Tcolumn, Fcolumn;
       // if (!Ttail.empty())
       for (int j = 0; j < Tsize; ++j) {
-    	Tcolumn.push_back(Ttail[j].front());
-    	Ttail[j].pop_front();
+    	Tcolumn.push_back(front(Ttail[j]));
+    	pop_front(Ttail[j]);
       }
       // if (!Ftail.empty())
       for (int j = 0; j < Fsize; ++j) {
-    	Fcolumn.push_back(Ftail[j].front());
-    	Ftail[j].pop_front();
+    	Fcolumn.push_back(front(Ftail[j]));
+    	pop_front(Ftail[j]);
       }
       Matrix Ta = join(Thead, Ttail);
       Matrix Fa = join(Fhead, Ftail);
@@ -746,8 +748,8 @@ Row minsect (const Matrix &T, const Matrix &F) {
     	A[coord[i]] = true;
     	if (Thead.empty())
     	  for (int j = 0; j < Tsize; ++j) {
-    	    Row row;
-    	    row.push_back(Tcolumn[j]);
+    	    Row row(1, Tcolumn[j]);
+    	    // row.push_back(Tcolumn[j]);
     	    Thead.push_back(row);
     	  }
     	else
@@ -755,8 +757,8 @@ Row minsect (const Matrix &T, const Matrix &F) {
     	    Thead[j].push_back(Tcolumn[j]);
     	if (Fhead.empty())
     	  for (int j = 0; j < Fsize; ++j) {
-    	    Row row;
-    	    row.push_back(Fcolumn[j]);
+    	    Row row(1, Fcolumn[j]);
+    	    // row.push_back(Fcolumn[j]);
     	    Fhead.push_back(row);
     	  }
     	else
@@ -773,67 +775,6 @@ Row minsect (const Matrix &T, const Matrix &F) {
   }
   return A;
 }
-
-// bool sat_clause (const Row &tuple, const Clause &clause) {
-//   // does the tuple satisfy the clause?
-//   for (int i = 0; i < tuple.size(); ++i)
-//     if (clause[i] == lpos && tuple[i] == true
-// 	||
-// 	clause[i] == lneg && tuple[i] == false)
-//       return true;
-//   return false;
-// }
-
-// bool sat_formula (const Row &tuple, const Formula &formula) {
-//   // does the tuple satisfy the formula?
-//   for (Clause cl : formula)
-//     if (!sat_clause(tuple, cl))
-//       return false;
-//   return true;
-// }
-
-// vector<string> split (const string &strg, char delimiter) {
-//   // splits a string into chunks separated by delimiter (split in perl)
-//   vector<string> chunks;
-//   string token;
-//   istringstream iss(strg);
-//   while (getline(iss, token, delimiter))
-//     chunks.push_back(token);
-//   return chunks;
-// }
-
-// string clause2dimacs (const vector<int> &names, const Clause &clause) {
-//   // transforms clause into readable clausal form in DIMACS format to print
-//   string output = "\t";
-//   bool plus = false;
-//   for (int lit = 0; lit < clause.size(); ++lit) {
-//       if (clause[lit] != lnone) {
-// 	if (plus == true)
-// 	  output += " ";
-// 	else
-// 	  plus = true;
-// 	if (clause[lit] == lneg)
-// 	  output += '-';
-// 	output += to_string(offset + names[lit]);
-//       }
-//   }
-//   output += " 0";
-//   return output;
-// }
-
-// // The following function needs to be overloaded. We need it once with and the
-// // second time without the names.
-// // First version WITH names
-// string formula2dimacs (const vector<int> &names, const Formula &formula) {
-//   // transforms formula into readable clausal form in DIMACS format to print
-//   if (formula.empty())
-//     return " ";
-
-//   string output;
-//   for (Clause clause : formula)
-//     output += clause2dimacs(names, clause) + "\n";
-//   return output;
-// }
 
 void w_f (const string &filename, const string suffix,
 	  const vector<int> &names, const Formula &formula) {
@@ -1479,8 +1420,9 @@ Formula learnCNFlarge (const Matrix &F) {
   Formula formula;
   for (Row row : F) {
     Clause clause;
-    for (bool bit : row)
-      clause.push_back(bit == false ? lpos : lneg);
+    // for (bool bit : row)
+    for (int i = 0; i < row.size(); ++i)
+      clause.push_back(row[i] == false ? lpos : lneg);
     formula.push_back(clause);
   }
   cook(formula);
@@ -1553,9 +1495,9 @@ Formula learnCNFexact (Matrix T) {
 
 Row polswap_row (const Row &row) {
   // swap the polarity of values in a tuple
-  Row swapped;
-  for (bool bit : row)
-    swapped.push_back(! bit);
+  Row swapped = ~row;
+  // for (bool bit : row)
+  //   swapped.push_back(! bit);
   return swapped;
 }
 
@@ -1572,9 +1514,10 @@ Clause polswap_clause (const Clause &clause) {
   Clause swapped;
   for (Literal literal : clause)
     if (literal != lnone)
-      swapped.push_back(literal == lpos ? lneg : lpos);
+      // swapped.push_back(literal == lpos ? lneg : lpos);
+      swapped += literal == lpos ? lneg : lpos;
     else
-      swapped.push_back(lnone);
+      swapped += lnone;
   return swapped;
 }
 

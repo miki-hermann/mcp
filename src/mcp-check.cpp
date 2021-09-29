@@ -48,28 +48,28 @@ ofstream outfile;
 Formula formula;
 
 vector<int> names;
-string suffix;
+// string suffix;
 // int arity;
-int nvars;
+// int nvars;
 // int offset;
 
 int tp = 0;		// true positive
 int tn = 0;		// true negative
 int fp = 0;		// false postitive
 int fn = 0;		// false negative
-double tpr = -1.0;	// true positive rate aka sensitivity aka recall
-double tnr = -1.0;	// true negative rate aka specificity aka selectivity
-double ppv = -1.0;	// positive predictive value aka precision
-double npv = -1.0;	// negative predictive value
-double fnr = -1.0;	// false negative rate aka miss rate
-double fpr = -1.0;	// false positive rate aka fall-out
-double fdr = -1.0;	// false discovery rate
-double forate = -1.0;	// false omission rate
-double pt = -1.0;	// prevalence treshhold
-double csi = -1.0;	// critical success index aka threat score
-double accuracy = -1.0;	// accuracy
-double ba = -1.0;	// balanced accuracy
-double f1score = -1.0;	// F1 score
+double tpr = RSNTNL;	// true positive rate aka sensitivity aka recall
+double tnr = RSNTNL;	// true negative rate aka specificity aka selectivity
+double ppv = RSNTNL;	// positive predictive value aka precision
+double npv = RSNTNL;	// negative predictive value
+double fnr = RSNTNL;	// false negative rate aka miss rate
+double fpr = RSNTNL;	// false positive rate aka fall-out
+double fdr = RSNTNL;	// false discovery rate
+double forate = RSNTNL;	// false omission rate
+double pt = RSNTNL;	// prevalence treshhold
+double csi = RSNTNL;	// critical success index aka threat score
+double acc = RSNTNL;	// accuracy
+double ba = RSNTNL;	// balanced accuracy
+double f1score = RSNTNL;// F1 score
 
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -89,7 +89,7 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
 	       || arg == "--log"
 	       || arg == "-l") {
       formula_input = argv[++argument];
-    } else if (arg == "-pr"
+    } else if (arg == "--pr"
 	       || arg == "--print") {
       string prt = argv[++argument];
       if (prt == "clause"
@@ -170,42 +170,9 @@ void print_arg () {
   cout << "@@@ var. offset   = " << offset << endl;
   cout << "@@@ print matrix  = " << display_strg[display]
        << (display == yUNDEF ? " (will be changed)" : "") << endl;
-  cout << "@@@ print formula = " << print_strg[print] << endl << endl;
-}
-
-void read_formula (vector<int> &names, Formula &formula) {
-  // formula read instructions
-
-  cin >> suffix >> arity >> nvars >> offset;
-
-  // cerr << "*** suffix = " << suffix
-  //      << ", arity = " << arity
-  //      << ", #vars = " << nvars
-  //      << ", offset = " << offset
-  //      << endl;
-
-  vector<int> validID;
-  int dummy;
-  for (int i = 0; i < nvars; ++i) {
-    cin >> dummy;
-    validID.push_back(dummy);
-  }
-
-  for (int i = 0; i < arity; ++i)
-    names.push_back(i);
-
-  int lit;
-  Clause clause(arity, lnone);
-  while (cin >> lit)
-    if (lit == 0) {			// end of clause in DIMACS
-      formula.push_back(clause);
-      for (int i = 0; i < arity; ++i)
-	clause[i] = lnone;
-    } else if (find(cbegin(validID), cend(validID), abs(lit)) == cend(validID)) {
-      cerr << "+++ " << abs(lit) << " outside allowed variable names" << endl;
-      exit(2);
-    } else
-      clause[abs(lit)-1-offset] = lit < 0 ? lneg : lpos;
+  cout << "@@@ print formula = " << print_strg[print] << endl;
+  cout << "@@@ formula input = " << (formula_input.empty() ? "none" : formula_input) << endl;
+  cout << endl;
 }
 
 void read_matrix (Group_of_Matrix &matrix) {
@@ -277,17 +244,10 @@ void print_matrix (const Group_of_Matrix &matrix) {
   for (auto group = matrix.begin(); group != matrix.end(); ++group) {
     cout << "+++ Group " << group->first;
     grps.push_back(group->first);
-    auto gmtx = group->second;
+    Matrix gmtx = group->second;
     cout << " [" << gmtx.size() << "]:" << endl;
-    if (display == yPEEK || display == ySHOW) {
-      for (auto i = gmtx.begin(); i != gmtx.end(); ++i) {
-	for (auto j = i->begin(); j != i->end(); ++j)
-	  // cout << *j << " ";
-	  cout << *j;
-	cout << endl;
-      }
-      cout << endl;
-    }
+    if (display == yPEEK || display == ySHOW)
+      cout << gmtx << endl;
   }
   sort(grps.begin(), grps.end());
   cout << "+++ Number of groups = " << grps.size() << endl;
@@ -298,7 +258,7 @@ void print_matrix (const Group_of_Matrix &matrix) {
   for (auto group : grps)
     if (group != suffix)
       cout << " " << group;
-  cout << endl << endl;;
+  cout << endl << endl;
 }
 
 void print_formula (const vector<int> &names, const Formula &formula) {
@@ -333,6 +293,8 @@ void sat_test (const Group_of_Matrix &matrix, const Formula &formula) {
     tnr = 1.0 * tn / (1.0*tn + 1.0*fp);
   if (tp+fp != 0)
     ppv = 1.0 * tp / (1.0*tp + 1.0*fp);
+  if (tp+tn+fp+fn != 0)
+    acc = 1.0 * (tp + tn) / (1.0*tp + 1.0*tn + 1.0*fp + 1.0*fn);
 }
 
 void print_result () {
@@ -375,6 +337,14 @@ void print_result () {
   else
     cout << ppv * 100.0 << " %";
   cout << right << "\t [tp / (tp + fp)]" << endl;
+  
+  cout << "+++ accuracy       (acc) = ";
+  cout << left << setw(7);
+  if (acc < 0.0)
+    cout << "---";
+  else
+    cout << acc * 100.0 << " %";
+  cout << right << "\t [(tp + tn) / (tp + tn + fp +fn)]" << endl;
   
   form_in.close();
   if (output != STDOUT)

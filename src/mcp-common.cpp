@@ -1134,29 +1134,25 @@ bool empty_clause (const Clause &clause) {	// is the clause empty ?
   return true;
 }
 
-Formula redundant (Formula formula) {	// eliminating redundant clauses
-					// clauses must be sorted by length
-  int left=0;
+Formula redundant (const Formula &formula) {	// eliminating redundant clauses
+						// clauses must be sorted by length
   const int lngt = formula[0].size();
 
-  int right = formula.size()-1;
-  while (left <= right && numlit(formula[left]) == 1)
+  Formula prefix, suffix;
+  prefix.insert(prefix.end(), formula.begin(), formula.end());
+
+  int left = 0;
+  while (left < prefix.size() && numlit(prefix[left]) == 1)
     left++;
 
-  while (left <= right) {
-    Formula prefix;
-    for (int i = 0; i < right; ++i)
-      prefix.push_back(formula[i]);
-    Formula suffix;
-    for (int i = right+1; i < formula.size(); ++i)
-      suffix.push_back(formula[i]);
-
-    Clause clause = formula[right];
+  while (left < prefix.size()) {
+    Clause pivot = prefix.back();
+    prefix.pop_back();
     Formula newUnits;
-    for (int i=0; i < clause.size(); ++i) {
-      if (clause[i] != lnone) {
+    for (int i=0; i < pivot.size(); ++i) {
+      if (pivot[i] != lnone) {
 	Clause newclause(lngt, lnone);
-	newclause[i] = (clause[i] == lpos) ? lneg : lpos;
+	newclause[i] = (pivot[i] == lpos) ? lneg : lpos;
 	newUnits.push_back(newclause);
       }
     }
@@ -1166,17 +1162,19 @@ Formula redundant (Formula formula) {	// eliminating redundant clauses
     sort_formula(newUnits, 0, newUnits.size()-1);
     auto last3 = unique(newUnits.begin(), newUnits.end());
     newUnits.erase(last3, newUnits.end());
-    Formula newform = newUnits;
-    Formula bogus = unitres(newform);
+    Formula bogus = unitres(newUnits);
+    bool keep = true;
     for (Clause bgcl : bogus)
       if (empty_clause(bgcl)) {
-	formula = prefix;
-	formula.insert(formula.end(), suffix.begin(), suffix.end());
+	keep = false;
 	break;
       }
-    right--;
+    if (keep)
+      suffix.push_front(pivot);
   }
-  return formula;
+  Formula newf = prefix;
+  newf.insert(newf.end(), suffix.begin(), suffix.end());
+  return newf;
 }
 
 Formula SetCover (const Matrix &Universe, const Formula &SubSets) {

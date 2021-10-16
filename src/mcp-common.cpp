@@ -1172,9 +1172,8 @@ Formula redundant (const Formula &formula) {	// eliminating redundant clauses
     if (keep)
       suffix.push_front(pivot);
   }
-  Formula newf = prefix;
-  newf.insert(newf.end(), suffix.begin(), suffix.end());
-  return newf;
+  prefix.insert(prefix.end(), suffix.begin(), suffix.end());
+  return prefix;
 }
 
 Formula SetCover (const Matrix &Universe, const Formula &SubSets) {

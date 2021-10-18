@@ -1033,7 +1033,6 @@ Formula unitres (const Formula &formula) {	// unit resolution
 	if (unit_i[index] == lpos && unit_j[index] == lneg
 	    ||
 	    unit_i[index] == lneg && unit_j[index] == lpos) {
-	  resUnits[j][index] == lnone;
 	  Clause emptyClause(unit_i.size(), lnone);
 	  Formula emptyFormula;
 	  emptyFormula.push_back(emptyClause);

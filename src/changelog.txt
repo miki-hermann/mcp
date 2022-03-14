@@ -1,3 +1,6 @@
+1.04c (bug fix)
+ - fixed bug in printing mixed clauses (- missed in negative literals with names)
+
 1.04b (preparation for new module mcp-predict)
  - mcp-uniq introduced
  - deleted c++ from version, since there are only c++ sources now

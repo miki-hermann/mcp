@@ -138,11 +138,11 @@ string literal2string (const int &litname, const Literal lit) {
     vector<string> new_names = split(varnames[litname], ':');
     
     if (new_names.size() > 1)		// positive or negative
-      output += (lit == lneg && print == pCLAUSE)
+      output += (lit == lneg && (print == pCLAUSE || print == pMIX))
 	? new_names[nNEGATIVE]
 	: new_names[nPOSITIVE];
     else				// own name only
-      output += (lit == lneg && print == pCLAUSE)
+      output += (lit == lneg && (print == pCLAUSE || print == pMIX))
 	? "-" + new_names[nOWN]
 	: new_names[nOWN];
   } else				// variable without name

@@ -146,7 +146,7 @@ string literal2string (const int &litname, const Literal lit) {
 	? "-" + new_names[nOWN]
 	: new_names[nOWN];
   } else				// variable without name
-    output += (lit == lneg && print == pCLAUSE)
+    output += (lit == lneg)
       ? "-" + varid + to_string(offset + litname)
       : varid + to_string(offset + litname);
   return output;

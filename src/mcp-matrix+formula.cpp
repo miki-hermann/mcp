@@ -138,11 +138,11 @@ string literal2string (const int &litname, const Literal lit) {
     vector<string> new_names = split(varnames[litname], ':');
     
     if (new_names.size() > 1)		// positive or negative
-      output += (lit == lneg && (print == pCLAUSE || print == pMIX))
+      output += (lit == lneg)
 	? new_names[nNEGATIVE]
 	: new_names[nPOSITIVE];
     else				// own name only
-      output += (lit == lneg && (print == pCLAUSE || print == pMIX))
+      output += (lit == lneg)
 	? "-" + new_names[nOWN]
 	: new_names[nOWN];
   } else				// variable without name
@@ -171,7 +171,7 @@ string impl2string (const vector<int> &names, const Clause &clause) {
   string output;
   for (int lit = 0; lit < clause.size(); ++lit)
     if (clause[lit] == lneg)
-      output += literal2string(names[lit], lneg) + " ";
+      output += literal2string(names[lit], lpos) + " ";
   output += "->";
   for (int lit = 0; lit < clause.size(); ++lit)
     if (clause[lit] == lpos)

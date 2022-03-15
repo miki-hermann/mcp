@@ -351,14 +351,14 @@ Formula learnHornLarge (const Matrix &T, const Matrix &F) {
     if (satisfied_by(clause, T)) {
       H.push_back(clause);
       eliminated = true;
-    }
-    else
+    } else
       for (int i = 0; i < f.size(); ++i)
 	if (f[i] == false) {
 	  clause[i] = lpos;
 	  if (satisfied_by(clause, T)) {
 	    H.push_back(clause);
 	    eliminated = true;
+	    break;
 	  }
 	  clause[i] = lnone;
 	}

@@ -376,21 +376,21 @@ Formula learnBijunctive (const Matrix &T, const Matrix &F) {
   const int lngt = T[0].size();
   Literal literals[] = {lpos, lneg};
 
-  if (T.size() == 1) {
-    Row t = T[0];
-    for (int i = 0; i < lngt; ++i) {
-      Clause clause(lngt, lnone);
-      clause[i] = t[i] == true ? lpos : lneg;
-      B.push_back(clause);
-    }
-    return B;
-  }
-
   // Put here the production of a bijunctive formula
   // Is it necessary to generate the majority closure?
   // T = MajorityClosure(T);
 
   if (strategy == sEXACT) {
+
+    if (T.size() == 1) {
+      Row t = T[0];
+      for (int i = 0; i < lngt; ++i) {
+	Clause clause(lngt, lnone);
+	clause[i] = t[i] == true ? lpos : lneg;
+	B.push_back(clause);
+      }
+      return B;
+    }
 
     for (int j = 0; j < lngt; ++j) {
       Clause clause(lngt, lnone);

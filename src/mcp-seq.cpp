@@ -335,48 +335,10 @@ Matrix ObsGeq (const Row &a, const Matrix &M) {
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Formula learnHornLarge (const Matrix &T, Matrix F) {
+Formula learnHornLarge (const Matrix &T, const Matrix &F) {
   // learn a Horn clause from positive examples T and negative examples F
   // with the large strategy
   Formula H;
-
-  // if (T.size() == 1) {		// T has only one vector
-  //   Row t = T.front();
-  //   Clause clause;
-  //   for (int i = 0; i < t.size(); ++i) {
-  //     if (t[i] == true)
-  // 	clause.push_back(lpos);
-  //     else if (t[i] == false)
-  // 	clause.push_back(lneg);
-  //     else
-  // 	clause.push_back(lnone);
-  //     H.push_back(clause);
-  //   }
-  //   return H;
-  // }
-
-  Row tmin = minHorn(T);
-  for (int i = 0; i < tmin.size(); ++i)
-    if (tmin[i] == true) {
-      Clause clause(tmin.size(), lnone);
-      clause[i] = lpos;
-      H.push_back(clause);
-    }
-
-  Matrix newF;
-  while (! F.empty()) {
-    Row ff = F.front();
-    bool insert = true;
-    F.pop_front();
-    for (int i = 0; i < ff.size(); ++i)
-      if (tmin[i] == true && ff[i] == false) {
-	insert = false;
-	break;
-      }
-    if (insert == true)
-      newF.push_back(ff);
-  }
-  F = newF;
 
   for (Row f : F) {
     Clause clause;

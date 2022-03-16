@@ -2,6 +2,8 @@
  - fixed bug in printing mixed clauses (- missed in negative literals with names)
  - simplification of learnHornLarge (no unit clauses, no minimal Horn)
  - simplification of learnBijunctive (unit clauses only in exact case)
+ - sort_matrix -> sort (algorithm)
+ -sort_formula -> sort (algorithm)
 
 1.04b (preparation for new module mcp-predict)
  - mcp-uniq introduced

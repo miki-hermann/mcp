@@ -286,15 +286,15 @@ void sat_test (const Group_of_Matrix &matrix, const Formula &formula) {
       }
   }
   if (tp+fn != 0) {
-    tpr = 1.0 * tp / (1.0*tp + 1.0*fn);
+    tpr = (1.0 * tp) / (1.0*tp + 1.0*fn);
     fnr = 1.0 - tpr;
   }
   if (tn+fp != 0) {
-    tnr = 1.0 * tn / (1.0*tn + 1.0*fp);
+    tnr = (1.0 * tn) / (1.0*tn + 1.0*fp);
     fpr = 1.0 * fp / (1.0*fp + 1.0*tn);
   }
   if (tp+fp != 0)
-    ppv = 1.0 * tp / (1.0*tp + 1.0*fp);
+    ppv = (1.0 * tp) / (1.0*tp + 1.0*fp);
   if (tp+tn+fp+fn != 0)
     acc = 1.0 * (tp + tn) / (1.0*tp + 1.0*tn + 1.0*fp + 1.0*fn);
   if (tpr+ppv != 0.0)

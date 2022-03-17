@@ -4,6 +4,7 @@
  - simplification of learnBijunctive (unit clauses only in exact case)
  - sort_matrix -> sort (algorithm)
  - sort_formula -> sort (algorithm)
+ - adding more statistics (mcp-check)
 
 1.04b (preparation for new module mcp-predict)
  - mcp-uniq introduced

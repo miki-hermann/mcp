@@ -289,12 +289,16 @@ void sat_test (const Group_of_Matrix &matrix, const Formula &formula) {
     tpr = 1.0 * tp / (1.0*tp + 1.0*fn);
     fnr = 1.0 - tpr;
   }
-  if (tn+fp != 0)
+  if (tn+fp != 0) {
     tnr = 1.0 * tn / (1.0*tn + 1.0*fp);
+    fpr = 1.0 * fp / (1.0*fp + 1.0*tn);
+  }
   if (tp+fp != 0)
     ppv = 1.0 * tp / (1.0*tp + 1.0*fp);
   if (tp+tn+fp+fn != 0)
     acc = 1.0 * (tp + tn) / (1.0*tp + 1.0*tn + 1.0*fp + 1.0*fn);
+  if (tpr+ppv != 0.0)
+    f1score = (1.0 * tp) / (1.0*tp + 0.5*fp + 0.5*fn);
 }
 
 void print_result () {
@@ -321,7 +325,15 @@ void print_result () {
   else
     cout << fnr * 100.0 << " %";
   cout << right << "\t [fn / (fn + tp)]" << endl;
-  
+
+  cout << "+++ fall-out       (fnr) = ";
+  cout << left << setw(7);
+  if (fpr < 0.0)
+    cout << "---";
+  else
+    cout << fpr * 100.0 << " %";
+  cout << right << "\t [fp / (fp + tn)]" << endl;
+    
   cout << "+++ specificity    (tnr) = ";
   cout << left << setw(7);
   if (tnr < 0.0)
@@ -346,6 +358,14 @@ void print_result () {
     cout << acc * 100.0 << " %";
   cout << right << "\t [(tp + tn) / (tp + tn + fp +fn)]" << endl;
   
+  cout << "+++ F_1 score      (F_1) = ";
+  cout << left << setw(7);
+  if (f1score < 0.0)
+    cout << "---";
+  else
+    cout << f1score * 100.0 << " %";
+  cout << right << "\t [tp / (tp + 0.5 * (fp +fn))]" << endl;
+
   form_in.close();
   if (output != STDOUT)
     outfile.close();

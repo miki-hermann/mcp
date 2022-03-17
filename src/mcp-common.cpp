@@ -849,35 +849,6 @@ int firstlit (const Clause &clause) {
   return i;
 }
 
-// bool clauseLT (const Clause &a, const Clause &b) {
-//   // is clause a < clause b in literals ?
-//   for (int i = 0; i < a.size(); ++i)
-//     if (a[i] < b[i])
-//       return true;
-//   return false;
-// }
-
-// // This overloading is necessay because deque implements >= differently
-// bool operator>= (const Clause &a, const Clause &b) {
-//   // overloading >=
-//   // is clause a >= clause b?
-//   // order on clauses:
-//   // 1. number of literals
-//   // 2. coordinate of the first literal
-//   // 3. order on positive / negative literals
-//   if (a == b)
-//     return true;
-//   if (numlit(a) < numlit(b))
-//     return false;
-//   if (numlit(a) == numlit(b)
-//       && firstlit(a) < firstlit(b))
-//     return false;
-//   if (numlit(a) == numlit(b)
-//       && firstlit(a) == firstlit(b))
-//     return clauseLT(b, a);
-//   return true;
-// }
-
 // This structure implements <-ordering on clauses
 struct {
   bool operator() (const Clause &a, const Clause &b) {
@@ -898,60 +869,6 @@ struct {
     return false;
   }
 } cmp_clause;
-
-// int partition_matrix (Matrix &mtx, int low, int high)
-// {
-//   Row pivot = mtx[high];
-//   int p_index = low;
-    
-//   for(int i = low; i < high; i++)
-//     if(mtx[i] <= pivot) {
-//       Row t = mtx[i];
-//       mtx[i] = mtx[p_index];
-//       mtx[p_index] = t;
-//       p_index++;
-//     }
-//   Row t = mtx[high];
-//   mtx[high] = mtx[p_index];
-//   mtx[p_index] = t;
-    
-//   return p_index;
-// }
-
-// void sort_matrix (Matrix &mtx, int low, int high) {
-//   if (low < high) {
-//     int p_index = partition_matrix(mtx, low, high);
-//     sort_matrix(mtx, low, p_index-1);
-//     sort_matrix(mtx, p_index+1, high);
-//   }
-// }
-
-// int partition_formula (Formula &formula, int low, int high)
-// {
-//   Clause pivot = formula[high];
-//   int p_index = low;
-    
-//   for(int i = low; i < high; i++)
-//     if (pivot >= formula[i]) {
-//       Clause t = formula[i];
-//       formula[i] = formula[p_index];
-//       formula[p_index] = t;
-//       p_index++;
-//     }
-//   Clause t = formula[high];
-//   formula[high] = formula[p_index];
-//   formula[p_index] = t;
-    
-//   return p_index;
-// }
-
-// void sort_formula (Formula &formula, int low, int high) {
-//   if (low < high) {
-//     int p_index = partition_formula(formula, low, high);
-//     sort_formula(formula, low, p_index-1);
-//     sort_formula(formula, p_index+1, high);
-//   }
-// }
 
 Matrix restrict (const Row &sect, const Matrix &A) {
   // restricts matrix A to columns determined by the bitvector sect

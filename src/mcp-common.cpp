@@ -849,94 +849,115 @@ int firstlit (const Clause &clause) {
   return i;
 }
 
-bool clauseLT (const Clause &a, const Clause &b) {
-  // is clause a < clause b in literals ?
-  for (int i = 0; i < a.size(); ++i)
-    if (a[i] < b[i])
+// bool clauseLT (const Clause &a, const Clause &b) {
+//   // is clause a < clause b in literals ?
+//   for (int i = 0; i < a.size(); ++i)
+//     if (a[i] < b[i])
+//       return true;
+//   return false;
+// }
+
+// // This overloading is necessay because deque implements >= differently
+// bool operator>= (const Clause &a, const Clause &b) {
+//   // overloading >=
+//   // is clause a >= clause b?
+//   // order on clauses:
+//   // 1. number of literals
+//   // 2. coordinate of the first literal
+//   // 3. order on positive / negative literals
+//   if (a == b)
+//     return true;
+//   if (numlit(a) < numlit(b))
+//     return false;
+//   if (numlit(a) == numlit(b)
+//       && firstlit(a) < firstlit(b))
+//     return false;
+//   if (numlit(a) == numlit(b)
+//       && firstlit(a) == firstlit(b))
+//     return clauseLT(b, a);
+//   return true;
+// }
+
+// This structure implements <-ordering on clauses
+struct {
+  bool operator() (const Clause &a, const Clause &b) {
+    if (a == b)
+      return false;
+    if (numlit(a) < numlit(b))
       return true;
-  return false;
-}
-
-// This overloading is necessay because deque implements >= differently
-bool operator>= (const Clause &a, const Clause &b) {
-  // overloading >=
-  // is clause a >= clause b?
-  // order on clauses:
-  // 1. number of literals
-  // 2. coordinate of the first literal
-  // 3. order on positive / negative literals
-  if (a == b)
-    return true;
-  if (numlit(a) < numlit(b))
-    return false;
-  if (numlit(a) == numlit(b)
-      && firstlit(a) < firstlit(b))
-    return false;
-  if (numlit(a) == numlit(b)
-      && firstlit(a) == firstlit(b))
-    return clauseLT(b, a);
-  return true;
-}
-
-int partition_matrix (Matrix &mtx, int low, int high)
-{
-  Row pivot = mtx[high];
-  int p_index = low;
-    
-  for(int i = low; i < high; i++)
-    if(mtx[i] <= pivot) {
-      Row t = mtx[i];
-      mtx[i] = mtx[p_index];
-      mtx[p_index] = t;
-      p_index++;
+    if (numlit(a) == numlit(b)
+	&& firstlit(a) < firstlit(b))
+      return true;
+    if (numlit(a) == numlit(b)
+	&& firstlit(a) == firstlit(b)) {
+      for (int i = 0; i < a.size(); ++i)
+	if (a[i] < b[i])
+	  return true;
+      return false;
     }
-  Row t = mtx[high];
-  mtx[high] = mtx[p_index];
-  mtx[p_index] = t;
-    
-  return p_index;
-}
-
-void sort_matrix (Matrix &mtx, int low, int high) {
-  if (low < high) {
-    int p_index = partition_matrix(mtx, low, high);
-    sort_matrix(mtx, low, p_index-1);
-    sort_matrix(mtx, p_index+1, high);
+    return false;
   }
-}
+} cmp_clause;
 
-int partition_formula (Formula &formula, int low, int high)
-{
-  Clause pivot = formula[high];
-  int p_index = low;
+// int partition_matrix (Matrix &mtx, int low, int high)
+// {
+//   Row pivot = mtx[high];
+//   int p_index = low;
     
-  for(int i = low; i < high; i++)
-    if (pivot >= formula[i]) {
-      Clause t = formula[i];
-      formula[i] = formula[p_index];
-      formula[p_index] = t;
-      p_index++;
-    }
-  Clause t = formula[high];
-  formula[high] = formula[p_index];
-  formula[p_index] = t;
+//   for(int i = low; i < high; i++)
+//     if(mtx[i] <= pivot) {
+//       Row t = mtx[i];
+//       mtx[i] = mtx[p_index];
+//       mtx[p_index] = t;
+//       p_index++;
+//     }
+//   Row t = mtx[high];
+//   mtx[high] = mtx[p_index];
+//   mtx[p_index] = t;
     
-  return p_index;
-}
+//   return p_index;
+// }
 
-void sort_formula (Formula &formula, int low, int high) {
-  if (low < high) {
-    int p_index = partition_formula(formula, low, high);
-    sort_formula(formula, low, p_index-1);
-    sort_formula(formula, p_index+1, high);
-  }
-}
+// void sort_matrix (Matrix &mtx, int low, int high) {
+//   if (low < high) {
+//     int p_index = partition_matrix(mtx, low, high);
+//     sort_matrix(mtx, low, p_index-1);
+//     sort_matrix(mtx, p_index+1, high);
+//   }
+// }
+
+// int partition_formula (Formula &formula, int low, int high)
+// {
+//   Clause pivot = formula[high];
+//   int p_index = low;
+    
+//   for(int i = low; i < high; i++)
+//     if (pivot >= formula[i]) {
+//       Clause t = formula[i];
+//       formula[i] = formula[p_index];
+//       formula[p_index] = t;
+//       p_index++;
+//     }
+//   Clause t = formula[high];
+//   formula[high] = formula[p_index];
+//   formula[p_index] = t;
+    
+//   return p_index;
+// }
+
+// void sort_formula (Formula &formula, int low, int high) {
+//   if (low < high) {
+//     int p_index = partition_formula(formula, low, high);
+//     sort_formula(formula, low, p_index-1);
+//     sort_formula(formula, p_index+1, high);
+//   }
+// }
 
 Matrix restrict (const Row &sect, const Matrix &A) {
   // restricts matrix A to columns determined by the bitvector sect
   Matrix AA = section(sect, A);
-  // sort(AA.begin(), AA.end());
-  sort_matrix(AA, 0, AA.size()-1);
+  sort(AA.begin(), AA.end());
+  // sort_matrix(AA, 0, AA.size()-1);
   auto ip = unique(AA.begin(), AA.end());
   AA.resize(distance(AA.begin(), ip));
   return AA;
@@ -968,8 +989,8 @@ Matrix HornClosure (const Matrix &M) {	// computes the Horn closure of a matrix
     }
   }
 
-  // sort(HC.begin(), HC.end());
-  sort_matrix(HC, 0, HC.size()-1);
+  sort(HC.begin(), HC.end());
+  // sort_matrix(HC, 0, HC.size()-1);
   return HC;
 }
 
@@ -1015,8 +1036,8 @@ Formula unitres (const Formula &formula) {	// unit resolution
     clauses = newClauses;
   }
 
-  // sort(resUnits.begin(), resUnits.end());
-  sort_formula(resUnits, 0, resUnits.size()-1);
+  sort(resUnits.begin(), resUnits.end(), cmp_clause);
+  // sort_formula(resUnits, 0, resUnits.size()-1);
   auto last1 = unique(resUnits.begin(), resUnits.end());
   resUnits.erase(last1, resUnits.end());
 
@@ -1043,8 +1064,8 @@ Formula unitres (const Formula &formula) {	// unit resolution
   }
 
   clauses.insert(clauses.end(), resUnits.begin(), resUnits.end());
-  // sort(clauses.begin(), clauses.end());
-  sort_formula(clauses, 0, clauses.size()-1);
+  sort(clauses.begin(), clauses.end(), cmp_clause);
+  // sort_formula(clauses, 0, clauses.size()-1);
   auto last2 = unique(clauses.begin(), clauses.end());
   clauses.erase(last2, clauses.end());
 
@@ -1092,8 +1113,8 @@ Formula binres (const Formula &formula) {
   }
   
   clauses.insert(clauses.end(), resBins.begin(), resBins.end());
-  // sort(clauses.begin(), clauses.end());
-  sort_formula(clauses, 0, clauses.size()-1);
+  sort(clauses.begin(), clauses.end(), cmp_clause);
+  // sort_formula(clauses, 0, clauses.size()-1);
   auto last3 = unique(clauses.begin(), clauses.end());
   clauses.erase(last3, clauses.end());
 
@@ -1157,8 +1178,8 @@ Formula redundant (const Formula &formula) {	// eliminating redundant clauses
     }
     newUnits.insert(newUnits.end(), prefix.begin(), prefix.end());
     newUnits.insert(newUnits.end(), suffix.begin(), suffix.end());
-    // sort(newUnits.begin(), newUnits.end());
-    sort_formula(newUnits, 0, newUnits.size()-1);
+    sort(newUnits.begin(), newUnits.end(), cmp_clause);
+    // sort_formula(newUnits, 0, newUnits.size()-1);
     auto last3 = unique(newUnits.begin(), newUnits.end());
     newUnits.erase(last3, newUnits.end());
     Formula bogus = unitres(newUnits);
@@ -1222,15 +1243,16 @@ Formula SetCover (const Matrix &Universe, const Formula &SubSets) {
 	newR.push_back(tuple);
     R = newR;
   }
-  // sort(selected.begin(), selected.end());
-  sort_formula(selected, 0, selected.size()-1);
+  sort(selected.begin(), selected.end(), cmp_clause);
+  // sort_formula(selected, 0, selected.size()-1);
   return selected;
 }
 
 void cook (Formula &formula) {
   // perform redundancy elimination on formula according to cooking
   if (! formula.empty()) {
-    if (cooking == ckRAW)      sort_formula(formula, 0, formula.size()-1);
+    if (cooking == ckRAW)      // sort_formula(formula, 0, formula.size()-1);
+      sort(formula.begin(), formula.end(), cmp_clause);
     if (cooking >= ckBLEU)     {formula = unitres(formula);
 				formula = binres(formula);}
     if (cooking >= ckMEDIUM)   formula = subsumption(formula);
@@ -1393,8 +1415,8 @@ Formula learnHornExact (Matrix T) {
     }
     return H;
   }
-  // sort(T.begin(), T.end());
-  sort_matrix(T, 0, T.size()-1);
+  sort(T.begin(), T.end());
+  // sort_matrix(T, 0, T.size()-1);
   successor(T);
   predecessor(T);
   simsim(T);
@@ -1468,7 +1490,8 @@ Formula learnCNFexact (Matrix T) {
   // learn general CNF formula with exact strategy
   // from positive examples T
 
-  sort_matrix(T, 0, T.size()-1);
+  sort(T.begin(), T.end());
+  // sort_matrix(T, 0, T.size()-1);
   auto ip = unique(T.begin(), T.end());
   T.resize(distance(T.begin(), ip));
 

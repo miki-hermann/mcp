@@ -878,32 +878,32 @@ bool operator>= (const Clause &a, const Clause &b) {
   return true;
 }
 
-int partition_matrix (Matrix &mtx, int low, int high)
-{
-  Row pivot = mtx[high];
-  int p_index = low;
+// int partition_matrix (Matrix &mtx, int low, int high)
+// {
+//   Row pivot = mtx[high];
+//   int p_index = low;
     
-  for(int i = low; i < high; i++)
-    if(mtx[i] <= pivot) {
-      Row t = mtx[i];
-      mtx[i] = mtx[p_index];
-      mtx[p_index] = t;
-      p_index++;
-    }
-  Row t = mtx[high];
-  mtx[high] = mtx[p_index];
-  mtx[p_index] = t;
+//   for(int i = low; i < high; i++)
+//     if(mtx[i] <= pivot) {
+//       Row t = mtx[i];
+//       mtx[i] = mtx[p_index];
+//       mtx[p_index] = t;
+//       p_index++;
+//     }
+//   Row t = mtx[high];
+//   mtx[high] = mtx[p_index];
+//   mtx[p_index] = t;
     
-  return p_index;
-}
+//   return p_index;
+// }
 
-void sort_matrix (Matrix &mtx, int low, int high) {
-  if (low < high) {
-    int p_index = partition_matrix(mtx, low, high);
-    sort_matrix(mtx, low, p_index-1);
-    sort_matrix(mtx, p_index+1, high);
-  }
-}
+// void sort_matrix (Matrix &mtx, int low, int high) {
+//   if (low < high) {
+//     int p_index = partition_matrix(mtx, low, high);
+//     sort_matrix(mtx, low, p_index-1);
+//     sort_matrix(mtx, p_index+1, high);
+//   }
+// }
 
 int partition_formula (Formula &formula, int low, int high)
 {
@@ -935,8 +935,8 @@ void sort_formula (Formula &formula, int low, int high) {
 Matrix restrict (const Row &sect, const Matrix &A) {
   // restricts matrix A to columns determined by the bitvector sect
   Matrix AA = section(sect, A);
-  // sort(AA.begin(), AA.end());
-  sort_matrix(AA, 0, AA.size()-1);
+  sort(AA.begin(), AA.end());
+  // sort_matrix(AA, 0, AA.size()-1);
   auto ip = unique(AA.begin(), AA.end());
   AA.resize(distance(AA.begin(), ip));
   return AA;
@@ -968,8 +968,8 @@ Matrix HornClosure (const Matrix &M) {	// computes the Horn closure of a matrix
     }
   }
 
-  // sort(HC.begin(), HC.end());
-  sort_matrix(HC, 0, HC.size()-1);
+  sort(HC.begin(), HC.end());
+  // sort_matrix(HC, 0, HC.size()-1);
   return HC;
 }
 
@@ -1393,8 +1393,8 @@ Formula learnHornExact (Matrix T) {
     }
     return H;
   }
-  // sort(T.begin(), T.end());
-  sort_matrix(T, 0, T.size()-1);
+  sort(T.begin(), T.end());
+  // sort_matrix(T, 0, T.size()-1);
   successor(T);
   predecessor(T);
   simsim(T);
@@ -1468,7 +1468,8 @@ Formula learnCNFexact (Matrix T) {
   // learn general CNF formula with exact strategy
   // from positive examples T
 
-  sort_matrix(T, 0, T.size()-1);
+  sort(T.begin(), T.end());
+  // sort_matrix(T, 0, T.size()-1);
   auto ip = unique(T.begin(), T.end());
   T.resize(distance(T.begin(), ip));
 

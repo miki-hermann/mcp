@@ -35,6 +35,7 @@
 #include <memory>
 #include "mcp-matrix+formula.hpp"
 #include "mcp-common.hpp"
+#include <string>
 
 using namespace std;
 
@@ -144,11 +145,6 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
 		 || dir == "rand"
 		 || dir ==  "r") {
 	direction =dRAND;
-      } else if (dir == "optimum"
-		 || dir == "optimal"
-		 || dir == "opt"
-		 || dir ==  "x") {
-	direction = dOPT;
       } else 
 	cerr << "+++ unknown direction option " << dir << endl;
     } else if (arg == "--closure"
@@ -583,40 +579,6 @@ Row minsect (const Matrix &T, const Matrix &F) {
       //   Matrix Fa = section(A,F);
       //   if (inadmissible(Ta,Fa)) A[i] = true;
     }
-  } else if (direction == dOPT) {	// optimum = exponential
-    // search for the smallest number of selected columns
-    cerr << "+++ Optimal direction takes forever" << endl;
-    cerr << "+++ Therefore it has been suspended" << endl;
-    exit(99);
-
-    // Matrix Q;
-    // int mincard = lngt;
-    // Row minsct(lngt,false);
-    // Q.push_back(minsct);
-    // int counter = 0;
-    // while (! Q.empty()) {
-    //   if (++counter % 10000 == 0)
-    // 	cerr << "*** loop " << counter << ", \t|queue| = " << Q.size() << endl;
-    //   A = Q.front();
-    //   Q.pop_front();
-    //   Matrix Ta = section(A,T);
-    //   Matrix Fa = section(A,F);
-    //   if (inadmissible(Ta,Fa)) {
-    // 	for (int i = 0; i < lngt; ++i)
-    // 	  if (A[i] == false) {
-    // 	    A[i] = true;
-    // 	    Q.push_back(A);
-    // 	    A[i] = false;
-    // 	  }
-    //   } else {
-    // 	int hw = hamming_weight(A);
-    // 	if (hw < mincard) {
-    // 	  mincard = hw;
-    // 	  minsct = A;
-    // 	}
-    //   }
-    // }
-    // A = minsct;
   } else if (direction == dRAND) {	// random order
     random_device rd;
     static uniform_int_distribution<int> uni_dist(0,lngt-1);
@@ -849,88 +811,11 @@ int firstlit (const Clause &clause) {
   return i;
 }
 
-bool clauseLT (const Clause &a, const Clause &b) {
-  // is clause a < clause b in literals ?
-  for (int i = 0; i < a.size(); ++i)
-    if (a[i] < b[i])
-      return true;
-  return false;
-}
-
-// This overloading is necessay because deque implements >= differently
-bool operator>= (const Clause &a, const Clause &b) {
-  // overloading >=
-  // is clause a >= clause b?
-  // order on clauses:
-  // 1. number of literals
-  // 2. coordinate of the first literal
-  // 3. order on positive / negative literals
-  if (a == b)
-    return true;
-  if (numlit(a) < numlit(b))
-    return false;
-  if (numlit(a) == numlit(b)
-      && firstlit(a) < firstlit(b))
-    return false;
-  if (numlit(a) == numlit(b)
-      && firstlit(a) == firstlit(b))
-    return clauseLT(b, a);
-  return true;
-}
-
-// int partition_matrix (Matrix &mtx, int low, int high)
-// {
-//   Row pivot = mtx[high];
-//   int p_index = low;
-    
-//   for(int i = low; i < high; i++)
-//     if(mtx[i] <= pivot) {
-//       Row t = mtx[i];
-//       mtx[i] = mtx[p_index];
-//       mtx[p_index] = t;
-//       p_index++;
-//     }
-//   Row t = mtx[high];
-//   mtx[high] = mtx[p_index];
-//   mtx[p_index] = t;
-    
-//   return p_index;
-// }
-
-// void sort_matrix (Matrix &mtx, int low, int high) {
-//   if (low < high) {
-//     int p_index = partition_matrix(mtx, low, high);
-//     sort_matrix(mtx, low, p_index-1);
-//     sort_matrix(mtx, p_index+1, high);
-//   }
-// }
-
-int partition_formula (Formula &formula, int low, int high)
-{
-  Clause pivot = formula[high];
-  int p_index = low;
-    
-  for(int i = low; i < high; i++)
-    if (pivot >= formula[i]) {
-      Clause t = formula[i];
-      formula[i] = formula[p_index];
-      formula[p_index] = t;
-      p_index++;
-    }
-  Clause t = formula[high];
-  formula[high] = formula[p_index];
-  formula[p_index] = t;
-    
-  return p_index;
-}
-
-void sort_formula (Formula &formula, int low, int high) {
-  if (low < high) {
-    int p_index = partition_formula(formula, low, high);
-    sort_formula(formula, low, p_index-1);
-    sort_formula(formula, p_index+1, high);
+struct {
+  bool operator() (const Clause &a, const Clause &b) {
+    return numlit(a) < numlit(b);
   }
-}
+} cmp_numlit;
 
 Matrix restrict (const Row &sect, const Matrix &A) {
   // restricts matrix A to columns determined by the bitvector sect
@@ -1015,8 +900,8 @@ Formula unitres (const Formula &formula) {	// unit resolution
     clauses = newClauses;
   }
 
-  // sort(resUnits.begin(), resUnits.end());
-  sort_formula(resUnits, 0, resUnits.size()-1);
+  sort(resUnits.begin(), resUnits.end());
+  // sort_formula(resUnits, 0, resUnits.size()-1);
   auto last1 = unique(resUnits.begin(), resUnits.end());
   resUnits.erase(last1, resUnits.end());
 
@@ -1043,8 +928,8 @@ Formula unitres (const Formula &formula) {	// unit resolution
   }
 
   clauses.insert(clauses.end(), resUnits.begin(), resUnits.end());
-  // sort(clauses.begin(), clauses.end());
-  sort_formula(clauses, 0, clauses.size()-1);
+  sort(clauses.begin(), clauses.end());
+  // sort_formula(clauses, 0, clauses.size()-1);
   auto last2 = unique(clauses.begin(), clauses.end());
   clauses.erase(last2, clauses.end());
 
@@ -1092,8 +977,8 @@ Formula binres (const Formula &formula) {
   }
   
   clauses.insert(clauses.end(), resBins.begin(), resBins.end());
-  // sort(clauses.begin(), clauses.end());
-  sort_formula(clauses, 0, clauses.size()-1);
+  sort(clauses.begin(), clauses.end());
+  // sort_formula(clauses, 0, clauses.size()-1);
   auto last3 = unique(clauses.begin(), clauses.end());
   clauses.erase(last3, clauses.end());
 
@@ -1109,10 +994,10 @@ bool subsumes (const Clause &cla, const Clause &clb) {
   return true;
 }
 
-Formula subsumption (Formula formula) {	// perform subsumption on clausesof a formula
-					// clauses must be sorted by length
+Formula subsumption (Formula formula) {	// perform subsumption on clauses of a formula
+					// clauses must be sorted by length --- DROPPED
   Formula res;
-
+  sort(formula.begin(), formula.end(), cmp_numlit);
   do {
     Clause clause = formula.front();
     formula.pop_front();
@@ -1138,7 +1023,9 @@ Formula redundant (const Formula &formula) {	// eliminating redundant clauses
   const int lngt = formula[0].size();
 
   Formula prefix, suffix;
-  prefix.insert(prefix.end(), formula.begin(), formula.end());
+  // prefix.insert(prefix.end(), formula.begin(), formula.end());
+  prefix = formula;
+  sort(prefix.begin(), prefix.end(), cmp_numlit);
 
   int left = 0;
   while (left < prefix.size() && numlit(prefix[left]) == 1)
@@ -1157,8 +1044,8 @@ Formula redundant (const Formula &formula) {	// eliminating redundant clauses
     }
     newUnits.insert(newUnits.end(), prefix.begin(), prefix.end());
     newUnits.insert(newUnits.end(), suffix.begin(), suffix.end());
-    // sort(newUnits.begin(), newUnits.end());
-    sort_formula(newUnits, 0, newUnits.size()-1);
+    sort(newUnits.begin(), newUnits.end());
+    // sort_formula(newUnits, 0, newUnits.size()-1);
     auto last3 = unique(newUnits.begin(), newUnits.end());
     newUnits.erase(last3, newUnits.end());
     Formula bogus = unitres(newUnits);
@@ -1222,15 +1109,16 @@ Formula SetCover (const Matrix &Universe, const Formula &SubSets) {
 	newR.push_back(tuple);
     R = newR;
   }
-  // sort(selected.begin(), selected.end());
-  sort_formula(selected, 0, selected.size()-1);
+  sort(selected.begin(), selected.end(), cmp_numlit);
+  // sort_formula(selected, 0, selected.size()-1);
   return selected;
 }
 
 void cook (Formula &formula) {
   // perform redundancy elimination on formula according to cooking
   if (! formula.empty()) {
-    if (cooking == ckRAW)      sort_formula(formula, 0, formula.size()-1);
+    if (cooking == ckRAW)      // sort_formula(formula, 0, formula.size()-1);
+      sort(formula.begin(), formula.end(), cmp_numlit);
     if (cooking >= ckBLEU)     {formula = unitres(formula);
 				formula = binres(formula);}
     if (cooking >= ckMEDIUM)   formula = subsumption(formula);

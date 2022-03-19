@@ -14,7 +14,7 @@
  *	Version: all                                                      *
  *      File:    mcp-matrix+formula.cpp                                   *
  *                                                                        *
- *      Copyright (c) 2019 - 2021                                         *
+ *      Copyright (c) 2019 - 2022                                         *
  *                                                                        *
  * Data structures for row, matrices, literals, clauses, and formula.     *
  *                                                                        *
@@ -259,7 +259,7 @@ string impl2latex (const vector<int> &names, const Clause &clause) {
   string output;
   for (int lit = 0; lit < clause.size(); ++lit)
     if (clause[lit] == lneg)
-      output += literal2latex(names[lit], lneg) + " ";
+      output += literal2latex(names[lit], lpos) + " ";
   output += "\\to";
   for (int lit = 0; lit < clause.size(); ++lit)
     if (clause[lit] == lpos)

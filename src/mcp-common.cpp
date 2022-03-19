@@ -14,7 +14,7 @@
  *	Version: common to all                                            *
  *      File:    mcp-common.cpp                                           *
  *                                                                        *
- *      Copyright (c) 2019 - 2021                                         *
+ *      Copyright (c) 2019 - 2022                                         *
  *                                                                        *
  * Given several  Boolean matrices  representing the  presence/absence of *
  * attributes in  observations, this software generates  Horn, dual Horn, *

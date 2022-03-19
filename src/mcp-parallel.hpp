@@ -5,7 +5,7 @@
  *                                                                        *
  *	Author:   Miki Hermann                                            *
  *	e-mail:   hermann@lix.polytechnique.fr                            *
- *	Address:  LIX (CNRS UMR 7161), Ecole Polytechnique, France         *
+ *	Address:  LIX (CNRS UMR 7161), Ecole Polytechnique, France        *
  *                                                                        *
  *	Author: Gernot Salzer                                             *
  *	e-mail: gernot.salzer@tuwien.ac.at                                *
@@ -14,7 +14,7 @@
  *	Version: all parallel                                             *
  *      File:    mcp-parallel.hpp                                         *
  *                                                                        *
- *      Copyright (c) 2019 - 2021                                         *
+ *      Copyright (c) 2019 - 2022                                         *
  *                                                                        *
  * Given several  Boolean matrices  representing the  presence/absence of *
  * attributes in  observations, this software generates  Horn, dual Horn, *
@@ -37,7 +37,8 @@ using namespace std;
 
 void adjust ();
 void print_arg ();
-Formula learnHornLarge (ofstream &process_outfile, const Matrix &T, Matrix F);
+Formula learnHornLarge (ofstream &process_outfile,
+			const Matrix &T, const Matrix &F);
 Formula learnBijunctive (ofstream &process_outfile, const Matrix &T, const Matrix &F);
 // void OneToOne (ofstream &process_outfile, const int &i);
 // void OneToAll (ofstream &process_outfile, const int &i);

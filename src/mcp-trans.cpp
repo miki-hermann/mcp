@@ -14,7 +14,7 @@
  *	Version: all                                                      *
  *      File:    mcp-trans.cpp                                            *
  *                                                                        *
- *      Copyright (c) 2019 - 2021                                         *
+ *      Copyright (c) 2019 - 2022                                         *
  *                                                                        *
  * Given a meta-description of a data file, this software generates the   *
  * Boolean matrix input for mcp-seq, mcp-mpi, mcp-pthread, mcp-hybrid,    *

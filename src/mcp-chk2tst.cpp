@@ -14,7 +14,7 @@
  *	Version: all                                                      *
  *      File:    mcp-chk2tst                                              *
  *                                                                        *
- *      Copyright (c) 2019 - 2021                                         *
+ *      Copyright (c) 2019 - 2022                                         *
  *                                                                        *
  * Take a check file *.chk and transforms it into a test file             *
  * *.tst. The test file contains the check file without the leading       *

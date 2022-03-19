@@ -5,7 +5,7 @@
  *                                                                        *
  *	Author:   Miki Hermann                                            *
  *	e-mail:   hermann@lix.polytechnique.fr                            *
- *	Address:  LIX (CNRS UMR 7161), Ecole Polytechnique, France         *
+ *	Address:  LIX (CNRS UMR 7161), Ecole Polytechnique, France        *
  *                                                                        *
  *	Author: Gernot Salzer                                             *
  *	e-mail: gernot.salzer@tuwien.ac.at                                *
@@ -14,7 +14,7 @@
  *	Version: all                                                      *
  *      File:    mcp-matrix+formula.hpp                                   *
  *                                                                        *
- *      Copyright (c) 2019 - 2021                                         *
+ *      Copyright (c) 2019 - 2022                                         *
  *                                                                        *
  * Data structures for row, matrices, literals, clauses, and formula.     *
  *                                                                        *

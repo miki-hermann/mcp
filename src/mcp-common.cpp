@@ -379,7 +379,7 @@ Row MIN (const Matrix &M) {
 }
 
 bool InHornClosure (const Row &row, const Matrix &M) {
-  // is the tuple a in the Horn closure of matrix O?
+  // is the tuple row in the Horn closure of matrix M?
   Matrix P = ObsGeq(row, M);
   if      (P.empty())     {return false;}
   else if (row == MIN(P)) {return true;}
@@ -890,14 +890,14 @@ Formula unitres (const Formula &formula) {	// unit resolution
 	clauses[j][index] = lnone;
     }
 
-    Formula newClauses;
-    for (Clause uts : clauses)
-      if (numlit(uts) == 1) {
-	units.push_back(uts);
-	resUnits.push_back(uts);
+    auto it = clauses.begin();
+    while (it != clauses.end())
+      if (numlit(*it) == 1) {
+	units.push_back(*it);
+	resUnits.push_back(*it);
+	it = clauses.erase(it);
       } else
-	newClauses.push_back(uts);
-    clauses = newClauses;
+	++it;
   }
 
   sort(resUnits.begin(), resUnits.end());
@@ -907,9 +907,9 @@ Formula unitres (const Formula &formula) {	// unit resolution
 
   // test if there are no two unit clauses having literals of opposite parity
   int ru_bound = resUnits.size();
-  for (int i=0; i < ru_bound-1; ++i) {
+  for (int i = 0; i < ru_bound-1; ++i) {
     Clause unit_i = resUnits[i];
-    int index=0;
+    int index = 0;
     while (index < unit_i.size() && unit_i[index] == lnone)
       index++;
     if (index < ru_bound) {
@@ -928,7 +928,7 @@ Formula unitres (const Formula &formula) {	// unit resolution
   }
 
   clauses.insert(clauses.end(), resUnits.begin(), resUnits.end());
-  sort(clauses.begin(), clauses.end());
+  sort(clauses.begin(), clauses.end()), cmp_numlit;
   // sort_formula(clauses, 0, clauses.size()-1);
   auto last2 = unique(clauses.begin(), clauses.end());
   clauses.erase(last2, clauses.end());
@@ -966,18 +966,18 @@ Formula binres (const Formula &formula) {
 	clauses[j][index1] = lnone;
     }
 
-    Formula newClauses;
-    for (Clause clause : clauses)
-      if (numlit(clause) == 2) {
-	bins.push_back(clause);
-	resBins.push_back(clause);
+    auto it = clauses.begin();
+    while (it != clauses.end())
+      if (numlit(*it) == 2) {
+	bins.push_back(*it);
+	resBins.push_back(*it);
+	it = clauses.erase(it);
       } else
-	newClauses.push_back(clause);
-    clauses = newClauses;
+	++it;
   }
   
   clauses.insert(clauses.end(), resBins.begin(), resBins.end());
-  sort(clauses.begin(), clauses.end());
+  sort(clauses.begin(), clauses.end(), cmp_numlit);
   // sort_formula(clauses, 0, clauses.size()-1);
   auto last3 = unique(clauses.begin(), clauses.end());
   clauses.erase(last3, clauses.end());
@@ -998,16 +998,17 @@ Formula subsumption (Formula formula) {	// perform subsumption on clauses of a f
 					// clauses must be sorted by length --- DROPPED
   Formula res;
   sort(formula.begin(), formula.end(), cmp_numlit);
-  do {
+  while (! formula.empty()) {
     Clause clause = formula.front();
     formula.pop_front();
-    Formula newFormula;
-    for (Clause cl : formula)
-      if (! subsumes(clause, cl))
-	newFormula.push_back(cl);
+    auto it = formula.begin();
+    while (it != formula.end())
+      if (subsumes(clause, *it))
+	it = formula.erase(it);
+      else
+	++it;
     res.push_back(clause);
-    formula = newFormula;
-  } while (! formula.empty());
+  }
   return res;
 }
 
@@ -1035,7 +1036,7 @@ Formula redundant (const Formula &formula) {	// eliminating redundant clauses
     Clause pivot = prefix.back();
     prefix.pop_back();
     Formula newUnits;
-    for (int i=0; i < pivot.size(); ++i) {
+    for (int i = 0; i < pivot.size(); ++i) {
       if (pivot[i] != lnone) {
 	Clause newclause(lngt, lnone);
 	newclause[i] = (pivot[i] == lpos) ? lneg : lpos;
@@ -1044,7 +1045,7 @@ Formula redundant (const Formula &formula) {	// eliminating redundant clauses
     }
     newUnits.insert(newUnits.end(), prefix.begin(), prefix.end());
     newUnits.insert(newUnits.end(), suffix.begin(), suffix.end());
-    sort(newUnits.begin(), newUnits.end());
+    sort(newUnits.begin(), newUnits.end(), cmp_numlit);
     // sort_formula(newUnits, 0, newUnits.size()-1);
     auto last3 = unique(newUnits.begin(), newUnits.end());
     newUnits.erase(last3, newUnits.end());
@@ -1100,14 +1101,15 @@ Formula SetCover (const Matrix &Universe, const Formula &SubSets) {
 
     if (maxw == 0) break;
     selected.push_back(maxset);
-    Matrix newR;
-    for (Row tuple : R)
-      if (incidence[make_pair(tuple, maxset)] == PRESENT)
+    
+    auto it = R.begin();
+    while (it != R.end())
+      if (incidence[make_pair(*it, maxset)] == PRESENT) {
 	for (Clause clause : SubSets)
-	  incidence[make_pair(tuple, clause)] = ABSENT;
-      else
-	newR.push_back(tuple);
-    R = newR;
+	  incidence[make_pair(*it, clause)] = ABSENT;
+	it = R.erase(it);
+      } else
+	++it;
   }
   sort(selected.begin(), selected.end(), cmp_numlit);
   // sort_formula(selected, 0, selected.size()-1);

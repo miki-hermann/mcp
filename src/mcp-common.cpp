@@ -1134,10 +1134,11 @@ bool subsumes (const Clause &cla, const Clause &clb) {
 }
 
 Formula subsumption (Formula formula) {	// perform subsumption on clauses of a formula
-					// clauses must be sorted by length --- DROPPED
+					// clauses must be sorted by length --- IS GUARANTEED
   Formula res;
+  // sort_formula not necessary, clauses are GUARANTEED SORTED
   // sort(formula.begin(), formula.end(), cmp_numlit);
-  sort_formula(formula, 0, formula.size()-1);
+  // sort_formula(formula, 0, formula.size()-1);
   while (! formula.empty()) {
     Clause clause = formula.front();
     formula.pop_front();
@@ -1160,14 +1161,15 @@ bool empty_clause (const Clause &clause) {	// is the clause empty ?
 }
 
 Formula redundant (const Formula &formula) {	// eliminating redundant clauses
-						// clauses must be sorted by length
+						// clauses must be sorted by length --- IS UARANTEED
   const int lngt = formula[0].size();
 
   Formula prefix, suffix;
   // prefix.insert(prefix.end(), formula.begin(), formula.end());
   prefix = formula;
+  // sort_formula not necessary, clauses are GUARANTEED SORTED
   // sort(prefix.begin(), prefix.end(), cmp_numlit);
-  sort_formula(prefix, 0, prefix.size()-1);
+  // sort_formula(prefix, 0, prefix.size()-1);
 
   int left = 0;
   while (left < prefix.size() && numlit(prefix[left]) == 1)

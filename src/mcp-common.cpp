@@ -980,7 +980,7 @@ Matrix HornClosure (const Matrix &M) {	// computes the Horn closure of a matrix
     for (Row nm : newM)
       HC.push_back(nm);
     newM.clear();
-    for (Row m : M) {
+    for (Row m : M)
       while (pointer[m] < HC.size()) {
 	Row c = Min(m, HC[pointer[m]]);
 	pointer[m]++;
@@ -989,7 +989,6 @@ Matrix HornClosure (const Matrix &M) {	// computes the Horn closure of a matrix
 	  newM.push_back(c);
 	}
       }
-    }
   }
 
   // sort(HC.begin(), HC.end());

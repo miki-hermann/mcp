@@ -217,7 +217,19 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
       metaput = argv[++argument];
     } else if (arg == "-r"
 	       || arg == "--robust") {
-      robust = true;
+      string rpar = argv[++argument];
+      if (rpar == "yes"
+	  || rpar == "y"
+	  || rpar == "1")
+	robust = true;
+      else if (rpar == "no"
+	       || rpar == "n"
+	       || rpar == "0")
+	robust = false;
+      else {
+	cerr << "+++ argument error: " << arg << " " << rpar << endl;
+	exit(1);
+      }
     } else if (arg == "--pivot"
 	       || arg == "--pvt") {
       pivotput = argv[++argument];
@@ -1147,8 +1159,9 @@ void matrix () {
     cerr << "+++ " << qmarkcount
 	 << " lines skipped due to missing values represented by '?'"
 	 << endl;
-  cerr << "+++ produced " << linecount
+  cerr << "+++ " << linecount
        << (linecount == 1 ? " line" : " lines")
+       << " produced "
        << endl;
 }
 

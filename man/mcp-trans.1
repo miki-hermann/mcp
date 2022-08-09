@@ -35,8 +35,33 @@ in \fBmcp-trans\fR(5).
 .TP
 \fB\-\-pvt\fR, \fB\-\-pivot\fI pivot-file
 Pivot output file, where values for the pivot coordinate will be stored.
+Incompatible with the \fB\-\-robust\fR option.
+.IP
+The \fBpivot\fR is the identifier for the line data.
+It is for instance an identifier (name or other denomination), a number, etc.
+These \fBpivot\fR data will be used for prediction by the module \fBmcp-predict\fR.
 .IP
 Default: The \fIbasename\fR of \fIinput-file\fR with \fI.pvt\fR suffix.
+.
+.TP
+\fB\-r\fR, \fB\-\-robust \fRyes | no
+Robust extensions of defective data containing the indicator '?' of missing data.
+Incompatible with the \fB\-\-pivot\fR option.
+.IP
+yes: Robust extensions computed. Defective data with missing data indicator '?' are replaced with extensions.
+.IP
+no: No robust extensions computed. Defective data with missing data indicator '?' are discarded.
+.IP
+Robust extensions are computed from all other data for each coordinate according to
+.IP
+E. Boros, T. Ibaraki, K. Makino.
+Boolean analysis of incomplete examples.
+Proceedings 5th Scandinavian Workshop on Algorithm Theory (SWAT 1996), Reykjavík, (Iceland).
+R. Karlsson and A. Lingas (editors),
+Lecture Notes in Computer Science, vol 1097. Springer, July 1996.
+.IP
+Default: no.
+
 .
 .TP
 \fB\-\-index \fRlocal | global

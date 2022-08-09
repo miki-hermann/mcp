@@ -1,10 +1,10 @@
 all:
-	mcp-trans   -i mushroom.data -m mushroom.txt
+	mcp-trans   -i mushroom.data -m mushroom.txt --robust
 	mcp-uniq    -i mushroom.mat
 	mcp-split   -i mushroom.unq  --ratio 20
 	mcp-seq     -i mushroom.lrn  -o mushroom.out           --formula mushroom --closure cnf
-	mcp-check   -i mushroom.chk  -l mushroom_edible.log    -o mushroom_edible.out
-	mcp-check   -i mushroom.chk  -l mushroom_poisonous.log -o mushroom_poisonous.out
+	mcp-check   -i mushroom.chk  -l mushroom_edible.log    -o mushroom_edible.out --print clause
+	mcp-check   -i mushroom.chk  -l mushroom_poisonous.log -o mushroom_poisonous.out --print clause
 	mcp-chk2tst -i mushroom.chk
 	mcp-predict -i mushroom.tst -l mushroom -o mushroom.pdt
 

@@ -1,5 +1,5 @@
 all:
-	mcp-trans   -i mushroom.data -m mushroom.txt --robust
+	mcp-trans   -i mushroom.data -m mushroom.txt --robust yes
 	mcp-uniq    -i mushroom.mat
 	mcp-split   -i mushroom.unq  --ratio 20
 	mcp-seq     -i mushroom.lrn  -o mushroom.out           --formula mushroom --closure cnf

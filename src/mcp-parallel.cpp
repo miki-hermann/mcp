@@ -558,23 +558,23 @@ void OneToOne (ofstream &process_outfile, ofstream &latex_outfile, const int &i)
 	process_outfile << "+++ F|_A [" << FsectA.size() << "]" << endl;
       }
 
-      Matrix HC;
-      if (closure == clHORN || closure == clDHORN) {
-	HC = HornClosure(TsectA);
-	process_outfile << "+++ " << pcl_strg[closure] << "Closure(T|_A) [" << HC.size() << "]";
-	if (display >= ySECTION) {
-	  process_outfile << " = { " << endl;
-	  process_outfile << HC;
-	  process_outfile << "+++ }";
-	}
-	process_outfile << endl;
-      } else if (closure == clBIJUNCTIVE)
-	process_outfile << "+++ " << pcl_strg[closure] << "Closure not computed" << endl;
+      // Matrix HC;
+      // if (closure == clHORN || closure == clDHORN) {
+      // 	HC = HornClosure(TsectA);
+      // 	process_outfile << "+++ " << pcl_strg[closure] << "Closure(T|_A) [" << HC.size() << "]";
+      // 	if (display >= ySECTION) {
+      // 	  process_outfile << " = { " << endl;
+      // 	  process_outfile << HC;
+      // 	  process_outfile << "+++ }";
+      // 	}
+      // 	process_outfile << endl;
+      // } else if (closure == clBIJUNCTIVE)
+      // 	process_outfile << "+++ " << pcl_strg[closure] << "Closure not computed" << endl;
 
       Formula formula;
       if (closure == clHORN || closure == clDHORN)
 	formula =  strategy == sEXACT
-	  ? learnHornExact(HC)
+	  ? learnHornExact(TsectA)
 	  : learnHornLarge(process_outfile, TsectA, FsectA);
       else if (closure == clBIJUNCTIVE) {
 	formula = learnBijunctive(process_outfile, TsectA, FsectA);
@@ -662,23 +662,23 @@ void OneToAll (ofstream &process_outfile, ofstream &latex_outfile, const int &i)
       process_outfile << "+++ F|_A [" << FsectA.size() << "]" << endl;
     }
 
-    Matrix HC;
-    if (closure == clHORN || closure == clDHORN) {
-      HC = HornClosure(TsectA);
-      process_outfile << "+++ " << pcl_strg[closure] << "Closure(T|_A) [" << HC.size() << "]";
-      if (display >= ySECTION) {
-	process_outfile << " = { " << endl;
-	process_outfile << HC;
-	process_outfile << "+++ }";
-      }
-      process_outfile << endl;
-    } else if (closure == clBIJUNCTIVE)
-      process_outfile << "+++ " << pcl_strg[closure] << "Closure not computed" << endl;
+    // Matrix HC;
+    // if (closure == clHORN || closure == clDHORN) {
+    //   HC = HornClosure(TsectA);
+    //   process_outfile << "+++ " << pcl_strg[closure] << "Closure(T|_A) [" << HC.size() << "]";
+    //   if (display >= ySECTION) {
+    // 	process_outfile << " = { " << endl;
+    // 	process_outfile << HC;
+    // 	process_outfile << "+++ }";
+    //   }
+    //   process_outfile << endl;
+    // } else if (closure == clBIJUNCTIVE)
+    //   process_outfile << "+++ " << pcl_strg[closure] << "Closure not computed" << endl;
 
     Formula formula;
     if (closure == clHORN || closure == clDHORN)
       formula =  strategy == sEXACT
-	? learnHornExact(HC)
+	? learnHornExact(TsectA)
 	: learnHornLarge(process_outfile, TsectA, FsectA);
     else if (closure == clBIJUNCTIVE) {
       formula = learnBijunctive(process_outfile, TsectA, FsectA);
@@ -745,18 +745,18 @@ void OneToAllNosection (ofstream &process_outfile, ofstream &latex_outfile, cons
     process_outfile << "+++ F [" << F.size() << "]" << endl;
   }
 
-  Matrix HC;
-  if (closure == clHORN || closure == clDHORN) {
-    HC = HornClosure(T);
-    process_outfile << "+++ " << pcl_strg[closure] << "Closure(T) [" << HC.size() << "]";
-    if (display == ySHOW) {
-      process_outfile << " = { " << endl;
-      process_outfile << HC;
-      process_outfile << "+++ }";
-    }
-    process_outfile << endl;
-  } else if (closure == clBIJUNCTIVE)
-    process_outfile << "+++ " << pcl_strg[closure] << "Closure not computed" << endl;
+  // Matrix HC;
+  // if (closure == clHORN || closure == clDHORN) {
+  //   HC = HornClosure(T);
+  //   process_outfile << "+++ " << pcl_strg[closure] << "Closure(T) [" << HC.size() << "]";
+  //   if (display == ySHOW) {
+  //     process_outfile << " = { " << endl;
+  //     process_outfile << HC;
+  //     process_outfile << "+++ }";
+  //   }
+  //   process_outfile << endl;
+  // } else if (closure == clBIJUNCTIVE)
+  //   process_outfile << "+++ " << pcl_strg[closure] << "Closure not computed" << endl;
     
   if (inadmissible(T,F)) {
     process_outfile << "*** F not disjoint from <T>" << endl;
@@ -769,7 +769,7 @@ void OneToAllNosection (ofstream &process_outfile, ofstream &latex_outfile, cons
     Formula formula;
     if (closure == clHORN || closure == clDHORN)
       formula =  strategy == sEXACT
-	? learnHornExact(HC)
+	? learnHornExact(T)
 	: learnHornLarge(process_outfile, T, F);
     else if (closure == clBIJUNCTIVE) {
       formula = learnBijunctive(process_outfile, T, F);

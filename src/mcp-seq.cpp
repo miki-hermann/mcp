@@ -578,23 +578,23 @@ void OneToOne () {
 	}
 	cout << endl;
 
-	Matrix HC;
-	if (closure == clHORN || closure == clDHORN) {
-	  HC = HornClosure(TsectA);
-	  cout << "+++ " << pcl_strg[closure] << "Closure(T|_A) [" << HC.size() << "]";
-	  if (display >= ySECTION) {
-	    cout << " = { " << endl;
-	    cout << HC;
-	    cout << "+++ }";
-	  }
-	  cout << endl;
-	} else if (closure == clBIJUNCTIVE)
-	  cout << "+++ " << pcl_strg[closure] << "Closure not computed" << endl;
+	// Matrix HC;
+	// if (closure == clHORN || closure == clDHORN) {
+	//   HC = HornClosure(TsectA);
+	//   cout << "+++ " << pcl_strg[closure] << "Closure(T|_A) [" << HC.size() << "]";
+	//   if (display >= ySECTION) {
+	//     cout << " = { " << endl;
+	//     cout << HC;
+	//     cout << "+++ }";
+	//   }
+	//   cout << endl;
+	// } else if (closure == clBIJUNCTIVE)
+	//   cout << "+++ " << pcl_strg[closure] << "Closure not computed" << endl;
 
 	Formula formula;
 	if (closure == clHORN || closure == clDHORN)
 	  formula =  strategy == sEXACT
-	    ? learnHornExact(HC)
+	    ? learnHornExact(TsectA)
 	    : learnHornLarge(TsectA, FsectA);
 	else if (closure == clBIJUNCTIVE) {
 	  formula = learnBijunctive(TsectA, FsectA);
@@ -682,23 +682,23 @@ void SelectedToAll (const string grp) {
     }
     cout << endl;
 
-    Matrix HC;
-    if (closure == clHORN || closure == clDHORN) {
-      HC = HornClosure(TsectA);
-      cout << "+++ " << pcl_strg[closure] << "Closure(T|_A) [" << HC.size() << "]";
-      if (display >= ySECTION) {
-	cout << " = { " << endl;
-	cout << HC;
-	cout << "+++ }";
-      }
-      cout << endl;
-    } else if (closure == clBIJUNCTIVE)
-      cout << "+++ " << pcl_strg[closure] << "Closure not computed" << endl;
+    // Matrix HC;
+    // if (closure == clHORN || closure == clDHORN) {
+    //   HC = HornClosure(TsectA);
+    //   cout << "+++ " << pcl_strg[closure] << "Closure(T|_A) [" << HC.size() << "]";
+    //   if (display >= ySECTION) {
+    // 	cout << " = { " << endl;
+    // 	cout << HC;
+    // 	cout << "+++ }";
+    //   }
+    //   cout << endl;
+    // } else if (closure == clBIJUNCTIVE)
+    //   cout << "+++ " << pcl_strg[closure] << "Closure not computed" << endl;
 
     Formula formula;
     if (closure == clHORN || closure == clDHORN)
       formula =  strategy == sEXACT
-	? learnHornExact(HC)
+	? learnHornExact(TsectA)
 	: learnHornLarge(TsectA, FsectA);
     else if (closure == clBIJUNCTIVE) {
       formula = learnBijunctive(TsectA, FsectA);
@@ -771,18 +771,18 @@ void OneToAllNosection () {
       cout << "+++ F [" << F.size() << "]" << endl;
     }
 
-    Matrix HC;
-    if (closure == clHORN || closure == clDHORN) {
-      HC = HornClosure(T);
-      cout << "+++ " << pcl_strg[closure] << "Closure(T) [" << HC.size() << "]";
-      if (display == ySHOW) {
-	cout << " = { " << endl;
-	cout << HC;
-	cout << "+++ }";
-      }
-      cout << endl;
-    } else if (closure == clBIJUNCTIVE)
-      cout << "+++ " << pcl_strg[closure] << "Closure not computed" << endl;
+    // Matrix HC;
+    // if (closure == clHORN || closure == clDHORN) {
+    //   HC = HornClosure(T);
+    //   cout << "+++ " << pcl_strg[closure] << "Closure(T) [" << HC.size() << "]";
+    //   if (display == ySHOW) {
+    // 	cout << " = { " << endl;
+    // 	cout << HC;
+    // 	cout << "+++ }";
+    //   }
+    //   cout << endl;
+    // } else if (closure == clBIJUNCTIVE)
+    //   cout << "+++ " << pcl_strg[closure] << "Closure not computed" << endl;
     
     if (inadmissible(T,F)) {
       cout << "*** F not disjoint from <T>" << endl;
@@ -795,7 +795,7 @@ void OneToAllNosection () {
       Formula formula;
       if (closure == clHORN || closure == clDHORN)
 	formula =  strategy == sEXACT
-	  ? learnHornExact(HC)
+	  ? learnHornExact(T)
 	  : learnHornLarge(T, F);
       else if (closure == clBIJUNCTIVE) {
 	formula = learnBijunctive(T, F);

@@ -380,8 +380,8 @@ Token yylex () {
   } else if (msrc[0] == '?') {
     msrc.erase(0,1);
     token = QMARK;
-  } else if (t_type == GENERAL_T && msrc.substr(0, 5) == "concept" && !isalnum(msrc[5])) {
-    msrc.erase(0,5);
+  } else if (t_type == GENERAL_T && msrc.substr(0, 7) == "concept" && !isalnum(msrc[7])) {
+    msrc.erase(0,7);
     token = CONCEPT;
   } else if (t_type == GENERAL_T && msrc.substr(0, 5) == "pivot" && !isalnum(msrc[5])) {
     msrc.erase(0,5);

@@ -31,7 +31,7 @@
 #include <map>
 #include <boost/dynamic_bitset.hpp>
 
-#define GLOBAL_VERSION "1.04c-danube-"
+#define GLOBAL_VERSION "1.04d-danube-"
 
 using namespace std;
 

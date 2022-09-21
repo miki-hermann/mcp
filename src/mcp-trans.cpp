@@ -47,7 +47,7 @@ enum Token {ERROR  =  0,
 	    STRING =  8,
 	    NUM    =  9,
 	    FLOAT  = 10,
-	    IDENT  = 11,
+	    CONCEPT  = 11,
 	    BOOL   = 12,
 	    ENUM   = 13,
 	    UP     = 14,
@@ -107,7 +107,7 @@ const string token_string[] = {"ERROR",
 			       "STRING",
 			       "NUM",
 			       "FLOAT",
-			       "IDENT",
+			       "CONCEPT",
 			       "BOOL",
 			       "ENUM",
 			       "UP",
@@ -192,7 +192,7 @@ set<string> symtab;
 string desc;
 vector<string> description = {" "};
 int orig_column;
-int ident = SENTINEL;
+int concept = SENTINEL;
 bool IDpresent = true;
 int pivot = SENTINEL;
 bool PVTpresent = false;
@@ -249,7 +249,7 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
       }
     } else if (arg == "--offset") {
       offset = stoi(argv[++argument]);
-    } else if (arg == "--ident") {
+    } else if (arg == "--concept") {
       string idpar = argv[++argument];
       if (idpar == "yes"
 	  || idpar == "y"
@@ -380,9 +380,9 @@ Token yylex () {
   } else if (msrc[0] == '?') {
     msrc.erase(0,1);
     token = QMARK;
-  } else if (t_type == GENERAL_T && msrc.substr(0, 5) == "ident" && !isalnum(msrc[5])) {
+  } else if (t_type == GENERAL_T && msrc.substr(0, 5) == "concept" && !isalnum(msrc[5])) {
     msrc.erase(0,5);
-    token = IDENT;
+    token = CONCEPT;
   } else if (t_type == GENERAL_T && msrc.substr(0, 5) == "pivot" && !isalnum(msrc[5])) {
     msrc.erase(0,5);
     token = PIVOT;
@@ -485,13 +485,13 @@ void specification () {
   vector<string> row_args;
   int minus;
   Token spec = yylex();
-  if (spec == IDENT) {
-    if (ident != SENTINEL) {
-      error("double ident");
+  if (spec == CONCEPT) {
+    if (concept != SENTINEL) {
+      error("double concept");
       flush(token_string[SCOL], true);
       return;
     }
-    ident = orig_column;
+    concept = orig_column;
     description[0] = desc;
     return;
   } else if (spec == PIVOT) {
@@ -730,14 +730,14 @@ void command_line () {
 void program () {
   vector<string> dummy;
   dummy.push_back(" ");
-  args.push_back(dummy);	// reserved for ident
+  args.push_back(dummy);	// reserved for concept
   
   while (msrc.size() > 0)
     command_line();
-  if (ident == SENTINEL && IDpresent)
-    error("missing identifier");
-  else if (ident != SENTINEL && !IDpresent)
-    error("superfluous identifier");
+  if (concept == SENTINEL && IDpresent)
+    error("missing concept");
+  else if (concept != SENTINEL && !IDpresent)
+    error("superfluous concept");
   if (pivot == SENTINEL && PVTpresent)
     error("missing pivot");
 }
@@ -929,7 +929,7 @@ bool is_float (const string &s) {
 void chunkline(vector<string> &chunk) {
   linecount++;
   if (IDpresent)
-    cout << chunk[ident];
+    cout << chunk[concept];
   if (PVTpresent)
     pvtfile << chunk[pivot] << endl;
   int mypos;

@@ -1,4 +1,5 @@
 1.04c (bug fix)
+ - ident -> concept
  - corrected bug in trans for bool
  - computing of closures completely dropped
  - fixed bug in printing mixed clauses (- missed in negative literals with names)

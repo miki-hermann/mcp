@@ -11,7 +11,7 @@ original file which will be binarized, as well as the binarization
 style of each coordinate.
 .PP
 White space can be freely introduced among the commands. Everything
-beginning by the symbol \fB#\fR until the end of line is a
+beginning with the symbol \fB#\fR until the end of line is a
 comment. Each transformation command terminates by the sign \fB;\fR
 (semicolon).
 .PP
@@ -24,7 +24,7 @@ Each transformation command has the following form:
 .in
 .PP
 The symbols \fB=\fR, \fB:\fR, and \fB;\fR are syntactic sugar for a
-better orientation of the parser. The \fIidentifier\fR (a string) will
+better orientation of the parser. The attribute \fIidentifier\fR (a string) will
 become the name of the variable for the given \fIcoordinate\fR (an
 integer). The \fIindicator\fR has one of the following forms.
 .PP
@@ -38,6 +38,7 @@ integer). The \fIindicator\fR has one of the following forms.
 .R \fBdown\fR	'[' \fIelem\fR\|.\|.\|. ']'
 .R \fBint\fR	\fImin max\fR
 .R \fBdj\fR	\fIn min max\fR
+.R \fBcp\fR	['^'] \fInumber\fR\|.\|.\|. ['$']
 .R \fBover\fR	\fIn min max l\fR
 .R \fBspan\fR	\fIl min max\fR
 .R \fBwarp\fR	\fIl0 min max l1\fR
@@ -45,12 +46,13 @@ integer). The \fIindicator\fR has one of the following forms.
 .in
 .PP
 where the semantics of these indicators is described below. The
-elements \fIelem\fR are arbitrary strings, \fImin\fR and \fImax\fR are
+elements \fIelem\fR are arbitrary strings, \fImin\fR, \fImax\fR, and
+\fInumber\fR are
 numeric values; \fIn\fR, \fIl\fR, \fIl0\fR, and \fIl1\fR are positive
 integer values.
 .TP 7
 .B concept
-This is the group concept. The corresponding \fIconcept\fR will
+This is the learned concept. The corresponding \fIconcept\fR identifier will
 become the group prefix.
 .TP
 .B pivot
@@ -75,6 +77,13 @@ Integers in the range between \fImin\fR and \fImax\fR.
 .B dj
 Continuous interval [\fImin\fR, \fImax\fR) cut into \fIn\fR disjoint
 chunks.
+.TP
+.B cp
+Intervals determined by checkpoints. The \fInumber\fRs must build an increasing sequence.
+Consecutive numbers \fIa\fR and \fIb\fR determine the interval [\fIa\fR, \fIb\fR).
+The optional symbols \fI^\fR and \fI$\fR stand for minimal and maximal infinity, respectively.
+.IP
+Example: BMI = 5: cp ^ 16.0 17.0 18.5 25.0 30.0 35.0 40.0 $;
 .TP
 .B over
 Continuous interval [\fImin\fR, \fImax\fR) cut into \fIn\fR chunks

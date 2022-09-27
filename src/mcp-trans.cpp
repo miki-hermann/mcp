@@ -31,62 +31,88 @@
 #include <set>
 #include <vector>
 #include <unordered_map>
+#include <climits>
 #include "mcp-matrix+formula.hpp"
 
 using namespace std;
 
 enum Index {LOCAL = 0, GLOBAL = 1};
-enum Token {ERROR  =  0,
-	    EQUAL  =  1,
-	    COLON  =  2,
-	    SCOL   =  3,
-	    LBRA   =  4,
-	    RBRA   =  5,
-	    MINUS  =  6,
-	    QMARK  =  7,
-	    STRING =  8,
-	    NUM    =  9,
-	    FLOAT  = 10,
-	    CONCEPT  = 11,
-	    BOOL   = 12,
-	    ENUM   = 13,
-	    UP     = 14,
-	    DOWN   = 15,
-	    INT    = 16,
-	    DJ     = 17,
-	    OVER   = 18,
-	    SPAN   = 19,
-	    WARP   = 20,
-	    STEP   = 21,
-	    DATE   = 22,
-	    DNUM   = 23,
-	    DVAL   = 24,
-	    TIME   = 25,
-	    TNUM   = 26,
-	    TVAL   = 27,
-	    WEEK   = 28,
-	    MONTH  = 29,
-	    YEAR   = 30,
-	    JAN    = 31,
-	    FEB    = 32,
-	    MAR    = 33,
-	    APR    = 34,
-	    MAY    = 35,
-	    JUN    = 36,
-	    JUL    = 37,
-	    AUG    = 38,
-	    SEP    = 39,
-	    OCT    = 40,
-	    NOV    = 41,
-	    DEC    = 42,
-	    MON    = 43,
-	    TUE    = 44,
-	    WED    = 45,
-	    THU    = 46,
-	    FRI    = 47,
-	    SAT    = 48,
-	    SUN    = 49,
-	    PIVOT  = 50
+enum Token {
+  ERROR,
+  // symbols
+  EQUAL,	// =
+  COLON,	// :
+  SCOL,		// ;
+  LPAR,		// (
+  RPAR,		// )
+  LBRA,		// [
+  RBRA,		// ]
+  PLUS,		// +
+  MINUS,	// -
+  QMARK,	// ?
+  EXMARK,	// !
+  AT,		// @
+  DOLLAR,	// $
+  PERCENT,	// %
+  AND,		// &
+  OR,		// |
+  STAR,		// *
+  USCORE,	// _
+  LESS,		// <
+  GREATER,	// >
+  COMMA,	// ,
+  DOT,		// .
+  SLASH,	// /
+  BSLASH,	// \ //
+  TILDA,	// ~
+  CARET,	// ^
+  // entities
+  STRING,
+  NUM,
+  FLOAT,
+  SCIENTIFIC,
+  // reserved words
+  CONCEPT,
+  PIVOT,
+  BOOL,
+  ENUM,
+  UP,
+  DOWN,
+  INT,
+  DISJOINT,
+  OVERLAP,
+  SPAN,
+  WARP,
+  CHECKPOINTS,
+  STEP,
+  DATE,
+  DNUM,
+  DVAL,
+  TIME,
+  TNUM,
+  TVAL,
+  WEEK,
+  MONTH,
+  YEAR,
+  JAN,
+  FEB,
+  MAR,
+  APR,
+  MAY,
+  JUN,
+  JUL,
+  AUG,
+  SEP,
+  OCT,
+  NOV,
+  DEC,
+  MON,
+  TUE,
+  WED,
+  THU,
+  FRI,
+  SAT,
+  SUN
 };
 enum Token_Type {
   GENERAL_T = 0,
@@ -96,57 +122,82 @@ enum Token_Type {
   MONTH_T   = 4,
   YEAR_T    = 5
 };
-const string token_string[] = {"ERROR",
-			       "EQUAL",
-			       "COLON",
-			       "SCOL",
-			       "LBRA",
-			       "RBRA",
-			       "MINUS",
-			       "QMARK",
-			       "STRING",
-			       "NUM",
-			       "FLOAT",
-			       "CONCEPT",
-			       "BOOL",
-			       "ENUM",
-			       "UP",
-			       "DOWN",
-			       "INT",
-			       "DJ",
-			       "OVER",
-			       "SPAN",
-			       "WARP",
-			       "STEP",
-			       "DATE",
-			       "DNUM",
-			       "DVAL",
-			       "TIME",
-			       "TNUM",
-			       "TVAL",
-			       "WEEK",
-			       "MONTH",
-			       "YEAR",
-			       "JAN",
-			       "FEB",
-			       "MAR",
-			       "APR",
-			       "MAY",
-			       "JUN",
-			       "JUL",
-			       "AUG",
-			       "SEP",
-			       "OCT",
-			       "NOV",
-			       "DEC",
-			       "MON",
-			       "TUE",
-			       "WED",
-			       "THU",
-			       "FRI",
-			       "SAT",
-			       "SUN",
-			       "PIVOT"
+const map<Token,string> token_string = {
+  {ERROR,	"ERROR"},
+  //symbols
+  {EQUAL,	"EQUAL"},
+  {COLON,	"COLON"},
+  {SCOL,	"SCOL"},
+  {LPAR,	"LPAR"},
+  {RPAR,	"RPAR"},
+  {LBRA,	"LBRA"},
+  {RBRA,	"RBRA"},
+  {PLUS,	"PLUS"},
+  {MINUS,	"MINUS"},
+  {QMARK,	"QMARK"},
+  {EXMARK,	"EXMARK"},
+  {AT,		"AT"},
+  {DOLLAR,	"DOLLAR"},
+  {PERCENT,	"PERCENT"},
+  {AND,		"AND"},
+  {OR,		"OR"},
+  {STAR,	"STAR"},
+  {USCORE,	"USCORE"},
+  {LESS,	"LESS"},
+  {GREATER,	"GREATER"},
+  {COMMA,	"COMMA"},
+  {DOT,		"DOT"},
+  {SLASH,	"SLASH"},
+  {BSLASH,	"BSLASH"},
+  {TILDA,	"TILDA"},
+  {CARET,	"CARET"},
+  //entities
+  {STRING,	"STRING"},
+  {NUM,		"NUM"},
+  {FLOAT,	"FLOAT"},
+  {SCIENTIFIC,	"SCIENTIFIC"},
+  // reserved words
+  {CONCEPT,	"CONCEPT"},
+  {PIVOT,	"PIVOT"},
+  {BOOL,	"BOOL"},
+  {ENUM,	"ENUM"},
+  {UP,		"UP"},
+  {DOWN,	"DOWN"},
+  {INT,		"INT"},
+  {DISJOINT,	"DISJOINT"},
+  {OVERLAP,	"OVERLAP"},
+  {SPAN,	"SPAN"},
+  {WARP,	"WARP"},
+  {CHECKPOINTS,	"CHECKPOINTS"},
+  {STEP,	"STEP"},
+  {DATE,	"DATE"},
+  {DNUM,	"DNUM"},
+  {DVAL,	"DVAL"},
+  {TIME,	"TIME"},
+  {TNUM,	"TNUM"},
+  {TVAL,	"TVAL"},
+  {WEEK,	"WEEK"},
+  {MONTH,	"MONTH"},
+  {YEAR,	"YEAR"},
+  {JAN,		"JAN"},
+  {FEB,		"FEB"},
+  {MAR,		"MAR"},
+  {APR,		"APR"},
+  {MAY,		"MAY"},
+  {JUN,		"JUN"},
+  {JUL,		"JUL"},
+  {AUG,		"AUG"},
+  {SEP,		"SEP"},
+  {OCT,		"OCT"},
+  {NOV,		"NOV"},
+  {DEC,		"DEC"},
+  {MON,		"MON"},
+  {TUE,		"TUE"},
+  {WED,		"WED"},
+  {THU,		"THU"},
+  {FRI,		"FRI"},
+  {SAT,		"SAT"},
+  {SUN,		"SUN"}
 };
 
 string msrc;				// meta source
@@ -175,6 +226,9 @@ vector<vector<string>> incomplete;	// incomplete lines with '?' in chunks
 vector<vector<int>> inc_index;		// indices of '?' in incomplete line
 vector<set<string>> robust_set;		// all values appearing in coordinates
 vector<vector<string>> robust_vect;	// all values appearing in coordinates
+// for treating values outside intervals
+enum Drop {NODROP = 0, DROP = 1, SILENT = 2};
+Drop drop       = NODROP;
 
 string input    = STDIN;
 string output   = STDOUT;
@@ -228,6 +282,21 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
 	robust = false;
       else {
 	cerr << "+++ argument error: " << arg << " " << rpar << endl;
+	exit(1);
+      }
+    } else if (arg == "--drop") {
+      string dpar = argv[++argument];
+      if (dpar == "n"
+	  || dpar == "no")
+	drop = NODROP;
+      else if (dpar == "y"
+	       || dpar == "yes")
+	drop = DROP;
+      else if (dpar == "s"
+	       || dpar == "silent")
+	drop = SILENT;
+      else {
+	cerr << "+++ argument error: " << arg << " " << dpar << endl;
 	exit(1);
       }
     } else if (arg == "--pivot"
@@ -366,6 +435,12 @@ Token yylex () {
     msrc.erase(0,1);
     t_type = GENERAL_T;
     token = SCOL;
+  // } else if (msrc[0] == '(') {
+  //   msrc.erase(0,1);
+  //   token = LPAR;
+  // } else if (msrc[0] == ')') {
+  //   msrc.erase(0,1);
+  //   token = RPAR;
   } else if (msrc[0] == '[') {
     anything = true;
     msrc.erase(0,1);
@@ -374,12 +449,63 @@ Token yylex () {
     anything = false;
     msrc.erase(0,1);
     token = RBRA;
+  } else if (msrc[0] == '+') {
+    msrc.erase(0,1);
+    token = PLUS;
   } else if (msrc[0] == '-') {
     msrc.erase(0,1);
     token = MINUS;
   } else if (msrc[0] == '?') {
     msrc.erase(0,1);
     token = QMARK;
+  // } else if (msrc[0] == '!') {
+  //   msrc.erase(0,1);
+  //   token = EXMARK;
+  // } else if (msrc[0] == '@') {
+  //   msrc.erase(0,1);
+  //   token = AT;
+  } else if (msrc[0] == '$') {
+    msrc.erase(0,1);
+    token = DOLLAR;
+  // } else if (msrc[0] == '%') {
+  //   msrc.erase(0,1);
+  //   token = PERCENT;
+  // } else if (msrc[0] == '&') {
+  //   msrc.erase(0,1);
+  //   token = AND;
+  // } else if (msrc[0] == '|') {
+  //   msrc.erase(0,1);
+  //   token = OR;
+  // } else if (msrc[0] == '*') {
+  //   msrc.erase(0,1);
+  //   token = STAR;
+  // } else if (msrc[0] == '_') {
+  //   msrc.erase(0,1);
+  //   token = USCORE;
+  // } else if (msrc[0] == '<') {
+  //   msrc.erase(0,1);
+  //   token = LESS;
+  // } else if (msrc[0] == '>') {
+  //   msrc.erase(0,1);
+  //   token = GREATER;
+  // } else if (msrc[0] == ',') {
+  //   msrc.erase(0,1);
+  //   token = COMMA;
+  // } else if (msrc[0] == '.') {
+  //   msrc.erase(0,1);
+  //   token = DOT;
+  // } else if (msrc[0] == '/') {
+  //   msrc.erase(0,1);
+  //   token = SLASH;
+  // } else if (msrc[0] == '\\') {
+  //   msrc.erase(0,1);
+  //   token = BSLASH;
+  // } else if (msrc[0] == '~') {
+  //   msrc.erase(0,1);
+  //   token = TILDA;
+  } else if (msrc[0] == '^') {
+    msrc.erase(0,1);
+    token = CARET;
   } else if (t_type == GENERAL_T && msrc.substr(0, 7) == "concept" && !isalnum(msrc[7])) {
     msrc.erase(0,7);
     token = CONCEPT;
@@ -403,16 +529,28 @@ Token yylex () {
     token = INT;
   } else if (t_type == GENERAL_T && msrc.substr(0, 2) == "dj" &&  !isalnum(msrc[2])) {
     msrc.erase(0,2);
-    token = DJ;
+    token = DISJOINT;
+  } else if (t_type == GENERAL_T && msrc.substr(0, 8) == "disjoint" &&  !isalnum(msrc[8])) {
+    msrc.erase(0,8);
+    token = DISJOINT;
   } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "over" &&  !isalnum(msrc[4])) {
     msrc.erase(0,4);
-    token = OVER;
+    token = OVERLAP;
+  } else if (t_type == GENERAL_T && msrc.substr(0, 7) == "overlap" &&  !isalnum(msrc[7])) {
+    msrc.erase(0,7);
+    token = OVERLAP;
   } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "span" &&  !isalnum(msrc[4])) {
     msrc.erase(0,4);
     token = SPAN;
   } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "warp" &&  !isalnum(msrc[4])) {
     msrc.erase(0,4);
     token = WARP;
+  } else if (t_type == GENERAL_T && msrc.substr(0, 2) == "cp" &&  !isalnum(msrc[2])) {
+    msrc.erase(0,2);
+    token = CHECKPOINTS;
+  } else if (t_type == GENERAL_T && msrc.substr(0, 11) == "checkpoints" &&  !isalnum(msrc[11])) {
+    msrc.erase(0,11);
+    token = CHECKPOINTS;
   } else if (msrc.substr(0, 4) == "step" &&  !isalnum(msrc[4])) {
     msrc.erase(0,4);
     token = STEP;
@@ -461,7 +599,7 @@ Token yylex () {
     msrc.erase(0, nostring);
     token = STRING;
   } else {
-    cerr << "+++ inexpected EOF" << endl;
+    cerr << "+++ unexpected EOF" << endl;
     exit(1);
   }
 
@@ -488,7 +626,7 @@ void specification () {
   if (spec == CONCEPT) {
     if (concept != SENTINEL) {
       error("double concept");
-      flush(token_string[SCOL], true);
+      flush(token_string.at(SCOL), true);
       return;
     }
     concept = orig_column;
@@ -497,7 +635,7 @@ void specification () {
   } else if (spec == PIVOT) {
     if (pivot != SENTINEL) {
       error("double pivot");
-      flush(token_string[SCOL], true);
+      flush(token_string.at(SCOL), true);
       return;
     }
     pivot = orig_column;
@@ -510,23 +648,45 @@ void specification () {
     description.push_back(desc);
   }
 
-  if (spec >= BOOL && spec <= WARP) {
+  switch (spec) {
+  case BOOL:
+  case ENUM:
+  case UP:
+  case DOWN:
+  case INT:
+  case DISJOINT:
+  case OVERLAP:
+  case SPAN:
+  case WARP:
+  case CHECKPOINTS:
     type[orig_column] = spec;
     target.push_back(orig_column);
-  } else {
+    break;
+  default:
     error("wrong start of specification");
-    flush(token_string[SCOL], true);
+    flush(token_string.at(SCOL), true);
     return;
   }
 
-  if (spec >= BOOL && spec <= DOWN) {
+  switch (spec) {
+  case BOOL:
+  case ENUM:
+  case UP:
+  case DOWN:
     token = yylex();
     if (token != LBRA)
       error("missing [");
+    break;
   }
 
   int number_of_arguments = 0;
-  if (spec >= BOOL && spec <= DOWN) {
+  long double minimum, maximum;
+  long double pred, succ;
+  switch (spec) {
+  case BOOL:
+  case ENUM:
+  case UP:
+  case DOWN:
     while (true) {
       token = yylex();
       if (token == RBRA)
@@ -543,14 +703,15 @@ void specification () {
       if (token == MINUS) {
 	minus = -1;
 	token = yylex();
-      }
+      } else if (token == PLUS)
+	token = yylex();
       if (token == NUM)
 	row_args.push_back(to_string(minus * stoi(yytext)));
       else if (token == FLOAT)
 	row_args.push_back(to_string(minus * stold(yytext)));
       else if (minus == -1) {
 	error("after - must follow num of float");
-	flush(token_string[SCOL], false);
+	flush(token_string.at(SCOL), false);
 	break;
       } else if (token == STRING)
 	row_args.push_back(yytext);
@@ -561,32 +722,36 @@ void specification () {
     if (spec == BOOL && number_of_arguments != 2)
       error("bool must have 2 arguments");
     else if (number_of_arguments == 0)
-      error("no arguments");
-  } else if (spec == INT) {
+      error("no arguments in " + token_string.at(spec));
+    break;
+  case INT:
     for (int i = 0; i <= 1; ++i) {
       token = yylex();
       minus = 1;
       if (token == MINUS) {
 	minus = -1;
 	token = yylex();
-      }
+      } else if (token == PLUS)
+	token = yylex();
       if (token == NUM)
 	row_args.push_back(to_string(minus * stoi(yytext)));
       else {
 	error(yytext + " must be an integer");
-	flush(token_string[SCOL], false);
+	flush(token_string.at(SCOL), false);
 	break;
       }
     }
     if (stoi(row_args[0]) > stoi(row_args[1]))
-      error("first argument must be smaller or equal than the second");
-  } else if (spec >= DJ && spec <= OVER) {
+      error("first argument must be smaller than or equal to the second");
+    break;
+  case DISJOINT:
+  case OVERLAP:
     token = yylex();
     if (token == NUM)
       row_args.push_back(yytext);
     else {
       error("ćardinality must be a positive integer");
-      flush(token_string[SCOL], true);
+      flush(token_string.at(SCOL), true);
       return;
     }
     token = yylex();
@@ -594,14 +759,18 @@ void specification () {
     if (token == MINUS) {
       minus = -1;
       token = yylex();
-    }
-    if (token == NUM)
-      row_args.push_back(to_string(minus * stoi(yytext)));
-    else if (token == FLOAT)
-      row_args.push_back(to_string(minus * stold(yytext)));
-    else {
+    } else if (token == PLUS)
+      token = yylex();
+    if (token == NUM) {
+      int x = minus * stoi(yytext);
+      row_args.push_back(to_string(x));
+      minimum = 1.0 * x;
+    } else if (token == FLOAT) {
+      minimum = minus * stold(yytext);
+      row_args.push_back(to_string(minimum));
+    } else {
       error("minimum must be a number");
-      flush(token_string[SCOL], true);
+      flush(token_string.at(SCOL), true);
       return;
     }
     token = yylex();
@@ -609,33 +778,42 @@ void specification () {
     if (token == MINUS) {
       minus = -1;
       token = yylex();
-    }
-    if (token == NUM)
-      row_args.push_back(to_string(minus * stoi(yytext)));
-    else if (token == FLOAT)
-      row_args.push_back(to_string(minus * stold(yytext)));
-    else {
+    } else if (token == PLUS)
+      token = yylex();
+    if (token == NUM) {
+      int x = minus * stoi(yytext);
+      row_args.push_back(to_string(x));
+      maximum = 1.0 * x;
+    } else if (token == FLOAT) {
+      maximum = minus * stold(yytext);
+      row_args.push_back(to_string(maximum));
+    } else {
       error("maximum must be a number");
-      flush(token_string[SCOL], true);
+      flush(token_string.at(SCOL), true);
       return;
     }
-    if (spec == OVER) {
+    if (minimum >= maximum) {
+      error("minimum must be smaller than maximum in " + token_string.at(spec));
+    }
+    if (spec == OVERLAP) {
       token = yylex();
       if (token == NUM || token == FLOAT)
 	row_args.push_back(yytext);
       else {
 	error("overlap must be a positive number");
-	flush(token_string[SCOL], true);
+	flush(token_string.at(SCOL), true);
 	return;
       }
     }
-  } else if (spec >= SPAN && spec <= WARP) {
+    break;
+  case SPAN:
+  case WARP:
     token = yylex();
     if (token == NUM || token == FLOAT)
       row_args.push_back(yytext);
     else {
       error("length must be a positive number");
-      flush(token_string[SCOL], true);
+      flush(token_string.at(SCOL), true);
       return;
     }
     token = yylex();
@@ -643,14 +821,19 @@ void specification () {
     if (token == MINUS) {
       minus = -1;
       token = yylex();
+    } else if (token == PLUS)
+      token = yylex();
+    if (token == NUM) {
+      int x = minus * stoi(yytext);
+      row_args.push_back(to_string(x));
+      minimum = 1.0 * x;
+    } else if (token == FLOAT) {
+	minimum = minus * stold(yytext);
+	row_args.push_back(to_string(minimum));
     }
-    if (token == NUM)
-      row_args.push_back(to_string(minus * stoi(yytext)));
-    else if (token == FLOAT)
-	row_args.push_back(to_string(minus * stold(yytext)));
     else {
       error("minimum must be a number");
-      flush(token_string[SCOL], true);
+      flush(token_string.at(SCOL), true);
       return;
     }
     token = yylex();
@@ -658,50 +841,106 @@ void specification () {
     if (token == MINUS) {
       minus = -1;
       token = yylex();
-    }
-    if (token == NUM)
-      row_args.push_back(to_string(minus * stoi(yytext)));
-    else if (token == FLOAT)
-	row_args.push_back(to_string(minus * stold(yytext)));
-    else {
+    } else if (token == PLUS)
+      token = yylex();
+    if (token == NUM) {
+      int x = minus * stoi(yytext);
+      row_args.push_back(to_string(x));
+      maximum = 1.0 * x;
+    } else if (token == FLOAT) {
+      maximum = minus * stold(yytext);
+      row_args.push_back(to_string(maximum));
+    } else {
       error("maximum must be a number");
-      flush(token_string[SCOL], true);
+      flush(token_string.at(SCOL), true);
       return;
+    }
+    if (minimum >= maximum) {
+      error("minimum must be smaller than maximum in " + token_string.at(spec));
     }
     if (spec == WARP) {
       token = yylex();
       if (token == NUM || token == FLOAT)
 	row_args.push_back(yytext);
       else {
-	error("overlap must be a psitive number");
-	flush(token_string[SCOL], true);
+	error("overlap must be a positive number");
+	flush(token_string.at(SCOL), true);
 	return;
       }
     }
-  } else {
+    break;
+  case CHECKPOINTS:
+    token = yylex();
+    if (token == CARET) {
+      row_args.push_back(token_string.at(CARET));
+      token = yylex();
+    }
+    pred = 1.0 * LLONG_MIN;
+    while (token != SCOL && token != DOLLAR && !msrc.empty()) {
+      minus = 1;
+      if (token == MINUS) {
+	minus = -1;
+	token = yylex();
+      } else if (token == PLUS)
+	token = yylex();
+
+      if (token == NUM) {
+	int x = minus * stoi(yytext);
+	row_args.push_back(to_string(x));
+	succ = 1.0 * x;
+      } else if (token == FLOAT) {
+	succ = minus * stold(yytext);
+	row_args.push_back(to_string(succ));
+      } else if (minus == -1) {
+	error("after - or + must follow num of float");
+	flush(token_string.at(SCOL), false);
+	return;
+      } else if (token == QMARK)
+	cerr << "+++ question mark on line " << lineno << " ignored" << endl;
+      if (succ <= pred) {
+	cerr << "*** pred = " << pred << ", succ = " << succ << endl;
+	error("consecutive checkpoints must have increasing values");
+	flush(token_string.at(SCOL), false);
+	return;
+      }
+      pred = succ;
+      number_of_arguments++;
+      token = yylex();
+    }
+    if (number_of_arguments == 0)
+      error("no arguments in CHECKPOINT");
+    if (msrc.empty()) {
+	error("unexpected EOF");
+	exit(1);
+    } else if (token == DOLLAR)
+      row_args.push_back(token_string.at(DOLLAR));
+    else
+      msrc = ";" + msrc;
+    break;
+  default:
     cerr << "+++ I should not be here +++" << endl;
     exit(1);
   }
   args.push_back(row_args);
 }
 
-void command_line () {
+void attribute_line () {
   Token token = yylex();
   if (token == STRING)
     desc = yytext;
   else {
-    error("description must start with a string");
-    flush(token_string[EQUAL] + token_string[COLON] + token_string[SCOL],
+    error("attribute description must start with a string");
+    flush(token_string.at(EQUAL) + token_string.at(COLON) + token_string.at(SCOL),
 	  false);
   }
   auto res_ins = symtab.insert(desc);
   if (!res_ins.second)
-    error(desc + " already exists");
+    error("attribute " + desc + " already exists");
 
   token = yylex();
   if (token != EQUAL) {
     error("missing =");
-    flush(token_string[NUM], false);
+    flush(token_string.at(NUM), false);
   }
 
   token = yylex();
@@ -709,13 +948,13 @@ void command_line () {
     orig_column = stoi(yytext);
   else {
     error("column number missing");
-    flush(token_string[COLON], false);
+    flush(token_string.at(COLON), false);
   }
 
   token = yylex();
   if (token != COLON) {
     error("missing :");
-    flush(token_string[SCOL], false);
+    flush(token_string.at(SCOL), false);
   }
 
   specification();
@@ -723,7 +962,7 @@ void command_line () {
   token = yylex();
   if (token != SCOL) {
     error("missing ; on previous line?");
-    flush(token_string[SCOL], true);
+    flush(token_string.at(SCOL), true);
   }
 }
 
@@ -733,7 +972,7 @@ void program () {
   args.push_back(dummy);	// reserved for concept
   
   while (msrc.size() > 0)
-    command_line();
+    attribute_line();
   if (concept == SENTINEL && IDpresent)
     error("missing concept");
   else if (concept != SENTINEL && !IDpresent)
@@ -801,24 +1040,41 @@ void header () {
     if (idx == LOCAL)
       varnum = 0;
     int ocl = target[tgt];
-    if (type[ocl] == BOOL)
+    switch (type[ocl]) {
+    case BOOL:
       item_length = 1;
-    else if (type[ocl] >= ENUM && type[ocl] <= DOWN)
+      break;
+    case ENUM:
+    case UP:
+    case DOWN:
       item_length = args[tgt].size();
-    else if (type[ocl] == INT)
+      break;
+    case CHECKPOINTS:
+      item_length = args[tgt].size()-1;
+      break;
+    case INT:
       item_length = stoi(args[tgt][1]) - stoi(args[tgt][0]) + 1;
-    else if (type[ocl] >= DJ && type[ocl] <= OVER)
+      break;
+    case DISJOINT:
+    case OVERLAP:
       item_length = stoi(args[tgt][0]);
-    else if (type[ocl] >= SPAN && type[ocl] <= WARP) {
+      break;
+    case SPAN:
+    case WARP:
       long double ratio = (stold(args[tgt][2]) - stold(args[tgt][1])) / stold(args[tgt][0]);
       item_length = ratio;
       item_length += (ratio - item_length > 0) ? 1 : 0;
+      break;
     }
     for (int i = 1; i <= item_length; ++i) {
       cout << description[tgt] << "_"
-	   << (type[ocl] >= BOOL && type[ocl] <= INT
-	       ? item_length - i
-	       : i - 1) + varnum + offset;
+	   << (type[ocl] == BOOL
+	       || type[ocl] == ENUM
+	       || type[ocl] == UP
+	       || type[ocl] == DOWN
+	       || type[ocl] == INT
+	       ? item_length - i : i - 1)
+	      + varnum + offset;
 
       long double min, max, ilngt;
       long double over = 0.0;
@@ -841,16 +1097,16 @@ void header () {
       case INT:
 	cout << description[tgt] << "==" << stoi(args[tgt][1]) - i + 1;
 	break;
-      case DJ:
-      case OVER:
+      case DISJOINT:
+      case OVERLAP:
       case SPAN:
       case WARP:
 	min = stold(args[tgt][1]);
 	max = stold(args[tgt][2]);
-	ilngt = type[ocl] <= OVER
+	ilngt = type[ocl] <= OVERLAP
 	  ? (max - min) / stoi(args[tgt][0])
 	  : stold(args[tgt][0]);
-	if (type[ocl] == OVER || type[ocl] == WARP)
+	if (type[ocl] == OVERLAP || type[ocl] == WARP)
 	  over = stold(args[tgt][3]);
 	cout << min + ilngt * (i-1) - over/2
 	     << "<="
@@ -858,6 +1114,25 @@ void header () {
 	     << "<"
 	     << min + ilngt * i + over/2;
 	break;
+      case CHECKPOINTS:
+	if (args[tgt][i-1] == token_string.at(CARET))
+	  cout << description[tgt]
+	     << "<"
+	     << stold(args[tgt][i]);
+	else if (args[tgt][i] == token_string.at(DOLLAR))
+	  cout << description[tgt]
+	       << ">="
+	       << stold(args[tgt][i-1]);
+	else
+	  cout << stold(args[tgt][i-1])
+	       << "<="
+	       << description[tgt]
+	       << "<"
+	       << stold(args[tgt][i]);
+	break;
+      default:
+	cerr << "+++ positive header: you should not be here +++" << endl;
+	exit(1);
       }
 
       // negative case
@@ -879,24 +1154,46 @@ void header () {
       case INT:
 	cout << description[tgt] << "!=" << stoi(args[tgt][1]) - i + 1;
 	break;
-      case DJ:
-      case OVER:
+      case DISJOINT:
+      case OVERLAP:
       case SPAN:
       case WARP:
 	min = stold(args[tgt][1]);
 	max = stold(args[tgt][2]);
-	ilngt = type[ocl] <= OVER
+	ilngt = type[ocl] <= OVERLAP
 	  ? (max - min) / stoi(args[tgt][0])
 	  : stold(args[tgt][0]);
-	if (type[ocl] == OVER || type[ocl] == WARP)
+	if (type[ocl] == OVERLAP || type[ocl] == WARP)
 	  over = stold(args[tgt][3]);
 	cout << description[tgt]
-	     << "<" << min + ilngt * (i-1) - over/2
+	     << "<"
+	     << min + ilngt * (i-1) - over/2
 	     << "||"
 	     << description[tgt]
 	     << ">="
 	     << min + ilngt * i + over/2;
 	break;
+      case CHECKPOINTS:
+	if (args[tgt][i-1] == token_string.at(CARET))
+	  cout << description[tgt]
+	     << ">="
+	     << stold(args[tgt][i]);
+	else if (args[tgt][i] == token_string.at(DOLLAR))
+	  cout << description[tgt]
+	       << "<"
+	       << stold(args[tgt][i-1]);
+	else
+	  cout << description[tgt]
+	       << "<"
+	       << stold(args[tgt][i-1])
+	       << "||"
+	       << description[tgt]
+	       << ">="
+	       << stold(args[tgt][i]);
+	break;
+      default:
+	cerr << "+++ negative header: you should not be here +++" << endl;
+	exit(1);
       }
 
       cout << " ";
@@ -909,7 +1206,7 @@ void header () {
 bool is_int (const string &s) {
   if (s.empty())
     return false;
-  int start = s[0] == '-' ? 1 : 0;
+  int start = s[0] == '-' || s[0] == '+' ? 1 : 0;
   for (int i = start; i < s.size(); ++i)
     if (! isdigit(s[i]))
       return false;
@@ -919,7 +1216,7 @@ bool is_int (const string &s) {
 bool is_float (const string &s) {
   if(s.empty())
     return false;
-  int start = s[0] == '-' ? 1 : 0;
+  int start = s[0] == '-' || s[0] == '+' ? 1 : 0;
   for (int i = start; i < s.size(); ++i)
     if (! isdigit(s[i]) && s[i] != '.')
       return false;
@@ -937,7 +1234,12 @@ void chunkline(vector<string> &chunk) {
     // if (tgt == pivot)
     // 	continue;
     int ocl = target[tgt];
-    if (type[ocl] == BOOL) {
+    int imin, imax;
+    long double min, max;
+    long double over;
+    bool out_of_bounds;
+    switch (type[ocl]) {
+    case BOOL:
       mypos = position(chunk[ocl], args[tgt]);
       if (mypos == SENTINEL)
 	error(chunk[ocl]
@@ -945,7 +1247,8 @@ void chunkline(vector<string> &chunk) {
 	      " not in bool specification on coordinate " + to_string(ocl));
       else
 	cout << ' ' << mypos;
-    } else if (type[ocl] == ENUM) {
+      break;
+    case ENUM:
       mypos = position(chunk[ocl], args[tgt]);
       if (mypos == SENTINEL)
 	error(chunk[ocl]
@@ -954,7 +1257,8 @@ void chunkline(vector<string> &chunk) {
       else
 	for (int j = 0; j < args[tgt].size(); ++j)
 	  cout << (args[tgt].size() - 1 - j == mypos ? " 1" : " 0");
-    } else if (type[ocl] == UP) {
+      break;
+    case UP:
       mypos = position(chunk[ocl], args[tgt]);
       if (mypos == SENTINEL)
 	error(chunk[ocl]
@@ -966,7 +1270,8 @@ void chunkline(vector<string> &chunk) {
 	for (int j = 0; j <= mypos; ++j)
 	  cout << " 1";
       }
-    } else if (type[ocl] == DOWN) {
+      break;
+    case DOWN:
       mypos = position(chunk[ocl], args[tgt]);
       if (mypos == SENTINEL)
 	error(chunk[ocl]
@@ -978,42 +1283,57 @@ void chunkline(vector<string> &chunk) {
 	for (int j = mypos; j < args[tgt].size(); ++j)
 	  cout << " 1";
       }
-    } else if (type[ocl] == INT) {
-      int imin = stoi(args[tgt][0]);
-      int imax = stoi(args[tgt][1]);
+      break;
+    case INT:
+      imin = stoi(args[tgt][0]);
+      imax = stoi(args[tgt][1]);
 
       // cerr << "*** imin = " << imin << ", imax = " << imax << endl;
 
       if (is_int(chunk[ocl])) {
-	int value = stoi(chunk[ocl]);
-	if (value < imin || value > imax)
-	  error(chunk[ocl]
-		+
-		" out of bounds " + args[tgt][0] + ".." + args[tgt][1]
-		+ " on coordinate " + to_string(ocl));
+	int ivalue = stoi(chunk[ocl]);
+	if (ivalue < imin || ivalue > imax)
+	  switch (drop) {
+	  case NODROP:
+	    error(chunk[ocl]
+		  +
+		  " out of bounds " + args[tgt][0] + ".." + args[tgt][1]
+		  + " on coordinate " + to_string(ocl));
+	    break;
+	  case DROP:
+	    cerr << "+++ "
+		 << chunk[ocl] << " out of bounds " << args[tgt][0] << ".." << args[tgt][1]
+		 << " on coordinate " << to_string(ocl) << " dropped"
+		 << endl;
+	    break;
+	  }
 	else
 	  for (int j = imax; j >= imin; --j)
-	    cout << (j == value ? " 1" : " 0");
+	    cout << (j == ivalue ? " 1" : " 0");
       } else
 	error(chunk[ocl]
 	      +
 	      " not an integer on coordinate " + to_string(ocl));
-    } else if (type[ocl] >= DJ && type[ocl] <= WARP) {
-      long double min = stold(args[tgt][1]);
-      long double max = stold(args[tgt][2]);
+      break;
+    case DISJOINT:
+    case OVERLAP:
+    case SPAN:
+    case WARP:
+      min = stold(args[tgt][1]);
+      max = stold(args[tgt][2]);
       int icard;
       long double ilngt;
-      long double over = 0.0;
-      if (type[ocl] <= OVER) {
+      over = 0.0;
+      if (type[ocl] == DISJOINT || type[ocl] == OVERLAP) {
 	icard = stoi(args[tgt][0]);
 	ilngt = (max - min) / icard;
-      } else if (type[ocl] >= SPAN) {
+      } else if (type[ocl] == SPAN || type[ocl] == WARP) {
 	ilngt = stold(args[tgt][0]);
 	long double ratio = (max - min) / ilngt;
 	icard = ratio;
 	icard += ratio - icard > 0 ? 1 : 0;
       }
-      if (type[ocl] == OVER || type[ocl] == WARP)
+      if (type[ocl] == OVERLAP || type[ocl] == WARP)
 	over = stold(args[tgt][3]);
 
       if (! is_int(chunk[ocl]) && ! is_float(chunk[ocl]))
@@ -1023,20 +1343,81 @@ void chunkline(vector<string> &chunk) {
       else if (stold(chunk[ocl]) < min - over / 2
 	       ||
 	       stold(chunk[ocl]) >= max + over / 2)
-	error(chunk[ocl] +
-	      " out of bounds " +
-	      to_string(min - over/2) +
-	      ".." +
-	      to_string(max + over/2) +
-	      " on coordinate " + to_string(ocl));
+	switch (drop) {
+	case NODROP:
+	  error(chunk[ocl] +
+		" out of bounds " +
+		to_string(min - over/2) +
+		".." +
+		to_string(max + over/2) +
+		" on coordinate " + to_string(ocl));
+	  break;
+	case DROP:
+	  cerr << "+++ "
+	       << chunk[ocl]
+	       << " out of bounds "
+	       << to_string(min - over/2)
+	       << ".."
+	       << to_string(max + over/2)
+	       << " on coordinate " << to_string(ocl)
+	       << " dropped" << endl;
+	  break;
+	case SILENT:
+	  break;
+	}
       else
 	for (int j = 1; j <= icard; ++j)
 	  cout << (stold(chunk[ocl]) >= min + ilngt * (j-1) - over/2
 		   &&
 		   stold(chunk[ocl]) <  min + ilngt * j + over/2
 		   ? " 1" : " 0");
-    } else {
-      cerr << "+++ you should not be here +++" << endl;
+      break;
+    case CHECKPOINTS:
+      // cerr << "*** CHECKPOINTS in chunkline not implemented yet" << endl;
+      // for (int kk = 0; kk < args[tgt].size(); ++kk)
+      // 	cerr << "\targs[tgt][" << kk << "] = " << args[tgt][kk] << endl;
+      // exit(1);
+      icard = args[tgt].size()-1;
+      out_of_bounds = args[tgt][0] != token_string.at(CARET)
+	&& (stold(chunk[ocl]) < stold(args[tgt][0]))
+	|| args[tgt][icard] != token_string.at(DOLLAR)
+	&& (stold(chunk[ocl]) >= stold(args[tgt][icard]))
+	? true : false;
+      if (out_of_bounds)
+	switch (drop) {
+	case NODROP:
+	  error(chunk[ocl]
+		+ " out of checkpoint bounds on coordinate "
+		+ to_string(ocl));
+	  break;
+	case DROP:
+	  cerr << "+++ "
+	       << chunk[ocl]
+	       << " out of checkpoint bounds "
+	       << " on coordinate " << to_string(ocl)
+	       << " dropped" << endl;
+	  break;
+	case SILENT:
+	  break;
+	}
+      else
+	for (int j = 1; j <= icard; ++j)
+	  cout << (
+		   j == 1
+		   && args[tgt][0] == token_string.at(CARET)
+		   && stold(chunk[ocl]) < stold(args[tgt][1])
+		   ||
+		   j == icard
+		   && args[tgt][icard] == token_string.at(CARET)
+		   && stold(chunk[ocl]) >= stold(args[tgt][icard-1])
+		   ||
+		   j > 1 && j < icard
+		   && stold(args[tgt][j-1]) <= stold(chunk[ocl])
+		   && stold(chunk[ocl]) < stold(args[tgt][j])
+		   ? " 1" : " 0");
+      break;
+    default:
+      cerr << "+++ chunkline: you should not be here +++" << endl;
       exit(1);
     }
   }
@@ -1083,11 +1464,11 @@ void matrix () {
       if (chr == '"') {
 	is_string = ! is_string;
       } else if (is_string && chr == ' ')
-	line2 = line2 + '_';
+	line2 = "_";
       else if (is_string && chr == '?')
-	line2 = line2 + "<>";
+	line2 = "<>";
       else if (is_string && (chr == ',' || chr == ';'))
-	line2 = line2 + '.';
+	line2 = ".";
       else
 	line2 += chr;
     }

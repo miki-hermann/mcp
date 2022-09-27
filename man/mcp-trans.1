@@ -44,13 +44,25 @@ These \fBpivot\fR data will be used for prediction by the module \fBmcp-predict\
 Default: The \fIbasename\fR of \fIinput-file\fR with \fI.pvt\fR suffix.
 .
 .TP
-\fB\-r\fR, \fB\-\-robust \fRyes | no
+\fB\-\-drop \fRno | yes | silent
+Dropping of values outside intervals.
+.IP
+no: Values outside intervals are considered as errors and reported as such.
+.IP
+yes: Values outside intervals are dropped with a warning.
+.IP
+silent: Values outside intervals are dropped without a warning.
+.IP
+Default: no.
+.
+.TP
+\fB\-r\fR, \fB\-\-robust \fRno | yes
 Robust extensions of defective data containing the indicator '?' of missing data.
 Incompatible with the \fB\-\-pivot\fR option.
 .IP
-yes: Robust extensions computed. Defective data with missing data indicator '?' are replaced with extensions.
-.IP
 no: No robust extensions computed. Defective data with missing data indicator '?' are discarded.
+.IP
+yes: Robust extensions computed. Defective data with missing data indicator '?' are replaced with extensions.
 .IP
 Robust extensions are computed from all other data for each coordinate according to
 .IP
@@ -61,7 +73,6 @@ R. Karlsson and A. Lingas (editors),
 Lecture Notes in Computer Science, vol 1097. Springer, July 1996.
 .IP
 Default: no.
-
 .
 .TP
 \fB\-\-index \fRlocal | global

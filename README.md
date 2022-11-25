@@ -26,11 +26,14 @@ The prequel modules are
 
     mcp-guess (for guessing the structure of the input data),
     mcp-trans (for binarization of input data), and
+    mcp-uniq  (for elimination of doubled data)
     mcp-split (for splitting binarized data into a learning and checking part)
 
 The sequel modules are
 
-    mcp-check (for checking the accuracy of the produced formula)
+    mcp-check   (for checking the accuracy of the produced formula)
+    mcp-predict (for prediction of values in test data files)
+    mcp-chk2tst (for transforming check files to test files)
 
 Additionally, the distribution contains the following files:
 
@@ -48,7 +51,7 @@ Additionally, the distribution contains the following files:
 The subdirectories of this distribution are:
  - *src*   containing the sources of the MCP system,
  - *man*   containing the manual pages,
- - *paper* containing the PDF document `mcp-sat.pdf` with a detailed description of the MCP system
+ - *paper* containing the PDF document `mcp.pdf` with a detailed description of the MCP system
  - *bin*   is necessary for compilation, and
  - *uci*   containing several examples from the UCI Machine Learning
          Repository, treated by the MCP system.

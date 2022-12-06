@@ -1,4 +1,4 @@
-class        = 0: ident;
+class        = 0: concept;
 # class        = 0: bool [0 1];		# card 2 consecutive
 head_shape   = 1: enum [1 2 3];	# card 3 consecutive
 body_shape   = 2: enum [1 2 3];	# card 3 consecutive

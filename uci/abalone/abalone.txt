@@ -7,4 +7,4 @@ shucked	= 5: dj 15 0.001 1.4881;
 viscera = 6: dj 15 0.0005 0.7601;
 shell	= 7: dj 15 0.00  1.006;
 # rings   = 8: int 1 29;
-ringid	= 8: ident;
+ringid	= 8: concept;

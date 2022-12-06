@@ -1,5 +1,5 @@
 # language =  0: enum [ES FR GE IT UK US];	# card 6
-language =  0: ident;
+language =  0: concept;
 X1       =  1: dj 25 -7  18;	# card 329
 X2       =  2: dj 18 -15  4;	# card 329
 X3       =  3: dj 25 -7  18;	# card 329

@@ -52,4 +52,4 @@ I'm_not_the_one_who's_wrong_about_problems_at_home                              
 I_wouldn't_hesitate_to_tell_my_spouse_about_her/his_inadequacy                                                        = 51: up [0 1 2 3 4];	# card 5 consecutive
 When_I_discuss,_I_remind_my_spouse_of_her/his_inadequacy                                                              = 52: up [0 1 2 3 4];	# card 5 consecutive
 I'm_not_afraid_to_tell_my_spouse_about_her/his_incompetence                                                           = 53: up [0 1 2 3 4];	# card 5 consecutive
-classification                                                                                                        = 54: ident;
+classification                                                                                                        = 54: concept;

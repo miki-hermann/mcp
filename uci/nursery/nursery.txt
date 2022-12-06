@@ -7,4 +7,4 @@ finance  = 5: bool [convenient inconv];
 social   = 6: down [nonprob slightly_prob problematic];
 health   = 7: enum [recommended priority not_recom];
 # id8    = 8: enum [not_recom priority recommend spec_prior very_recom];
-class    = 8: ident;
+class    = 8: concept;

@@ -1,4 +1,4 @@
-class                    =  0: ident;
+class                    =  0: concept;
 # id0                    =  0: bool [edible poisonous];
 cap-shape                =  1: enum [bell conical convex flat knobbed sunken];
 cap-surface              =  2: enum [fibrous grooves scaly smooth];

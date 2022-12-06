@@ -1,4 +1,4 @@
-class-name	= 0: ident;
+class-name	= 0: concept;
 left-weight	= 1: int 1 5;	# card 5 consecutive
 left-distance	= 2: int 1 5;	# card 5 consecutive
 right-weight	= 3: int 1 5;	# card 5 consecutive

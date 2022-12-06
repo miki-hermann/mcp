@@ -9,4 +9,4 @@ bland_chromatin      =  7: up [1 2 3 4 5 6 7 8 9 10];	# card 10 consecutive
 normal_nucleoli      =  8: up [1 2 3 4 5 6 7 8 9 10];	# card 10 consecutive
 mitoses              =  9: up [1 2 3 4 5 6 7 8 9 10];	# card 9
 # id10               = 10: bool [benign malignant];	# card 2
-class = 10: ident;
+class = 10: concept;

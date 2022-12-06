@@ -1,4 +1,4 @@
-party                                  =  0: ident;
+party                                  =  0: concept;
 handicapped_infants                    =  1: bool [n y];
 water_project_cost_sharing             =  2: bool [n y];
 adoption_of_the_budget_resolution      =  3: bool [n y];

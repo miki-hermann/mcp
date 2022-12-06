@@ -4,4 +4,4 @@ doors	 = 2: enum [2 3 4 5more];
 persons	 = 3: enum [2 4 more];
 lug_boot = 4: up   [small med big];
 safety	 = 5: up   [low med high];
-class	 = 6: ident;
+class	 = 6: concept;

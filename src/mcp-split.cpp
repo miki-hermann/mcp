@@ -14,7 +14,7 @@
  *	Version: all                                                      *
  *      File:    mcp-split.cpp                                            *
  *                                                                        *
- *      Copyright (c) 2019 - 2022                                         *
+ *      Copyright (c) 2019 - 2023                                         *
  *                                                                        *
  * Given an input  file with matrices, this procedure splits  it into two *
  * files: one  with vectors to LEARN  the fomula, second one  to CHECK if *

@@ -14,7 +14,7 @@
  *	Version: hybrid (MPI + POSIX threads)                             *
  *      File:    mcp-hybrid.cpp                                           *
  *                                                                        *
- *      Copyright (c) 2019 - 2022                                         *
+ *      Copyright (c) 2019 - 2023                                         *
  *                                                                        *
  * Given several  Boolean matrices  representing the  presence/absence of *
  * attributes in  observations, this software generates  Horn, dual Horn, *

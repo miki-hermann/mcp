@@ -14,7 +14,7 @@
  *	Version: parallel with MPI                                        *
  *      File:    mcp-mpi.cpp                                              *
  *                                                                        *
- *      Copyright (c) 2019 - 2022                                         *
+ *      Copyright (c) 2019 - 2023                                         *
  *                                                                        *
  * Given several  Boolean matrices  representing the  presence/absence of *
  * attributes in  observations, this software generates  Horn, dual Horn, *

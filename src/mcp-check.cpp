@@ -14,7 +14,7 @@
  *	Version: all                                                      *
  *      File:    mcp-check.cpp                                            *
  *                                                                        *
- *      Copyright (c) 2019 - 2022                                         *
+ *      Copyright (c) 2019 - 2023                                         *
  *                                                                        *
  * Given a  formula and  a set  of boolean  vectors, check  which vectors *
  * satisfy  and which  falsify the  given formula.  Report precision  and *

@@ -2,6 +2,7 @@
  - ident -> concept
  - checkpoints (cp) in mcp-trans
  - option --drop in mcp-trans
+ - Copyright: 2022 -> 2023
 
 1.04c (bug fix)
  - corrected bug in trans for bool

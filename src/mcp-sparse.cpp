@@ -14,7 +14,7 @@
  *	Version: all                                                      *
  *      File:    mcp-sparse.cpp                                           *
  *                                                                        *
- *      Copyright (c) 2019 - 2022                                         *
+ *      Copyright (c) 2019 - 2023                                         *
  *                                                                        *
  * Transform files from sparse format to full format                      *
  *                                                                        *

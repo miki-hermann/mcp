@@ -1421,9 +1421,9 @@ void chunkline(const vector<string> &chunk) {
 	case SILENT:
 	  break;
 	}
-      }else if (stold(chunk[ocl]) < min - over / 2
-	       ||
-	       stold(chunk[ocl]) >= max + over / 2) {
+      } else if (stold(chunk[ocl]) < min - over / 2
+		 ||
+		 stold(chunk[ocl]) >= max + over / 2) {
 	noflush = true;
 	dropcount++;
 	switch (drop) {
@@ -1495,7 +1495,7 @@ void chunkline(const vector<string> &chunk) {
 		   && stold(chunk[ocl]) < stold(args[tgt][1])
 		   ||
 		   j == icard
-		   && args[tgt][icard] == token_string.at(CARET)
+		   && args[tgt][icard] == token_string.at(DOLLAR)
 		   && stold(chunk[ocl]) >= stold(args[tgt][icard-1])
 		   ||
 		   j > 1 && j < icard

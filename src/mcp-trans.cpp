@@ -1299,17 +1299,21 @@ void chunkline(const vector<string> &chunk) {
 		  +
 		  " out of bounds " + args[tgt][0] + ".." + args[tgt][1]
 		  + " on coordinate " + to_string(ocl));
+	    ivalue = imin;
 	    break;
 	  case DROP:
 	    cerr << "+++ "
 		 << chunk[ocl] << " out of bounds " << args[tgt][0] << ".." << args[tgt][1]
 		 << " on coordinate " << to_string(ocl) << " dropped"
 		 << endl;
+	    ivalue = imin + (imax - imin) / 2;
+	    break;
+	  case SILENT:
+	    ivalue = imin + (imax - imin) / 2;
 	    break;
 	  }
-	else
-	  for (int j = imax; j >= imin; --j)
-	    cout << (j == ivalue ? " 1" : " 0");
+	for (int j = imax; j >= imin; --j)
+	  cout << (j == ivalue ? " 1" : " 0");
       } else
 	error(chunk[ocl]
 	      +

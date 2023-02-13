@@ -981,7 +981,7 @@ void program () {
     error("missing pivot");
 }
 
-int position (string &item, vector<string> &list) {
+int position (const string &item, const vector<string> &list) {
   int i = list.size()-1;
   while (i >= 0 && list[i] != item)
     i--;
@@ -1223,7 +1223,7 @@ bool is_float (const string &s) {
   return true;
 }
 
-void chunkline(vector<string> &chunk) {
+void chunkline(const vector<string> &chunk) {
   linecount++;
   if (IDpresent)
     cout << chunk[concept];
@@ -1484,7 +1484,7 @@ void matrix () {
     for (int i = 0; i < line2.size(); ++i)
       line +=
 	(line2[i] == '"' || line2[i] == ',' || line2[i] == ';' ? ' ' : line2[i]);
-    line = line + ' ';
+    line += ' ';
 
     vector<string> chunk = split(line, ' ');
     if (chunk.size() < target.size()) {

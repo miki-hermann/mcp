@@ -208,6 +208,7 @@ bool anything   = false;
 bool errorflag  = false;
 int qmarkcount  = 0;
 int linecount   = 0;
+int dropcount   = 0;
 
 // #define SENTINEL -1
 #define STDIN    "STDIN"
@@ -1230,6 +1231,7 @@ void chunkline(const vector<string> &chunk) {
   if (PVTpresent)
     pvtfile << chunk[pivot] << endl;
   int mypos;
+  bool noflush = false;
   for (int tgt = 1; tgt < target.size(); ++tgt) {
     // if (tgt == pivot)
     // 	continue;
@@ -1241,30 +1243,75 @@ void chunkline(const vector<string> &chunk) {
     switch (type[ocl]) {
     case BOOL:
       mypos = position(chunk[ocl], args[tgt]);
-      if (mypos == SENTINEL)
-	error(chunk[ocl]
-	      +
-	      " not in bool specification on coordinate " + to_string(ocl));
-      else
+      if (mypos == SENTINEL) {
+	noflush = true;
+	dropcount++;
+	switch (drop) {
+	case NODROP:
+	  error(chunk[ocl]
+		+
+		" not in bool specification on coordinate " + to_string(ocl));
+	  break;
+	case DROP:
+	  cerr << "+++ "
+	       << chunk[ocl]
+	       << " not in bool specification on coordinate "
+	       << to_string(ocl)
+	       << endl;
+	  break;
+	case SILENT:
+	  break;
+	}
+      } else
 	cout << ' ' << mypos;
       break;
     case ENUM:
       mypos = position(chunk[ocl], args[tgt]);
-      if (mypos == SENTINEL)
-	error(chunk[ocl]
-	      +
-	      " not in enum specification on coordinate " + to_string(ocl));
-      else
+      if (mypos == SENTINEL) {
+	noflush = true;
+	dropcount++;
+	switch (drop) {
+	case NODROP:
+	  error(chunk[ocl]
+		+
+		" not in enum specification on coordinate " + to_string(ocl));
+	  break;
+	case DROP:
+	  cerr << "+++ "
+	       << chunk[ocl]
+	       << " not in enum specification on coordinate "
+	       << to_string(ocl)
+	       << endl;
+	  break;
+	case SILENT:
+	  break;
+	}
+      } else
 	for (int j = 0; j < args[tgt].size(); ++j)
 	  cout << (args[tgt].size() - 1 - j == mypos ? " 1" : " 0");
       break;
     case UP:
       mypos = position(chunk[ocl], args[tgt]);
-      if (mypos == SENTINEL)
-	error(chunk[ocl]
-	      +
-	      " not in up specification on coordinate " + to_string(ocl));
-      else {
+      if (mypos == SENTINEL) {
+	noflush = true;
+	dropcount++;
+	switch (drop) {
+	case NODROP:
+	  error(chunk[ocl]
+		+
+		" not in up specification on coordinate " + to_string(ocl));
+	  break;
+	case DROP:
+	  cerr << "+++ "
+	       << chunk[ocl]
+	       << " not in up specification on coordinate "
+	       << to_string(ocl)
+	       << endl;
+	  break;
+	case SILENT:
+	  break;
+	}
+      } else {
 	for (int j = mypos+1; j < args[tgt].size(); ++j)
 	  cout << " 0";
 	for (int j = 0; j <= mypos; ++j)
@@ -1273,11 +1320,26 @@ void chunkline(const vector<string> &chunk) {
       break;
     case DOWN:
       mypos = position(chunk[ocl], args[tgt]);
-      if (mypos == SENTINEL)
-	error(chunk[ocl]
-	      +
-	      " not in down specification on coordinate " + to_string(ocl));
-      else {
+      if (mypos == SENTINEL) {
+	noflush = true;
+	dropcount++;
+	switch (drop) {
+	case NODROP:
+	  error(chunk[ocl]
+		+
+		" not in down specification on coordinate " + to_string(ocl));
+	  break;
+	case DROP:
+	  cerr << "+++ "
+	       << chunk[ocl]
+	       << " not in down specification on coordinate "
+	       << to_string(ocl)
+	       << endl;
+	  break;
+	case SILENT:
+	  break;
+	}
+      } else {
 	for (int j = 0; j < mypos; ++j)
 	  cout << " 0";
 	for (int j = mypos; j < args[tgt].size(); ++j)
@@ -1292,26 +1354,26 @@ void chunkline(const vector<string> &chunk) {
 
       if (is_int(chunk[ocl])) {
 	int ivalue = stoi(chunk[ocl]);
-	if (ivalue < imin || ivalue > imax)
+	if (ivalue < imin || ivalue > imax) {
+	  noflush = true;
+	  dropcount++;
 	  switch (drop) {
 	  case NODROP:
 	    error(chunk[ocl]
 		  +
 		  " out of bounds " + args[tgt][0] + ".." + args[tgt][1]
 		  + " on coordinate " + to_string(ocl));
-	    ivalue = imin;
 	    break;
 	  case DROP:
 	    cerr << "+++ "
 		 << chunk[ocl] << " out of bounds " << args[tgt][0] << ".." << args[tgt][1]
 		 << " on coordinate " << to_string(ocl) << " dropped"
 		 << endl;
-	    ivalue = imin + (imax - imin) / 2;
 	    break;
 	  case SILENT:
-	    ivalue = imin + (imax - imin) / 2;
 	    break;
 	  }
+	}
 	for (int j = imax; j >= imin; --j)
 	  cout << (j == ivalue ? " 1" : " 0");
       } else
@@ -1340,13 +1402,30 @@ void chunkline(const vector<string> &chunk) {
       if (type[ocl] == OVERLAP || type[ocl] == WARP)
 	over = stold(args[tgt][3]);
 
-      if (! is_int(chunk[ocl]) && ! is_float(chunk[ocl]))
-	error(chunk[ocl]
-	      +
-	      " is not a number on coordinate " + to_string(ocl));
-      else if (stold(chunk[ocl]) < min - over / 2
+      if (! is_int(chunk[ocl]) && ! is_float(chunk[ocl])) {
+	noflush = true;
+	dropcount++;
+	switch (drop) {
+	case NODROP:
+	  error(chunk[ocl]
+		+
+		" is not a number on coordinate " + to_string(ocl));
+	  break;
+	case DROP:
+	  cerr << "+++ "
+	       << chunk[ocl]
+	       << " is not a number on coordinate "
+	       << to_string(ocl)
+	       << endl;
+	  break;
+	case SILENT:
+	  break;
+	}
+      }else if (stold(chunk[ocl]) < min - over / 2
 	       ||
-	       stold(chunk[ocl]) >= max + over / 2)
+	       stold(chunk[ocl]) >= max + over / 2) {
+	noflush = true;
+	dropcount++;
 	switch (drop) {
 	case NODROP:
 	  error(chunk[ocl] +
@@ -1369,6 +1448,7 @@ void chunkline(const vector<string> &chunk) {
 	case SILENT:
 	  break;
 	}
+      }
       else
 	for (int j = 1; j <= icard; ++j)
 	  cout << (stold(chunk[ocl]) >= min + ilngt * (j-1) - over/2
@@ -1387,7 +1467,9 @@ void chunkline(const vector<string> &chunk) {
 	|| args[tgt][icard] != token_string.at(DOLLAR)
 	&& (stold(chunk[ocl]) >= stold(args[tgt][icard]))
 	? true : false;
-      if (out_of_bounds)
+      if (out_of_bounds) {
+	noflush = true;
+	dropcount++;
 	switch (drop) {
 	case NODROP:
 	  error(chunk[ocl]
@@ -1404,6 +1486,7 @@ void chunkline(const vector<string> &chunk) {
 	case SILENT:
 	  break;
 	}
+      }
       else
 	for (int j = 1; j <= icard; ++j)
 	  cout << (
@@ -1425,7 +1508,10 @@ void chunkline(const vector<string> &chunk) {
       exit(1);
     }
   }
-  cout << endl;
+  if (noflush)
+    cout.clear();
+  else
+    cout << endl;
 }
 
 void fill_robust (vector<string> &new_chunk, const vector<int> &idx, int k) {
@@ -1543,6 +1629,11 @@ void matrix () {
   } else if (qmarkcount > 0 && !robust)
     cerr << "+++ " << qmarkcount
 	 << " lines skipped due to missing values represented by '?'"
+	 << endl;
+  if (dropcount > 0)
+    cerr << "+++ " << dropcount
+	 << (dropcount == 1 ? " line" : " lines")
+	 << " dropped "
 	 << endl;
   cerr << "+++ " << linecount
        << (linecount == 1 ? " line" : " lines")

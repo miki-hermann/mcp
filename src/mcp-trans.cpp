@@ -1598,9 +1598,11 @@ void matrix () {
     }
 
     if (robust)
-      for (int i = 0; i < chunk.size(); ++i)
-	if (chunk[i] != "?")
-	  robust_set[i].insert(chunk[i]);
+      for (int i = 1; i < target.size(); ++i) {
+	int ocl = target[i];
+	if (chunk[ocl] != "?")
+	  robust_set[ocl].insert(chunk[ocl]);
+      }
 
     if (!has_qmark)
       chunkline(chunk);

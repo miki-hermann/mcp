@@ -909,7 +909,11 @@ void specification () {
       token = yylex();
     }
     if (number_of_arguments == 0)
-      error("no arguments in CHECKPOINT");
+      error("no arguments in CHECKPOINTS");
+    else if (number_of_arguments == 1
+	     && row_args[0] != token_string.at(CARET)
+	     && token != DOLLAR)
+      error("singleton in CHECKPOINTS");
     if (msrc.empty()) {
 	error("unexpected EOF");
 	exit(1);

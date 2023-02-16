@@ -1502,7 +1502,8 @@ void chunkline(const vector<string> &chunk) {
 		   && args[tgt][icard] == token_string.at(DOLLAR)
 		   && stold(chunk[ocl]) >= stold(args[tgt][icard-1])
 		   ||
-		   j > 1 && j < icard
+		   // j >= 1 &&
+		   j < icard
 		   && stold(args[tgt][j-1]) <= stold(chunk[ocl])
 		   && stold(chunk[ocl]) < stold(args[tgt][j])
 		   ? " 1" : " 0");

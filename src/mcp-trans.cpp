@@ -443,15 +443,12 @@ Token yylex () {
     msrc.erase(0, nospace);
   }
 
-  // Token token = ERROR;
   Token token = symbol(msrc[0]);
-  if (anything && msrc[0] == ']') {
+  if (anything && token == RBRA) {
     anything = false;
     msrc.erase(0,1);
-    token = RBRA;
-  } else if  (anything && msrc[0] == ':') {
+  } else if  (anything & token == COLON) {
     msrc.erase(0,1);
-    token = COLON;
   } else if (anything && !isspace(msrc[0])) {
     auto noany = msrc.find_first_of(" ]:");
     yytext = msrc.substr(0, noany);
@@ -507,6 +504,10 @@ Token yylex () {
     }
   } else if (token != ERROR) {			// symbol
     msrc.erase(0,1);
+    if (token == RBRA || token == SCOL)
+      anything = false;
+    else if (token == LBRA)
+      anything = true;
   } else if (!isspace(msrc[0])) {		// string
     auto nostring = msrc.find_first_of(NOSTRING, 0);
     yytext = msrc.substr(0, nostring);

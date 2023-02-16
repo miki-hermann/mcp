@@ -57,15 +57,16 @@ enum Token {
   AND,		// &
   OR,		// |
   STAR,		// *
-  USCORE,	// _
   LESS,		// <
   GREATER,	// >
   COMMA,	// ,
-  DOT,		// .
   SLASH,	// /
-  BSLASH,	// \ //
   TILDA,	// ~
   CARET,	// ^
+  // limit of symbols
+  DOT,		// .
+  USCORE,	// _
+  BSLASH,	// \ //
   // entities
   STRING,
   NUM,
@@ -122,6 +123,7 @@ enum Token_Type {
   MONTH_T   = 4,
   YEAR_T    = 5
 };
+string symbol_tab = " =:;()[]+-?!@$%&|*<>,/~^";	// must agree with Token
 const unordered_map<string, Token> keywords = {
   {"concept", CONCEPT},
   {"pivot", PIVOT},
@@ -421,6 +423,12 @@ void read_meta () {
   metafile.close();
 }
 
+Token symbol (const char ch) {
+  symbol_tab[0] = ch;
+  size_t found = symbol_tab.find_last_of(ch);
+  return (Token) found;
+}
+
 Token yylex () {
   auto nospace = msrc.find_first_not_of(" \t",0);
   msrc.erase(0, nospace);
@@ -435,7 +443,8 @@ Token yylex () {
     msrc.erase(0, nospace);
   }
 
-  Token token = ERROR;
+  // Token token = ERROR;
+  Token token = symbol(msrc[0]);
   if (anything && msrc[0] == ']') {
     anything = false;
     msrc.erase(0,1);
@@ -448,88 +457,6 @@ Token yylex () {
     yytext = msrc.substr(0, noany);
     msrc.erase(0, noany);
     token = STRING;
-  } else if (msrc[0] == '=') {
-    msrc.erase(0,1);
-    token = EQUAL;
-  } else if (msrc[0] == ':') {
-    msrc.erase(0,1);
-    token = COLON;
-  } else if (msrc[0] == ';') {
-    anything = false;
-    msrc.erase(0,1);
-    t_type = GENERAL_T;
-    token = SCOL;
-  // } else if (msrc[0] == '(') {
-  //   msrc.erase(0,1);
-  //   token = LPAR;
-  // } else if (msrc[0] == ')') {
-  //   msrc.erase(0,1);
-  //   token = RPAR;
-  } else if (msrc[0] == '[') {
-    anything = true;
-    msrc.erase(0,1);
-    token = LBRA;
-  } else if (msrc[0] == ']') {
-    anything = false;
-    msrc.erase(0,1);
-    token = RBRA;
-  } else if (msrc[0] == '+') {
-    msrc.erase(0,1);
-    token = PLUS;
-  } else if (msrc[0] == '-') {
-    msrc.erase(0,1);
-    token = MINUS;
-  } else if (msrc[0] == '?') {
-    msrc.erase(0,1);
-    token = QMARK;
-  // } else if (msrc[0] == '!') {
-  //   msrc.erase(0,1);
-  //   token = EXMARK;
-  // } else if (msrc[0] == '@') {
-  //   msrc.erase(0,1);
-  //   token = AT;
-  } else if (msrc[0] == '$') {
-    msrc.erase(0,1);
-    token = DOLLAR;
-  // } else if (msrc[0] == '%') {
-  //   msrc.erase(0,1);
-  //   token = PERCENT;
-  // } else if (msrc[0] == '&') {
-  //   msrc.erase(0,1);
-  //   token = AND;
-  // } else if (msrc[0] == '|') {
-  //   msrc.erase(0,1);
-  //   token = OR;
-  // } else if (msrc[0] == '*') {
-  //   msrc.erase(0,1);
-  //   token = STAR;
-  // } else if (msrc[0] == '_') {
-  //   msrc.erase(0,1);
-  //   token = USCORE;
-  // } else if (msrc[0] == '<') {
-  //   msrc.erase(0,1);
-  //   token = LESS;
-  // } else if (msrc[0] == '>') {
-  //   msrc.erase(0,1);
-  //   token = GREATER;
-  // } else if (msrc[0] == ',') {
-  //   msrc.erase(0,1);
-  //   token = COMMA;
-  // } else if (msrc[0] == '.') {
-  //   msrc.erase(0,1);
-  //   token = DOT;
-  // } else if (msrc[0] == '/') {
-  //   msrc.erase(0,1);
-  //   token = SLASH;
-  // } else if (msrc[0] == '\\') {
-  //   msrc.erase(0,1);
-  //   token = BSLASH;
-  // } else if (msrc[0] == '~') {
-  //   msrc.erase(0,1);
-  //   token = TILDA;
-  } else if (msrc[0] == '^') {
-    msrc.erase(0,1);
-    token = CARET;
   } else if (isalpha(msrc[0])) {
     int i = 0;
     while (isalnum(msrc[i]) || msrc[i] == '-' || msrc[i] == '_')
@@ -578,6 +505,8 @@ Token yylex () {
       msrc.erase(0, nodigit);
       token = FLOAT;
     }
+  } else if (token != ERROR) {			// symbol
+    msrc.erase(0,1);
   } else if (!isspace(msrc[0])) {		// string
     auto nostring = msrc.find_first_of(NOSTRING, 0);
     yytext = msrc.substr(0, nostring);

@@ -122,7 +122,30 @@ enum Token_Type {
   MONTH_T   = 4,
   YEAR_T    = 5
 };
-const map<Token,string> token_string = {
+const unordered_map<string, Token> keywords = {
+  {"concept", CONCEPT},
+  {"pivot", PIVOT},
+  {"bool", BOOL},
+  {"enum", ENUM},
+  {"up", UP},
+  {"down", DOWN},
+  {"int", INT},
+  {"dj", DISJOINT},
+  {"disjoint", DISJOINT},
+  {"over", OVERLAP},
+  {"overlap", OVERLAP},
+  {"span", SPAN},
+  {"warp", WARP},
+  {"cp", CHECKPOINTS},
+  {"checkpoints", CHECKPOINTS},
+  {"step", STEP},
+  {"date", DATE},
+  {"time", TIME},
+  {"week", WEEK},
+  {"month", MONTH},
+  {"year", YEAR}
+};
+const unordered_map<Token,string> token_string = {
   {ERROR,	"ERROR"},
   //symbols
   {EQUAL,	"EQUAL"},
@@ -507,74 +530,35 @@ Token yylex () {
   } else if (msrc[0] == '^') {
     msrc.erase(0,1);
     token = CARET;
-  } else if (t_type == GENERAL_T && msrc.substr(0, 7) == "concept" && !isalnum(msrc[7])) {
-    msrc.erase(0,7);
-    token = CONCEPT;
-  } else if (t_type == GENERAL_T && msrc.substr(0, 5) == "pivot" && !isalnum(msrc[5])) {
-    msrc.erase(0,5);
-    token = PIVOT;
-  } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "bool" &&  !isalnum(msrc[4])) {
-    msrc.erase(0,4);
-    token = BOOL;
-  } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "enum" &&  !isalnum(msrc[4])) {
-    msrc.erase(0,4);
-    token = ENUM;
-  } else if (t_type == GENERAL_T && msrc.substr(0, 2) == "up" &&  !isalnum(msrc[2])) {
-    msrc.erase(0,2);
-    token = UP;
-  } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "down" &&  !isalnum(msrc[4])) {
-    msrc.erase(0,4);
-    token = DOWN;
-  } else if (t_type == GENERAL_T && msrc.substr(0, 3) == "int" &&  !isalnum(msrc[3])) {
-    msrc.erase(0,3);
-    token = INT;
-  } else if (t_type == GENERAL_T && msrc.substr(0, 2) == "dj" &&  !isalnum(msrc[2])) {
-    msrc.erase(0,2);
-    token = DISJOINT;
-  } else if (t_type == GENERAL_T && msrc.substr(0, 8) == "disjoint" &&  !isalnum(msrc[8])) {
-    msrc.erase(0,8);
-    token = DISJOINT;
-  } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "over" &&  !isalnum(msrc[4])) {
-    msrc.erase(0,4);
-    token = OVERLAP;
-  } else if (t_type == GENERAL_T && msrc.substr(0, 7) == "overlap" &&  !isalnum(msrc[7])) {
-    msrc.erase(0,7);
-    token = OVERLAP;
-  } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "span" &&  !isalnum(msrc[4])) {
-    msrc.erase(0,4);
-    token = SPAN;
-  } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "warp" &&  !isalnum(msrc[4])) {
-    msrc.erase(0,4);
-    token = WARP;
-  } else if (t_type == GENERAL_T && msrc.substr(0, 2) == "cp" &&  !isalnum(msrc[2])) {
-    msrc.erase(0,2);
-    token = CHECKPOINTS;
-  } else if (t_type == GENERAL_T && msrc.substr(0, 11) == "checkpoints" &&  !isalnum(msrc[11])) {
-    msrc.erase(0,11);
-    token = CHECKPOINTS;
-  } else if (msrc.substr(0, 4) == "step" &&  !isalnum(msrc[4])) {
-    msrc.erase(0,4);
-    token = STEP;
-  } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "date" &&  !isalnum(msrc[4])) {
-    msrc.erase(0,4);
-    t_type = DATE_T;
-    token = DATE;
-  } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "time" &&  !isalnum(msrc[4])) {
-    msrc.erase(0,4);
-    t_type = TIME_T;
-    token = TIME;
-  } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "week" &&  !isalnum(msrc[4])) {
-    msrc.erase(0,4);
-    t_type = WEEK_T;
-    token = WEEK;
-  } else if (t_type == GENERAL_T && msrc.substr(0, 5) == "month" &&  !isalnum(msrc[5])) {
-    msrc.erase(0,5);
-    t_type = MONTH_T;
-    token = MONTH;
-  } else if (t_type == GENERAL_T && msrc.substr(0, 4) == "year" &&  !isalnum(msrc[4])) {
-    msrc.erase(0,4);
-    t_type = YEAR_T;
-    token = YEAR;
+  } else if (isalpha(msrc[0])) {
+    int i = 0;
+    while (isalnum(msrc[i]) || msrc[i] == '-' || msrc[i] == '_')
+      i++;
+    yytext = msrc.substr(0,i);
+    msrc.erase(0,i);
+    if (t_type == GENERAL_T && keywords.count(yytext) > 0
+	||
+	yytext == "STEP")
+      token = keywords.at(yytext);
+    else
+      token = STRING;
+    switch (token) {	// date time week month year
+    case DATE:
+      t_type = DATE_T;
+      break;
+    case TIME:
+      t_type = TIME_T;
+      break;
+    case WEEK:
+      t_type = WEEK_T;
+      break;
+    case MONTH:
+      t_type = MONTH_T;
+      break;
+    case YEAR:
+      t_type = YEAR_T;
+      break;
+    }
   } else if (msrc[0] == '.') {			// float
     auto nodigit = msrc.find_first_not_of(DIGITS, 1);
     yytext = msrc.substr(0, nodigit);

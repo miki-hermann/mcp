@@ -24,7 +24,7 @@
  **************************************************************************/
 
 #include <iostream>
-#include <sstream>
+// #include <sstream>
 #include <vector>
 #include <algorithm>
 #include "mcp-matrix+formula.hpp"
@@ -80,25 +80,30 @@ bool sat_formula (const Row &tuple, const Formula &formula) {
   return true;
 }
 
-vector<string> split (const string &strg, char delimiter) {
-  // splits a string into chunks separated by delimiter (split in perl)
+vector<string> split (string strg, string delimiters) {
+  // splits a string into chunks separated by delimiters (split in perl)
   vector<string> chunks;
-  string token;
-  istringstream iss(strg);
 
-  if (! isprint(delimiter)) {
-    cerr << "*** delimiter is not printable" << endl;
-    exit(2);
+  for (int i = 0; i < strg.length(); ++i)
+    if (! isprint(strg[i])) {
+      cerr << "+++ string on input has a non-printable character on position "
+	   << i
+	   << endl;
+      exit(2);
+    }
+
+  while (!strg.empty()) {
+    size_t found = strg.find_first_not_of(delimiters);
+    if (found == string::npos)
+      break;
+    strg.erase(0, found);
+    found = strg.find_first_of(delimiters);
+    if (found == string::npos)
+      break;
+    chunks.push_back(strg.substr(0, found));
+    strg.erase(0, found);
   }
 
-  while (getline(iss, token, delimiter)) {
-    for (int i = 0; i < token.length(); ++i)
-      if (! isprint(token[i])) {
-	cerr << "*** token on input has a non-printable character" << endl;
-	exit(2);
-      }
-    chunks.push_back(token);
-  }
   return chunks;
 }
 
@@ -135,7 +140,7 @@ string formula2dimacs (const vector<int> &names, const Formula &formula) {
 string literal2string (const int &litname, const Literal lit) {
   string output;
   if (varswitch) {
-    vector<string> new_names = split(varnames[litname], ':');
+    vector<string> new_names = split(varnames[litname], ":");
     
     if (new_names.size() > 1)		// positive or negative
       output += (lit == lneg)
@@ -222,7 +227,7 @@ string formula2string (const vector<int> &names, const Formula &formula) {
 string literal2latex (const int &litname, const Literal lit) {
   string output;
   if (varswitch) {
-    vector<string> new_names = split(varnames[litname], ':');
+    vector<string> new_names = split(varnames[litname], ":");
     
     if (new_names.size() > 1)		// positive or negative
       output +=

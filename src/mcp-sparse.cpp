@@ -131,12 +131,12 @@ void I_reopen () {
 }
 
 void spread (const string &line) {
-  vector<string> parts = split(line, ' ');
+  vector<string> parts = split(line, " \t");
   cout << parts[0];
 
   int ptr = 1;
   for (int i = 1; i < parts.size(); ++i) {
-    vector<string> pair = split(parts[i], ':');
+    vector<string> pair = split(parts[i], ":");
     
     while (ptr < stoi(pair[0])) {
       cout << " " << dflt;
@@ -166,8 +166,8 @@ int main(int argc, char **argv)
     if (input == STDIN)
       sparse_data.push_back(line);
 
-    vector<string> parts = split(line, ' ');
-    vector<string> last = split(parts[parts.size()-1], ':');
+    vector<string> parts = split(line, " \t");
+    vector<string> last = split(parts[parts.size()-1], ":");
     max_idx = max(max_idx, stoi(last[0]));
   }
 

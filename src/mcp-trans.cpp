@@ -448,6 +448,7 @@ Token yylex () {
     anything = false;
     msrc.erase(0,1);
   } else if  (anything & token == COLON) {
+    anything = false;
     msrc.erase(0,1);
   } else if (anything && !isspace(msrc[0])) {
     auto noany = msrc.find_first_of(" ]:");
@@ -813,7 +814,6 @@ void specification () {
       } else if (token == QMARK)
 	cerr << "+++ question mark on line " << lineno << " ignored" << endl;
       if (succ <= pred) {
-	cerr << "*** pred = " << pred << ", succ = " << succ << endl;
 	error("consecutive checkpoints must have increasing values");
 	flush(token_string.at(SCOL), false);
 	return;
@@ -1158,6 +1158,7 @@ void chunkline(const vector<string> &chunk) {
     long double min, max;
     long double over;
     bool out_of_bounds;
+
     switch (type[ocl]) {
     case BOOL:
       mypos = position(chunk[ocl], args[tgt]);
@@ -1268,8 +1269,6 @@ void chunkline(const vector<string> &chunk) {
       imin = stoi(args[tgt][0]);
       imax = stoi(args[tgt][1]);
 
-      // cerr << "*** imin = " << imin << ", imax = " << imax << endl;
-
       if (is_int(chunk[ocl])) {
 	int ivalue = stoi(chunk[ocl]);
 	if (ivalue < imin || ivalue > imax) {
@@ -1375,10 +1374,6 @@ void chunkline(const vector<string> &chunk) {
 		   ? " 1" : " 0");
       break;
     case CHECKPOINTS:
-      // cerr << "*** CHECKPOINTS in chunkline not implemented yet" << endl;
-      // for (int kk = 0; kk < args[tgt].size(); ++kk)
-      // 	cerr << "\targs[tgt][" << kk << "] = " << args[tgt][kk] << endl;
-      // exit(1);
       icard = args[tgt].size()-1;
       out_of_bounds = args[tgt][0] != token_string.at(CARET)
 	&& (stold(chunk[ocl]) < stold(args[tgt][0]))
@@ -1488,14 +1483,14 @@ void matrix () {
       if (!robust)
 	continue;
     }
-    
+
     string line;
     for (int i = 0; i < line2.size(); ++i)
       line +=
 	(line2[i] == '"' || line2[i] == ',' || line2[i] == ';' ? ' ' : line2[i]);
     line += ' ';
 
-    vector<string> chunk = split(line, ' ');
+    vector<string> chunk = split(line, " \t");
     if (chunk.size() < target.size()) {
       error(to_string(target.size())
 	    +

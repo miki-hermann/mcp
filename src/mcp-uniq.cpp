@@ -140,7 +140,7 @@ void matrix () {
 
   while (getline(cin, line)) {
     line_tab.push_back(line);
-    vector<string> chunk = split(line, " \t");
+    vector<string> chunk = split(line, ' ');
     group_tab.push_back(chunk[0]);
 
     string blob = "";

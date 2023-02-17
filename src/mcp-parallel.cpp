@@ -531,7 +531,7 @@ void OneToOne (ofstream &process_outfile, ofstream &latex_outfile, const int &i)
 	if (sect[k] == true) {
 	  A.push_back(k);
 	  if (varswitch) {
-	    vector<string> new_names = split(varnames[k], ":");
+	    vector<string> new_names = split(varnames[k], ':');
 	    process_outfile << new_names[nOWN];
 	  } else
 	    process_outfile << varid << to_string(offset+k);
@@ -635,7 +635,7 @@ void OneToAll (ofstream &process_outfile, ofstream &latex_outfile, const int &i)
       if (sect[k]) {
 	A.push_back(k);
 	if (varswitch) {
-	  vector<string> new_names = split(varnames[k], ":");
+	  vector<string> new_names = split(varnames[k], ':');
 	  process_outfile << new_names[nOWN];
 	} else
 	  process_outfile << varid << to_string(offset+k);

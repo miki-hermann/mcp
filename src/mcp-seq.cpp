@@ -548,7 +548,7 @@ void OneToOne () {
 	  if (sect[k] == true) {
 	    A.push_back(k);
 	    if (varswitch) {
-	      vector<string> new_names = split(varnames[k], ":");
+	      vector<string> new_names = split(varnames[k], ':');
 	      cout << new_names[nOWN];
 	    } else
 	      cout << varid + to_string(offset+k);
@@ -652,7 +652,7 @@ void SelectedToAll (const string grp) {
       if (sect[k]) {
 	A.push_back(k);
 	if (varswitch) {
-	  vector<string> new_names = split(varnames[k], ":");
+	  vector<string> new_names = split(varnames[k], ':');
 	  cout << new_names[nOWN];
 	} else
 	  cout << varid << to_string(offset+k);

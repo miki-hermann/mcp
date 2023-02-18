@@ -39,20 +39,23 @@ using namespace std;
 enum Index {LOCAL = 0, GLOBAL = 1};
 enum Token {
   ERROR,
-  // symbols
+  // used symbols ... must agree with symbol_tab below
   EQUAL,	// =
   COLON,	// :
   SCOL,		// ;
-  LPAR,		// (
-  RPAR,		// )
   LBRA,		// [
   RBRA,		// ]
   PLUS,		// +
   MINUS,	// -
   QMARK,	// ?
+  DOLLAR,	// $
+  CARET,	// ^
+  // limit of used symbols
+  // unused symbols
+  LPAR,		// (
+  RPAR,		// )
   EXMARK,	// !
   AT,		// @
-  DOLLAR,	// $
   PERCENT,	// %
   AND,		// &
   OR,		// |
@@ -62,11 +65,10 @@ enum Token {
   COMMA,	// ,
   SLASH,	// /
   TILDA,	// ~
-  CARET,	// ^
-  // limit of symbols
   DOT,		// .
   USCORE,	// _
   BSLASH,	// \ //
+  // limit of unused symbols
   // entities
   STRING,
   NUM,
@@ -123,7 +125,7 @@ enum Token_Type {
   MONTH_T   = 4,
   YEAR_T    = 5
 };
-string symbol_tab = " =:;()[]+-?!@$%&|*<>,/~^";	// must agree with Token
+string symbol_tab = " =:;[]+-?$^";	// must agree with Token
 const unordered_map<string, Token> keywords = {
   {"concept", CONCEPT},
   {"pivot", PIVOT},
@@ -238,7 +240,7 @@ int dropcount   = 0;
 // #define SENTINEL -1
 #define STDIN    "STDIN"
 #define STDOUT   "STDOUT"
-#define NOSTRING " #=:;?[]"
+#define NOSTRING " \t#=:;?[]"
 #define DIGITS   "0123456789"
 
 // int offset = 0;
@@ -444,23 +446,21 @@ Token yylex () {
   }
 
   Token token = symbol(msrc[0]);
-  if (anything && token == RBRA) {
+  if (anything && (token == RBRA || token == COLON)) {
     anything = false;
     msrc.erase(0,1);
-  } else if  (anything & token == COLON) {
-    anything = false;
-    msrc.erase(0,1);
+  // } else if  (anything & token == COLON) {
+  //   anything = false;
+  //   msrc.erase(0,1);
   } else if (anything && !isspace(msrc[0])) {
     auto noany = msrc.find_first_of(" ]:");
     yytext = msrc.substr(0, noany);
     msrc.erase(0, noany);
     token = STRING;
   } else if (isalpha(msrc[0])) {
-    int i = 0;
-    while (isalnum(msrc[i]) || msrc[i] == '-' || msrc[i] == '_')
-      i++;
-    yytext = msrc.substr(0,i);
-    msrc.erase(0,i);
+    size_t nostring = msrc.find_first_of(NOSTRING);
+    yytext = msrc.substr(0,nostring);
+    msrc.erase(0,nostring);
     if (t_type == GENERAL_T && keywords.count(yytext) > 0
 	||
 	yytext == "STEP")

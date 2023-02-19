@@ -36,6 +36,8 @@
 
 using namespace std;
 
+bool debug = false;
+
 enum Index {LOCAL = 0, GLOBAL = 1};
 enum Token {
   ERROR,
@@ -360,6 +362,8 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
 	cerr << "+++ argument error: " << arg << " " << idpar << endl;
 	exit(1);
       }
+    } else if (arg == "--debug") {
+      debug = true;
     } else {
       cerr << "+++ argument error: " << arg << endl;
       exit(1);
@@ -1142,7 +1146,7 @@ bool is_float (const string &s) {
   return true;
 }
 
-void chunkline(const vector<string> &chunk) {
+void chunkline (const vector<string> &chunk) {
   linecount++;
   if (IDpresent)
     cout << chunk[concept];
@@ -1401,7 +1405,7 @@ void chunkline(const vector<string> &chunk) {
 	}
       }
       else
-	for (int j = 1; j <= icard; ++j)
+	for (int j = 1; j <= icard; ++j) {
 	  cout << (
 		   j == 1
 		   && args[tgt][0] == token_string.at(CARET)
@@ -1411,11 +1415,12 @@ void chunkline(const vector<string> &chunk) {
 		   && args[tgt][icard] == token_string.at(DOLLAR)
 		   && stold(chunk[ocl]) >= stold(args[tgt][icard-1])
 		   ||
-		   // j >= 1 &&
+		   j > 1 &&
 		   j < icard
 		   && stold(args[tgt][j-1]) <= stold(chunk[ocl])
 		   && stold(chunk[ocl]) < stold(args[tgt][j])
 		   ? " 1" : " 0");
+	}
       break;
     default:
       cerr << "+++ chunkline: you should not be here +++" << endl;

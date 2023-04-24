@@ -2,7 +2,7 @@ all:
 	mcp-trans   -i mushroom.data -m mushroom.txt --robust yes
 	mcp-uniq    -i mushroom.mat
 	mcp-split   -i mushroom.unq  --ratio 20
-	mcp-seq     -i mushroom.lrn  -o mushroom.out           --formula mushroom # --closure cnf
+	mpirun mcp-mpi -i mushroom.lrn  -o mushroom.out           --formula mushroom # --closure cnf
 	mcp-check   -i mushroom.chk  -l mushroom_edible.log    -o mushroom_edible.out # --print clause
 	mcp-check   -i mushroom.chk  -l mushroom_poisonous.log -o mushroom_poisonous.out # --print clause
 	mcp-chk2tst -i mushroom.chk

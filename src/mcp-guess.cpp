@@ -94,7 +94,7 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
 
 void adjust () {
   if (ENUM_RATIO < 0.0 || ENUM_RATIO > 1.0) {
-    cerr << "*** ENUM_RATIO rest to 0.01" << endl;
+    cerr << "*** ENUM_RATIO reset to 0.01" << endl;
     ENUM_RATIO = 0.01;
   }
 

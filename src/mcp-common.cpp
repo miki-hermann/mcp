@@ -422,8 +422,7 @@ bool isect_nonempty (const Matrix &T, const Matrix &F) {
   // is the intersection of T and F nonempty?
   set<Row> orig, intersect;
 
-  for (Row row : T)
-    orig.insert(row);
+  orig.insert(T.cbegin(), T.cend());
   for (Row row : F)
     if (orig.find(row) != orig.end())
       intersect.insert(row);

@@ -383,13 +383,6 @@ Row MIN (const Matrix &M) {
   return m;
 }
 
-// bool InHornClosure (const Row &row, const Matrix &M) {
-//   // is the tuple row in the Horn closure of matrix M?
-//   Matrix P = ObsGeq(row, M);
-//   if (P.empty()) return false;
-//   else           return row == MIN(P);
-// }
-
 bool InHornClosure (const Row &row, const Matrix &M) {
   // is the tuple row in the Horn closure of matrix M?
   unique_ptr<Row> P = ObsGeq(row, M);

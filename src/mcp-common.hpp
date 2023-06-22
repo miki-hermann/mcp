@@ -83,7 +83,7 @@ extern int cluster;
 // extern int offset;
 extern string tpath;		// directory where the temporary files will be stored
 extern bool np_fit;
-extern int chunkLIMIT;		// heavily hardware dependent; must be optimized
+extern unsigned chunkLIMIT;	// heavily hardware dependent; must be optimized
 extern Arch arch;
 extern string latex;		// file to store latex output
 
@@ -108,10 +108,12 @@ void read_arg (int argc, char *argv[]);
 Matrix transpose (Matrix &batch);
 int hamming_distance (const Row &u, const Row &v);
 void clustering(Matrix &batch);
+Row Min (const Row &a, const Row &b);
 bool operator>= (const Row &a, const Row &b);
 // ostream& operator<< (ostream &output, const Row &row);
 // ostream& operator<< (ostream &output, const Matrix &M);
-Matrix ObsGeq (const Row &a, const Matrix &M);
+// Matrix ObsGeq (const Row &a, const Matrix &M);
+unique_ptr<Row> ObsGeq (const Row &a, const Matrix &M);
 bool inadmissible (const Matrix &T, const Matrix &F);
 int hamming_weight (const Row &row);
 Row minsect (const Matrix &T, const Matrix &F);

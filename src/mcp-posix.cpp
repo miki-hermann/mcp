@@ -36,46 +36,40 @@ using namespace std;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OGchunk (const Row &a, const Matrix &M, Matrix &result, int left, int right) {
+void OGchunk (const Row &a, const Matrix &M,
+	      unique_ptr<Row> &result,
+	      int left, int right) {
   // selects tuples (rows) in M[left..right-1] above the tuple a
   // usefull for distribution among threads
   for (int i = left; i < right; ++i)
     if (M[i] >= a)
-      result.push_back(M[i]);
+      result = make_unique<Row>(result == nullptr ? M[i] : Min(*result, M[i]));
 }
 
-Matrix gather (const Matrix &A, const Matrix &B) {
-  if (A.empty())
-    return B;
-  if (B.empty())
-    return A;
-
-  Matrix C = A;
-  copy(B.begin(), B.end(), C.end());
-  return C;
-}
-
-Matrix ObsGeq (const Row &a, const Matrix &M) {
+unique_ptr<Row> ObsGeq (const Row &a, const Matrix &M) {
   // selects tuples (rows) above the tuple a
-  Matrix P;
-  const int msize = M.size();
+  unique_ptr<Row> P;
+  const unsigned msize = M.size();
   if (msize > chunkLIMIT) {
     int nchunks = (msize / chunkLIMIT) + (msize % chunkLIMIT > 0);
-    Matrix *chunk = new Matrix[nchunks];
+    unique_ptr<Row> chunk[nchunks];
     vector<thread> chunk_threads;
-    for (int i = 0; i < nchunks; ++i)
-      chunk_threads.push_back(thread(OGchunk,
-				     ref(a), ref(M), ref(chunk[i]),
-				     i*chunkLIMIT, min((i+1)*chunkLIMIT, msize)));
+    for (unsigned i = 0; i < nchunks; ++i)
+      chunk_threads.push_back(std::thread(OGchunk,
+					  ref(a), ref(M), ref(chunk[i]),
+					  i*chunkLIMIT,
+					  min((i+1)*chunkLIMIT, msize)
+					  )
+			      );
     for (auto &ct : chunk_threads)
       ct.join();
     for (int i = 0; i < nchunks; ++i)
-      P = gather(P, chunk[i]);
-    delete [] chunk;
+      if (chunk[i] != nullptr)
+	P = make_unique<Row>(P == nullptr ? *chunk[i] : Min(*P, *chunk[i]));
   } else
     for (Row row : M)
       if (row >= a)
-	P.push_back(row);
+	P = make_unique<Row>(P == nullptr ? row : Min(*P, row));
   return P;
 }
 

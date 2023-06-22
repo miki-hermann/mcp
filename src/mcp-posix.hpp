@@ -32,7 +32,6 @@
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OGchunk (const Row &a, const Matrix &M, Matrix &result, int left, int right);
-Matrix gather (const Matrix &A, const Matrix &B);
+void OGchunk (const Row &a, const Matrix &M, unique_ptr<Row> &result, int left, int right);
 
 //==================================================================================================

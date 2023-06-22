@@ -71,7 +71,7 @@ int cluster         = SENTINEL;
 // int offset          = 0;
 string tpath        = "/tmp/";		// directory where the temporary files will be stored
 bool np_fit	    = false;
-int chunkLIMIT      = 4096;		// heavily hardware dependent; must be optimized
+unsigned chunkLIMIT      = 4096;	// heavily hardware dependent; must be optimized
 string latex        = "";		// file to store latex output
 
 ifstream infile;
@@ -383,12 +383,18 @@ Row MIN (const Matrix &M) {
   return m;
 }
 
+// bool InHornClosure (const Row &row, const Matrix &M) {
+//   // is the tuple row in the Horn closure of matrix M?
+//   Matrix P = ObsGeq(row, M);
+//   if (P.empty()) return false;
+//   else           return row == MIN(P);
+// }
+
 bool InHornClosure (const Row &row, const Matrix &M) {
   // is the tuple row in the Horn closure of matrix M?
-  Matrix P = ObsGeq(row, M);
-  if      (P.empty())     {return false;}
-  else if (row == MIN(P)) {return true;}
-  else                    {return false;}
+  unique_ptr<Row> P = ObsGeq(row, M);
+  if (P == nullptr) return false;
+  else return row == *P;
 }
 
 bool SHCPsolvable (const Matrix &T, const Matrix &F) {

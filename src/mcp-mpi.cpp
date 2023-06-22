@@ -41,13 +41,12 @@ Arch arch = archMPI;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Matrix ObsGeq (const Row &a, const Matrix &M) {
+unique_ptr<Row> ObsGeq (const Row &a, const Matrix &M) {
   // selects tuples (rows) above the tuple a
-  Matrix P;
-  for (Row row : M) {
+  unique_ptr<Row> P;
+  for (Row row : M)
     if (row >= a)
-      P.push_back(row);
-  }
+      P = make_unique<Row>(P == nullptr ? row : Min(*P, row));
   return P;
 }
 

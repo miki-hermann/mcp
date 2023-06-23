@@ -1,3 +1,6 @@
+1.04e
+ - ObsGeq computes a (pointer to) row directly
+
 1.04d
  - ident -> concept
  - checkpoints (cp) in mcp-trans

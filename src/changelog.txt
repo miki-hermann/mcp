@@ -1,5 +1,6 @@
 1.04e
  - ObsGeq computes a (pointer to) row directly
+ - isect_nonempty shortened
 
 1.04d
  - ident -> concept

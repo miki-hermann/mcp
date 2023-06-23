@@ -28,7 +28,8 @@
 
 #include <iostream>
 #include <fstream>
-#include <set>
+// #include <set>
+#include <unordered_set>
 #include <algorithm>
 #include <sstream>
 #include <random>
@@ -419,13 +420,13 @@ Row Majority (const Row &a, const Row &b, const Row &c) {
 
 bool isect_nonempty (const Matrix &T, const Matrix &F) {
   // is the intersection of T and F nonempty?
-  set<Row> orig, intersect;
+  unordered_set<Row> orig;
 
   orig.insert(T.cbegin(), T.cend());
   for (Row row : F)
     if (orig.find(row) != orig.end())
-      intersect.insert(row);
-  return !intersect.empty();
+      return true;
+  return false;
 }
 
 bool inadmissible (const Matrix &T, const Matrix &F) {

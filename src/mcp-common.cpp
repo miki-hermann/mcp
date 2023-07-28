@@ -901,57 +901,28 @@ bool operator>= (const Clause &a, const Clause &b) {
 //   }
 // } cmp_clause;
 
-int partition_matrix (Matrix &mtx, int low, int high)
+// partition matrix or formula
+template <typename U, template<typename> typename T>
+int partition_mf (T<U> &t, int low, int high)
 {
-  Row pivot = mtx[high];
+  U pivot = t[high];
   int p_index = low;
     
-  for(int i = low; i < high; i++)
-    if(mtx[i] <= pivot) {
-      Row t = mtx[i];
-      mtx[i] = mtx[p_index];
-      mtx[p_index] = t;
-      p_index++;
-    }
-  Row t = mtx[high];
-  mtx[high] = mtx[p_index];
-  mtx[p_index] = t;
+  for (int i = low; i < high; i++)
+    if (t[i] <= pivot)
+      swap(t[i], t[p_index++]);
+  swap(t[high], t[p_index]);
     
   return p_index;
 }
 
-void sort_matrix (Matrix &mtx, int low, int high) {
+// sort matrix or formula
+template <typename T>
+void sort_mf (T &t, int low, int high) {
   if (low < high) {
-    int p_index = partition_matrix(mtx, low, high);
-    sort_matrix(mtx, low, p_index-1);
-    sort_matrix(mtx, p_index+1, high);
-  }
-}
-
-int partition_formula (Formula &formula, int low, int high)
-{
-  Clause pivot = formula[high];
-  int p_index = low;
-    
-  for(int i = low; i < high; i++)
-    if (pivot >= formula[i]) {
-      Clause t = formula[i];
-      formula[i] = formula[p_index];
-      formula[p_index] = t;
-      p_index++;
-    }
-  Clause t = formula[high];
-  formula[high] = formula[p_index];
-  formula[p_index] = t;
-
-  return p_index;
-}
-
-void sort_formula (Formula &formula, int low, int high) {
-  if (low < high) {
-    int p_index = partition_formula(formula, low, high);
-    sort_formula(formula, low, p_index-1);
-    sort_formula(formula, p_index+1, high);
+    int p_index = partition_mf(t, low, high);
+    sort_mf(t, low, p_index-1);
+    sort_mf(t, p_index+1, high);
   }
 }
 
@@ -959,7 +930,7 @@ Matrix restrict (const Row &sect, const Matrix &A) {
   // restricts matrix A to columns determined by the bitvector sect
   Matrix AA = section(sect, A);
   // sort(AA.begin(), AA.end());
-  sort_matrix(AA, 0, AA.size()-1);
+  sort_mf(AA, 0, AA.size()-1);
   auto ip = unique(AA.begin(), AA.end());
   AA.resize(distance(AA.begin(), ip));
   return AA;
@@ -967,7 +938,9 @@ Matrix restrict (const Row &sect, const Matrix &A) {
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Matrix HornClosure (const Matrix &M) {	// computes the Horn closure of a matrix
+// computes the Horn closure of a matrix
+// UNUSED
+Matrix HornClosure (const Matrix &M) {	
   Matrix newM = M;
   Matrix HC;
 
@@ -991,19 +964,20 @@ Matrix HornClosure (const Matrix &M) {	// computes the Horn closure of a matrix
   }
 
   // sort(HC.begin(), HC.end());
-  sort_matrix(HC, 0, HC.size()-1);
+  sort_mf(HC, 0, HC.size()-1);
   return HC;
 }
 
+// computes the minimal tuple of a matrix coordinate wise
 Row minHorn (const Matrix &M) {
-  // computes the minimal tuple of a matrix coordinate wise
   Row mh = M[0];
   for (int i = 1; i < M.size(); ++i)
     mh = Min(mh,M[i]);
   return mh;
 }
 
-Formula unitres (const Formula &formula) {	// unit resolution
+// unit resolution
+Formula unitres (const Formula &formula) {	
   Formula units;
   Formula clauses;
 
@@ -1038,7 +1012,7 @@ Formula unitres (const Formula &formula) {	// unit resolution
   }
 
   // sort(resUnits.begin(), resUnits.end());
-  sort_formula(resUnits, 0, resUnits.size()-1);
+  sort_mf(resUnits, 0, resUnits.size()-1);
   auto last1 = unique(resUnits.begin(), resUnits.end());
   resUnits.erase(last1, resUnits.end());
 
@@ -1066,7 +1040,7 @@ Formula unitres (const Formula &formula) {	// unit resolution
 
   clauses.insert(clauses.end(), resUnits.begin(), resUnits.end());
   // sort(clauses.begin(), clauses.end()), cmp_numlit;
-  sort_formula(clauses, 0, clauses.size()-1);
+  sort_mf(clauses, 0, clauses.size()-1);
   auto last2 = unique(clauses.begin(), clauses.end());
   clauses.erase(last2, clauses.end());
 
@@ -1115,7 +1089,7 @@ Formula binres (const Formula &formula) {
   
   clauses.insert(clauses.end(), resBins.begin(), resBins.end());
   // sort(clauses.begin(), clauses.end(), cmp_numlit);
-  sort_formula(clauses, 0, clauses.size()-1);
+  sort_mf(clauses, 0, clauses.size()-1);
   auto last3 = unique(clauses.begin(), clauses.end());
   clauses.erase(last3, clauses.end());
 
@@ -1131,12 +1105,13 @@ bool subsumes (const Clause &cla, const Clause &clb) {
   return true;
 }
 
-Formula subsumption (Formula formula) {	// perform subsumption on clauses of a formula
-					// clauses must be sorted by length --- IS GUARANTEED
+// perform subsumption on clauses of a formula
+// clauses must be sorted by length --- IS GUARANTEED
+Formula subsumption (Formula formula) {	
   Formula res;
-  // sort_formula not necessary, clauses are GUARANTEED SORTED
+  // sort_mf not necessary, clauses are GUARANTEED SORTED
   // sort(formula.begin(), formula.end(), cmp_numlit);
-  // sort_formula(formula, 0, formula.size()-1);
+  // sort_mf(formula, 0, formula.size()-1);
   while (! formula.empty()) {
     Clause clause = formula.front();
     formula.pop_front();
@@ -1151,23 +1126,25 @@ Formula subsumption (Formula formula) {	// perform subsumption on clauses of a f
   return res;
 }
 
-bool empty_clause (const Clause &clause) {	// is the clause empty ?
+// is the clause empty ?
+bool empty_clause (const Clause &clause) {	
   for (Literal lit : clause)
     if (lit != lnone)
       return false;
   return true;
 }
 
-Formula redundant (const Formula &formula) {	// eliminating redundant clauses
-						// clauses must be sorted by length --- IS UARANTEED
+// eliminating redundant clauses
+// clauses must be sorted by length --- IS UARANTEED
+Formula redundant (const Formula &formula) {	
   const int lngt = formula[0].size();
 
   Formula prefix, suffix;
   // prefix.insert(prefix.end(), formula.begin(), formula.end());
   prefix = formula;
-  // sort_formula not necessary, clauses are GUARANTEED SORTED
+  // sort_mf not necessary, clauses are GUARANTEED SORTED
   // sort(prefix.begin(), prefix.end(), cmp_numlit);
-  // sort_formula(prefix, 0, prefix.size()-1);
+  // sort_mf(prefix, 0, prefix.size()-1);
 
   int left = 0;
   while (left < prefix.size() && numlit(prefix[left]) == 1)
@@ -1187,7 +1164,7 @@ Formula redundant (const Formula &formula) {	// eliminating redundant clauses
     newUnits.insert(newUnits.end(), prefix.begin(), prefix.end());
     newUnits.insert(newUnits.end(), suffix.begin(), suffix.end());
     // sort(newUnits.begin(), newUnits.end(), cmp_numlit);
-    sort_formula(newUnits, 0, newUnits.size()-1);
+    sort_mf(newUnits, 0, newUnits.size()-1);
     auto last3 = unique(newUnits.begin(), newUnits.end());
     newUnits.erase(last3, newUnits.end());
     Formula bogus = unitres(newUnits);
@@ -1204,10 +1181,10 @@ Formula redundant (const Formula &formula) {	// eliminating redundant clauses
   return prefix;
 }
 
+// perform set cover optimizing the clauses as subsets falsified by tuples as universe
+// Universe = tuples in F
+// SubSets  = clauses of a formula
 Formula SetCover (const Matrix &Universe, const Formula &SubSets) {
-  // perform set cover optimizing the clauses as subsets falsified by tuples as universe
-  // Universe = tuples in F
-  // SubSets  = clauses of a formula
   enum Presence {NONE = 0, ABSENT = 1, PRESENT = 2};
   typedef pair<Row, Clause> Falsification;	
   map<Falsification, Presence> incidence;	// Incidence matrix indicating
@@ -1253,14 +1230,14 @@ Formula SetCover (const Matrix &Universe, const Formula &SubSets) {
 	++it;
   }
   // sort(selected.begin(), selected.end(), cmp_numlit);
-  sort_formula(selected, 0, selected.size()-1);
+  sort_mf(selected, 0, selected.size()-1);
   return selected;
 }
 
+// perform redundancy elimination on formula according to cooking
 void cook (Formula &formula) {
-  // perform redundancy elimination on formula according to cooking
   if (! formula.empty()) {
-    if (cooking == ckRAW)      sort_formula(formula, 0, formula.size()-1);
+    if (cooking == ckRAW)      sort_mf(formula, 0, formula.size()-1);
       // sort(formula.begin(), formula.end(), cmp_numlit);
     if (cooking >= ckBLEU)     {formula = unitres(formula);
 				formula = binres(formula);}
@@ -1271,9 +1248,9 @@ void cook (Formula &formula) {
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+// predecessor function of Zanuttini's algorithm
+// R must be lexicographically sorted
 void predecessor (const Matrix &R) {
-  // predecessor function of Zanuttini's algorithm
-  // R must be lexicographically sorted
   pred.clear();
   pred[R[0]] = SENTINEL;
   Row p = R[0];
@@ -1290,9 +1267,9 @@ void predecessor (const Matrix &R) {
   }
 }
 
+// sucessor function of Zanuttini's algorithm
+// R must be lexicographically sorted
 void successor (const Matrix &R) {
-  // sucessor function of Zanuttini's algorithm
-  // R must be lexicographically sorted
   succ.clear();
   Row m = R[0];
   for (int i = 1; i < R.size(); ++i) {
@@ -1332,8 +1309,8 @@ void simsim (const Matrix &R) {	// sim array of Zanuttini's algorithm
   }
 }
 
+// generate clauses with Zanuttini's algorithm
 Clause hext (const Row &m, const int &j) {
-  // generate clauses with Zanuttini's algorithm
   Clause clause(m.size(), lnone);
   for (int i = 0; i < j; ++i)
     if (m[i] == true)
@@ -1354,9 +1331,9 @@ Clause hext (const Row &m, const int &j) {
   return clause;
 }
 
+// phi is a CNF formula and M is a set of tuples, such that sol(phi) = M
+// constructs a reduced prime formula phiPrime, such that sol(phi) = sol(phiPrime)
 Formula primality (const Formula &phi, const Matrix &M) {
-  // phi is a CNF formula and M is a set of tuples, such that sol(phi) = M
-  // constructs a reduced prime formula phiPrime, such that sol(phi) = sol(phiPrime)
   const int card = M.size();
   const int lngt = M[0].size();
   Formula phiPrime;
@@ -1410,9 +1387,9 @@ Formula primality (const Formula &phi, const Matrix &M) {
   return phiPrime;
 }
 
+// learn the exact Horn clause from positive examples T
+// uses Zanuttini's algorithm
 Formula learnHornExact (Matrix T) {
-  // learn the exact Horn clause from positive examples T
-  // uses Zanuttini's algorithm
   Formula H;
   const int lngt = T[0].size();
   if (T.size() == 1) {		// T has only one row / tuple
@@ -1425,7 +1402,7 @@ Formula learnHornExact (Matrix T) {
     return H;
   }
   // sort(T.begin(), T.end());
-  sort_matrix(T, 0, T.size()-1);
+  sort_mf(T, 0, T.size()-1);
   successor(T);
   predecessor(T);
   simsim(T);
@@ -1441,9 +1418,9 @@ Formula learnHornExact (Matrix T) {
   return H;
 }
 
+// learn general CNF formula with large strategy
+// from negative examples F
 Formula learnCNFlarge (const Matrix &F) {
-  // learn general CNF formula with large strategy
-  // from negative examples F
   Formula formula;
   for (Row row : F) {
     Clause clause;
@@ -1495,12 +1472,11 @@ Clause negRight (const Row &m, const int &i) {
   return clause;
 }
 
+// learn general CNF formula with exact strategy
+// from positive examples T
 Formula learnCNFexact (Matrix T) {
-  // learn general CNF formula with exact strategy
-  // from positive examples T
-
   // sort(T.begin(), T.end());
-  sort_matrix(T, 0, T.size()-1);
+  sort_mf(T, 0, T.size()-1);
   auto ip = unique(T.begin(), T.end());
   T.resize(distance(T.begin(), ip));
 
@@ -1521,24 +1497,24 @@ Formula learnCNFexact (Matrix T) {
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+// swap the polarity of values in a tuple
 Row polswap_row (const Row &row) {
-  // swap the polarity of values in a tuple
   Row swapped = ~row;
   // for (bool bit : row)
   //   swapped.push_back(! bit);
   return swapped;
 }
 
+// swap polarity of every tuple in a matrix
 Matrix polswap_matrix (const Matrix &A) {
-  // swap polarity of every tuple in a matrix
   Matrix swapped;
   for (Row row : A)
     swapped.push_back(polswap_row(row));
   return swapped;
 }
 
+// swap polarity of literals in a clause
 Clause polswap_clause (const Clause &clause) {
-  // swap polarity of literals in a clause
   Clause swapped;
   for (Literal literal : clause)
     if (literal != lnone)
@@ -1549,8 +1525,8 @@ Clause polswap_clause (const Clause &clause) {
   return swapped;
 }
 
+// swap polarity of every clause of a formula
 Formula polswap_formula (const Formula &formula) {
-  // swap polarity of every clause of a formula
   Formula swapped;
   for (Clause clause : formula)
     swapped.push_back(polswap_clause(clause));

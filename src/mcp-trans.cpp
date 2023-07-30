@@ -549,12 +549,22 @@ void specification () {
       flush(token_string.at(SCOL), true);
       return;
     }
+    if (pivot != SENTINEL) {
+      error("both concept and pivot");
+      flush(token_string.at(SCOL), true);
+      return;
+    }
     concept = orig_column;
     description[0] = desc;
     return;
   } else if (spec == PIVOT) {
     if (pivot != SENTINEL) {
       error("double pivot");
+      flush(token_string.at(SCOL), true);
+      return;
+    }
+    if (concept != SENTINEL) {
+      error("both concept and pivot");
       flush(token_string.at(SCOL), true);
       return;
     }

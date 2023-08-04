@@ -302,7 +302,7 @@ void read_matrix (Group_of_Matrix &matrix) {
 void print_matrix (const Group_of_Matrix &matrix) {
   // prints the matrices
   cout << "+++ Arity = " << arity << endl;
-  for (auto group = matrix.begin(); group != matrix.end(); ++group) {
+  for (auto group = matrix.cbegin(); group != matrix.cend(); ++group) {
     cout << "+++ Group " << group->first;
     grps.push_back(group->first);
     auto gmtx = group->second;

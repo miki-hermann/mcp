@@ -312,7 +312,7 @@ void read_matrix (Group_of_Matrix &matrix) {
 void print_matrix (const Group_of_Matrix &matrix) {
   // prints the matrices
   outfile << "+++ Arity = " << arity << endl;
-  for (auto group = matrix.begin(); group != matrix.end(); ++group) {
+  for (auto group = matrix.cbegin(); group != matrix.cend(); ++group) {
     outfile << "+++ Group " << group->first;
     grps.push_back(group->first);
     Matrix gmtx = group->second;

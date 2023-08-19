@@ -58,12 +58,13 @@ The subdirectories of this distribution are:
 
 ### Compilation
 
-A C++ compiler satisfying at least  the C++17 revision is necessary to
+A  C++  compiler  satisfying  the   C++20  revision  is  necessary  to
 successfully  compile the  MCP system,  mainly for  the use  of `auto`
-types and POSIX threads. Only  the standard library is used, therefore
-there is no need to install any additional C++ libraries.  The g++ GNU
-Project compiler  is used  in the  `Makefile`. If  you have  a different
-compiler, please modify the `Makefile` according to your installation.
+types and  POSIX threads.  Only the standard  and boost  libraries are
+used,  therefore  there is  no  need  to  install any  additional  C++
+libraries.  The g++ GNU Project compiler is used in the `Makefile`. If
+you have a different compiler,  please modify the `Makefile` according
+to your installation.
 
 You need to  have installed the Message Passing Interface  (MPI) to be
 able to compile the modules `mcp-mpi` and `mcp-hybrid`.  However, this

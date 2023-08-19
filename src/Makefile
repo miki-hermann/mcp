@@ -27,181 +27,232 @@
 ##**************************************************************************
 
 BIN = ../bin
+CXX_VERSION := -std=c++20
+# CXX_VERSION :=
+FLAGS := $(CXX_VERSION) -O4 -march=native -flto -fopenmp
+CXX   := g++ $(FLAGS)
 
-.PHONY: compile compile-no-mpi seq export clean scratch uniq
+.PHONY: compile compile-no-mpi seq mpi pthread hybrid trans guess cnf csv split check sparse predict chk2tst uniq export clean scratch
 
-compile: seq mpi pthread hybrid trans guess cnf split check sparse \
-	predict chk2tst uniq
+compile: seq mpi pthread hybrid \
+	trans guess cnf csv split check sparse predict chk2tst uniq
 
-compile-no-mpi: seq pthread trans guess cnf split check sparse predict \
-	chk2tst uniq
-
-#---------------------------------------------------------------------------------------------------
-
-seq: matrix+formula-seq.o common-seq.o seq.o
-	g++ -O4 -o $(BIN)/mcp-seq mcp-seq.o \
-				  mcp-common-seq.o \
-				  mcp-matrix+formula-seq.o
-
-seq.o: mcp-seq.cpp mcp-common.hpp
-	g++ -O4 -c -o mcp-seq.o mcp-seq.cpp
-
-common-seq.o: mcp-common.cpp mcp-common.hpp
-	g++ -O4 -c -o mcp-common-seq.o mcp-common.cpp
-
-matrix+formula-seq.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
-	g++ -O4 -c -o mcp-matrix+formula-seq.o mcp-matrix+formula.cpp
+compile-no-mpi: seq pthread \
+	trans guess cnf csv split check sparse predict chk2tst uniq
 
 #---------------------------------------------------------------------------------------------------
 
-mpi: matrix+formula-mpi.o common-mpi.o parallel-mpi.o mpi.o
-	mpic++ -O4 -o $(BIN)/mcp-mpi mcp-mpi.o \
-				     mcp-common-mpi.o \
-				     mcp-matrix+formula-mpi.o \
-				     mcp-parallel-mpi.o
+seq: $(BIN)/mcp-seq
 
-mpi.o: mcp-mpi.cpp mcp-common.hpp mcp-parallel.hpp
-	mpic++ -O4 -c -o mcp-mpi.o mcp-mpi.cpp
+mcp-matrix+formula-seq.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
+	$(CXX) -c -o $@ mcp-matrix+formula.cpp
 
-parallel-mpi.o: mcp-parallel.cpp mcp-parallel.hpp mcp-common.hpp
-	mpic++ -O4 -c -o mcp-parallel-mpi.o mcp-parallel.cpp
+mcp-common-seq.o: mcp-common.cpp mcp-common.hpp mcp-matrix+formula.hpp
+	$(CXX) -c -o $@ mcp-common.cpp
 
-common-mpi.o: mcp-common.cpp mcp-common.hpp
-	mpic++ -O4 -c -o mcp-common-mpi.o mcp-common.cpp
+mcp-seq.o: mcp-seq.cpp mcp-common.hpp mcp-matrix+formula.hpp
+	$(CXX) -c -o $@ mcp-seq.cpp
 
-matrix+formula-mpi.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
-	mpic++ -O4 -c -o mcp-matrix+formula-mpi.o mcp-matrix+formula.cpp
-
-#---------------------------------------------------------------------------------------------------
-
-pthread: matrix+formula-pthread.o common-pthread.o parallel-pthread.o posix-pthread.o pthread.o
-	g++ -pthread -O4 -o $(BIN)/mcp-pthread mcp-pthread.o \
-					       mcp-common-pthread.o \
-					       mcp-matrix+formula-pthread.o \
-					       mcp-parallel-pthread.o \
-					       mcp-posix-pthread.o
-
-pthread.o: mcp-pthread.cpp mcp-common.hpp mcp-parallel.hpp mcp-posix.hpp
-	g++ -pthread -c -O4 -o mcp-pthread.o mcp-pthread.cpp
-
-posix-pthread.o: mcp-posix.cpp mcp-posix.hpp mcp-parallel.hpp mcp-common.hpp
-	g++ -pthread -c -O4 -o mcp-posix-pthread.o mcp-posix.cpp
-
-parallel-pthread.o: mcp-parallel.cpp mcp-parallel.hpp mcp-common.hpp
-	g++ -pthread -c -O4 -o mcp-parallel-pthread.o mcp-parallel.cpp
-
-common-pthread.o: mcp-common.cpp mcp-common.hpp
-	g++ -pthread -c -O4 -o mcp-common-pthread.o mcp-common.cpp
-
-matrix+formula-pthread.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
-	g++ -pthread -c -O4 -o mcp-matrix+formula-pthread.o mcp-matrix+formula.cpp
+$(BIN)/mcp-seq: mcp-matrix+formula-seq.o mcp-common-seq.o mcp-seq.o
+	$(CXX) -o $(BIN)/mcp-seq \
+		mcp-seq.o \
+		mcp-common-seq.o \
+		mcp-matrix+formula-seq.o
 
 #---------------------------------------------------------------------------------------------------
 
-hybrid: matrix+formula-hybrid.o common-hybrid.o parallel-hybrid.o posix-hybrid.o hybrid.o
-	mpic++ -pthread -O4 -o $(BIN)/mcp-hybrid mcp-hybrid.o \
-						 mcp-common-hybrid.o \
-					         mcp-matrix+formula-hybrid.o \
-						 mcp-parallel-hybrid.o \
-						 mcp-posix-hybrid.o
+mpi: $(BIN)/mcp-mpi
 
-hybrid.o: mcp-hybrid.cpp mcp-common.hpp mcp-parallel.hpp mcp-posix.hpp
-	mpic++ -pthread -O4 -c -o mcp-hybrid.o mcp-hybrid.cpp
+mcp-matrix+formula-mpi.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
+	mpic++ $(FLAGS) -c -o $@ mcp-matrix+formula.cpp
 
+mcp-common-mpi.o: mcp-common.cpp mcp-common.hpp mcp-matrix+formula.hpp
+	mpic++ $(FLAGS) -c -o $@ mcp-common.cpp
 
-posix-hybrid.o: mcp-posix.cpp mcp-posix.hpp mcp-parallel.hpp mcp-common.hpp
-	mpic++ -pthread -c -O4 -o mcp-posix-hybrid.o mcp-posix.cpp
+mcp-parallel-mpi.o: mcp-parallel.cpp mcp-parallel.hpp mcp-common.hpp mcp-matrix+formula.hpp
+	mpic++ $(FLAGS) -c -o $@ mcp-parallel.cpp
 
-parallel-hybrid.o: mcp-parallel.cpp mcp-parallel.hpp mcp-common.hpp
-	mpic++ -pthread -c -O4 -o mcp-parallel-hybrid.o mcp-parallel.cpp
+mcp-mpi.o: mcp-mpi.cpp mcp-parallel.hpp mcp-common.hpp mcp-matrix+formula.hpp
+	mpic++ $(FLAGS) -c -o $@ mcp-mpi.cpp
 
-common-hybrid.o: mcp-common.cpp mcp-common.hpp
-	mpic++ -pthread -c -O4 -o mcp-common-hybrid.o mcp-common.cpp
-
-matrix+formula-hybrid.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
-	mpic++ -pthread -c -O4 -o mcp-matrix+formula-hybrid.o mcp-matrix+formula.cpp
+$(BIN)/mcp-mpi: mcp-matrix+formula-mpi.o mcp-common-mpi.o mcp-parallel-mpi.o mcp-mpi.o
+	mpic++ $(FLAGS) -o $(BIN)/mcp-mpi \
+		mcp-mpi.o \
+		mcp-parallel-mpi.o \
+		mcp-common-mpi.o \
+		mcp-matrix+formula-mpi.o
 
 #---------------------------------------------------------------------------------------------------
 
-trans: mcp-trans.cpp matrix+formula-trans.o
-	g++ -O4 -o $(BIN)/mcp-trans mcp-trans.cpp mcp-matrix+formula-trans.o
-matrix+formula-trans.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
-	g++ -c -O4 -o mcp-matrix+formula-trans.o mcp-matrix+formula.cpp
+pthread: $(BIN)/mcp-pthread
+
+mcp-matrix+formula-pthread.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
+	$(CXX) -pthread -c -o $@ mcp-matrix+formula.cpp
+
+mcp-common-pthread.o: mcp-common.cpp mcp-common.hpp mcp-matrix+formula.hpp
+	$(CXX) -pthread -c -o $@ mcp-common.cpp
+
+mcp-parallel-pthread.o: mcp-parallel.cpp mcp-parallel.hpp mcp-common.hpp mcp-matrix+formula.hpp
+	$(CXX) -pthread -c -o $@ mcp-parallel.cpp
+
+mcp-posix-pthread.o: mcp-posix.cpp mcp-posix.hpp mcp-parallel.hpp mcp-common.hpp mcp-matrix+formula.hpp
+	$(CXX) -pthread -c -o $@ mcp-posix.cpp
+
+mcp-pthread.o: mcp-pthread.cpp mcp-posix.hpp mcp-parallel.hpp mcp-common.hpp mcp-matrix+formula.hpp
+	$(CXX) -pthread -c -o $@ mcp-pthread.cpp
+
+$(BIN)/mcp-pthread: mcp-matrix+formula-pthread.o mcp-common-pthread.o mcp-parallel-pthread.o \
+		mcp-posix-pthread.o mcp-pthread.o
+	$(CXX) -pthread -o $(BIN)/mcp-pthread \
+		mcp-pthread.o \
+		mcp-posix-pthread.o \
+		mcp-parallel-pthread.o \
+		mcp-common-pthread.o \
+		mcp-matrix+formula-pthread.o
 
 #---------------------------------------------------------------------------------------------------
 
-guess: mcp-guess.cpp
-	g++ -O4 -o $(BIN)/mcp-guess mcp-guess.cpp
+hybrid: $(BIN)/mcp-hybrid
+
+mcp-matrix+formula-hybrid.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
+	mpic++ $(FLAGS) -pthread -c -o $@ mcp-matrix+formula.cpp
+
+mcp-common-hybrid.o: mcp-common.cpp mcp-common.hpp mcp-matrix+formula.hpp
+	mpic++ $(FLAGS) -pthread -c -o $@ mcp-common.cpp
+
+mcp-parallel-hybrid.o: mcp-parallel.cpp mcp-parallel.hpp mcp-common.hpp mcp-matrix+formula.hpp
+	mpic++ $(FLAGS) -pthread -c -o $@ mcp-parallel.cpp
+
+mcp-posix-hybrid.o: mcp-posix.cpp mcp-posix.hpp mcp-parallel.hpp mcp-common.hpp mcp-matrix+formula.hpp
+	mpic++ $(FLAGS) -pthread -c -o $@ mcp-posix.cpp
+
+mcp-hybrid.o: mcp-hybrid.cpp mcp-common.hpp mcp-parallel.hpp mcp-posix.hpp mcp-matrix+formula.hpp
+	mpic++ $(FLAGS) -pthread -c -o $@ mcp-hybrid.cpp
+
+$(BIN)/mcp-hybrid: mcp-matrix+formula-hybrid.o mcp-common-hybrid.o mcp-parallel-hybrid.o \
+		mcp-posix-hybrid.o mcp-hybrid.o
+	mpic++ $(FLAGS) -pthread -o $(BIN)/mcp-hybrid \
+		mcp-hybrid.o \
+		mcp-posix-hybrid.o \
+		mcp-parallel-hybrid.o \
+		mcp-common-hybrid.o \
+		mcp-matrix+formula-hybrid.o
 
 #---------------------------------------------------------------------------------------------------
 
-cnf: mcp-cnf
+trans: $(BIN)/mcp-trans
+
+$(BIN)/mcp-trans: mcp-trans.o mcp-matrix+formula-trans.o
+	$(CXX) -o $(BIN)/mcp-trans mcp-trans.o mcp-matrix+formula-trans.o
+
+mcp-trans.o: mcp-trans.cpp
+	$(CXX) -c -o $@ mcp-trans.cpp
+
+mcp-matrix+formula-trans.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
+	$(CXX) -c -o $@ mcp-matrix+formula.cpp
+
+#---------------------------------------------------------------------------------------------------
+
+guess: $(BIN)/mcp-guess
+
+$(BIN)/mcp-guess: mcp-guess.cpp
+	$(CXX) -o $(BIN)/mcp-guess mcp-guess.cpp
+
+#---------------------------------------------------------------------------------------------------
+
+cnf: $(BIN)/mcp-cnf
+
+$(BIN)/mcp-cnf: mcp-cnf
 	cp -f mcp-cnf $(BIN)/mcp-cnf
 
 #---------------------------------------------------------------------------------------------------
 
-split: mcp-split.cpp
-	g++ -O4 -o $(BIN)/mcp-split mcp-split.cpp
+csv: $(BIN)/mcp-csv
+
+$(BIN)/mcp-csv: mcp-mat2csv
+	cp -f mcp-mat2csv $(BIN)/mcp-mat2csv
 
 #---------------------------------------------------------------------------------------------------
 
-check:  matrix+formula-check.o mcp-check.o
-	g++ -O4 -o $(BIN)/mcp-check mcp-check.o \
-				    mcp-matrix+formula-check.o
+split: $(BIN)/mcp-split
+
+$(BIN)/mcp-split: mcp-split.cpp
+	$(CXX) -o $(BIN)/mcp-split mcp-split.cpp
+
+#---------------------------------------------------------------------------------------------------
+
+check: $(BIN)/mcp-check
+
+mcp-matrix+formula-check.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
+	$(CXX) -c -o $@ mcp-matrix+formula.cpp
 
 mcp-check.o: mcp-check.cpp mcp-matrix+formula.hpp
-	g++ -O4 -c -o mcp-check.o mcp-check.cpp
+	$(CXX) -c -o mcp-check.o mcp-check.cpp
 
-matrix+formula-check.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
-	g++ -O4 -c -o mcp-matrix+formula-check.o mcp-matrix+formula.cpp
+$(BIN)/mcp-check:  mcp-matrix+formula-check.o mcp-check.o
+	$(CXX) -o $(BIN)/mcp-check \
+		mcp-check.o \
+		mcp-matrix+formula-check.o
 
 #---------------------------------------------------------------------------------------------------
 
-sparse: matrix+formula-sparse.o mcp-sparse.o
-	g++ -O4 -o $(BIN)/mcp-sparse mcp-sparse.o \
-				   mcp-matrix+formula-sparse.o
+sparse: $(BIN)/mcp-sparse
+
+mcp-matrix+formula-sparse.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
+	$(CXX) -c -o $@ mcp-matrix+formula.cpp
 
 mcp-sparse.o: mcp-sparse.cpp mcp-matrix+formula.hpp
-	g++ -O4 -c -o mcp-sparse.o mcp-sparse.cpp
+	$(CXX) -c -o $@ mcp-sparse.cpp
 
-matrix+formula-sparse.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
-	g++ -O4 -c -o mcp-matrix+formula-sparse.o mcp-matrix+formula.cpp
+$(BIN)/mcp-sparse: mcp-matrix+formula-sparse.o mcp-sparse.o
+	$(CXX) -o $(BIN)/mcp-sparse \
+		mcp-sparse.o \
+		mcp-matrix+formula-sparse.o
 
 #---------------------------------------------------------------------------------------------------
 
-predict: matrix+formula-predict.o mcp-predict.o
-	g++ -O4 -o $(BIN)/mcp-predict mcp-predict.o \
-				    mcp-matrix+formula-predict.o
+predict: $(BIN)/mcp-predict
+
+mcp-matrix+formula-predict.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
+	$(CXX) -c -o $@ mcp-matrix+formula.cpp
 
 mcp-predict.o: mcp-predict.cpp mcp-matrix+formula.hpp
-	g++ -O4 -c -o mcp-predict.o mcp-predict.cpp
+	$(CXX) -c -o $@ mcp-predict.cpp
 
-matrix+formula-predict.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
-	g++ -O4 -c -o mcp-matrix+formula-predict.o mcp-matrix+formula.cpp
+$(BIN)/mcp-predict: mcp-matrix+formula-predict.o mcp-predict.o
+	$(CXX) -o $(BIN)/mcp-predict \
+		mcp-predict.o \
+		mcp-matrix+formula-predict.o
 
 #---------------------------------------------------------------------------------------------------
 
-chk2tst: matrix+formula-chk2tst.o mcp-chk2tst.o
-	g++ -O4 -o $(BIN)/mcp-chk2tst mcp-chk2tst.o \
-				    mcp-matrix+formula-chk2tst.o
+chk2tst: $(BIN)/mcp-chk2tst
+
+mcp-matrix+formula-chk2tst.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
+	$(CXX) -c -o $@ mcp-matrix+formula.cpp
 
 mcp-chk2tst.o: mcp-chk2tst.cpp mcp-matrix+formula.hpp
-	g++ -O4 -c -o mcp-chk2tst.o mcp-chk2tst.cpp
+	$(CXX) -c -o $@ mcp-chk2tst.cpp
 
-matrix+formula-chk2tst.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
-	g++ -O4 -c -o mcp-matrix+formula-chk2tst.o mcp-matrix+formula.cpp
+$(BIN)/mcp-chk2tst: mcp-matrix+formula-chk2tst.o mcp-chk2tst.o
+	$(CXX) -o $(BIN)/mcp-chk2tst \
+		mcp-chk2tst.o \
+		mcp-matrix+formula-chk2tst.o
 
 #---------------------------------------------------------------------------------------------------
 
-uniq: matrix+formula-uniq.o mcp-uniq.o
-	g++ -O4 -o $(BIN)/mcp-uniq mcp-uniq.o \
-			mcp-matrix+formula-uniq.o
+uniq: $(BIN)/mcp-uniq
+
+mcp-matrix+formula-uniq.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
+	$(CXX) -c -o $@ mcp-matrix+formula.cpp
 
 mcp-uniq.o: mcp-uniq.cpp mcp-matrix+formula.hpp
-	g++ -O4 -c -o mcp-uniq.o mcp-uniq.cpp
+	$(CXX) -c -o $@ mcp-uniq.cpp
 
-matrix+formula-uniq.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
-	g++ -O4 -c -o mcp-matrix+formula-uniq.o mcp-matrix+formula.cpp
+$(BIN)/mcp-uniq: mcp-matrix+formula-uniq.o mcp-uniq.o
+	$(CXX) -o $(BIN)/mcp-uniq \
+		mcp-uniq.o \
+		mcp-matrix+formula-uniq.o
 
 #---------------------------------------------------------------------------------------------------
 
@@ -209,7 +260,8 @@ export:
 	cp -f $(BIN)/mcp-* ..
 
 clean:
-	rm -f *.o $(BIN)/mcp-*
+	rm -f *.o
+	rm -f $(BIN)/mcp-*
 
 scratch: clean
 	rm -f *~

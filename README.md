@@ -34,6 +34,7 @@ The sequel modules are
     mcp-check   (for checking the accuracy of the produced formula)
     mcp-predict (for prediction of values in test data files)
     mcp-chk2tst (for transforming check files to test files)
+    mc-mat2csv  (for transforming a matrix file to CSV file: spaces -> commas)
 
 Additionally, the distribution contains the following files:
 

@@ -276,7 +276,8 @@ unordered_set<string> symtab;
 string desc;
 vector<string> description = {" "};
 int orig_column;
-int concept = SENTINEL;
+// concept is a keyword in c++20
+int cncpt = SENTINEL;
 bool IDpresent = true;
 int pivot = SENTINEL;
 bool PVTpresent = false;
@@ -544,7 +545,7 @@ void specification () {
   int minus;
   Token spec = yylex();
   if (spec == CONCEPT) {
-    if (concept != SENTINEL) {
+    if (cncpt != SENTINEL) {
       error("double concept");
       flush(token_string.at(SCOL), true);
       return;
@@ -554,7 +555,7 @@ void specification () {
       flush(token_string.at(SCOL), true);
       return;
     }
-    concept = orig_column;
+    cncpt = orig_column;
     description[0] = desc;
     return;
   } else if (spec == PIVOT) {
@@ -563,7 +564,7 @@ void specification () {
       flush(token_string.at(SCOL), true);
       return;
     }
-    if (concept != SENTINEL) {
+    if (cncpt != SENTINEL) {
       error("both concept and pivot");
       flush(token_string.at(SCOL), true);
       return;
@@ -906,9 +907,9 @@ void program () {
   
   while (msrc.size() > 0)
     attribute_line();
-  if (concept == SENTINEL && IDpresent)
+  if (cncpt == SENTINEL && IDpresent)
     error("missing concept");
-  else if (concept != SENTINEL && !IDpresent)
+  else if (cncpt != SENTINEL && !IDpresent)
     error("superfluous concept");
   if (pivot == SENTINEL && PVTpresent)
     error("missing pivot");
@@ -1159,7 +1160,7 @@ bool is_float (const string &s) {
 void chunkline (const vector<string> &chunk) {
   linecount++;
   if (IDpresent)
-    cout << chunk[concept];
+    cout << chunk[cncpt];
   if (PVTpresent)
     pvtfile << chunk[pivot] << endl;
   int mypos;

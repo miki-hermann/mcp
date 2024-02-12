@@ -30,7 +30,9 @@ BIN = ../bin
 CXX_VERSION := -std=c++20
 # CXX_VERSION :=
 FLAGS := $(CXX_VERSION) -O4 -march=native -flto -fopenmp
-CXX   := g++ $(FLAGS)
+MINIMAL_FLAGS := -O4
+GXX   := g++
+CXX   := $(GXX) $(FLAGS)
 
 .PHONY: compile compile-no-mpi seq mpi pthread hybrid trans guess cnf csv split check sparse predict chk2tst uniq export clean scratch
 
@@ -156,7 +158,7 @@ mcp-matrix+formula-trans.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
 guess: $(BIN)/mcp-guess
 
 $(BIN)/mcp-guess: mcp-guess.cpp
-	$(CXX) -o $(BIN)/mcp-guess mcp-guess.cpp
+	$(GXX) $(MINIMAL_FLAGS) -o $(BIN)/mcp-guess mcp-guess.cpp
 
 #---------------------------------------------------------------------------------------------------
 

@@ -1,0 +1,17 @@
+Area             =  0: dj 10 20420 254617;		# card 12011
+Perimeter        =  1: dj 10 524.736 1985.371;		# card 13416
+MajorAxisLengt   =  2: dj 10 183.5 738.9;		# card 13543
+MinorAxisLength  =  3: dj 10 122.5 460.2;		# card 13543
+AspectRation     =  4: dj 10 1.024 2.4305;		# card 13543
+Eccentricity     =  5: dj 10 0.21895 0.9115;		# card 13543
+ConvexArea       =  6: dj 10 20684 263262;		# card 12066
+EquivDiameter    =  7: dj 10 161.243 569.375;		# card 12011
+Extent           =  8: dj 10 0.555 0.8662;		# card 13535
+Solidity         =  9: dj 10 0.919 0.995;		# card 13526
+Roundness        = 10: dj 10 0.4895 0.991;		# card 13543
+Compactness      = 11: dj 10 0.64 0.98741;		# card 13543
+ShapeFactor1     = 12: dj 10 0.002778 0.010452;		# card 13543
+ShapeFactor2     = 13: dj 10 0.000564169 0.003665;	# card 13543
+ShapeFactor3     = 14: dj 10 0.410 0.975;		# card 13543
+ShapeFactor4     = 15: dj 10 0.9476 0.9998;		# card 13543
+Class            = 16: concept;				# card 7

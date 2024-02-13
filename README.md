@@ -105,6 +105,7 @@ to be treated by the MCP system. These examples are
  - **balance-scale**           (identifying psychological experiments balancing a scale),
  - **balloons**                (a toy example, where specific formulas are required to be produced),
  - **banknote**		       (recognizing genuine and forged banknotes),
+ - **bean**		       (identifying grains of 7 different dry beans),
  - **breast-cancer-wisconsin** (identifying benign and malignant breast cancer cases in Wisconsin),
  - **car**                     (identifying very good cars),
  - **divorce**		       (divorce prediction),
@@ -114,6 +115,7 @@ to be treated by the MCP system. These examples are
  - **mushroom**                (identifying edible and poisonous mushrooms),
  - **nursery**		       (evaluation of applications for nursery schools),
  - **optdigits**	       (optical recognition of handwritten digits),
+ - **rice**		       (identifying two rice varieties: cammeo and osmancik),
  - **shuttle**		       (shuttle example),
  - **vote**                    (identifying democrats and republicans in the House of
                                 Representatives according to the 1984 US Congressional Voting Records).

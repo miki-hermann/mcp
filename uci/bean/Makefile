@@ -44,7 +44,7 @@ bean.lrn: bean.unq
 bean.unq: bean.mat
 	mcp-uniq    -i bean.mat
 
-bean.mat: bean.data bean.txt
+bean.mat: bean.data bean-3sigma.data bean-2sigma.data bean.txt
 	mcp-trans   -i bean.data -m bean.txt
 
 guess: bean.data

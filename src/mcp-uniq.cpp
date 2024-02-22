@@ -14,7 +14,7 @@
  *	Version: all                                                      *
  *      File:    mcp-uniq.cpp                                             *
  *                                                                        *
- *      Copyright (c) 2019 - 2023                                         *
+ *      Copyright (c) 2019 - 2024                                         *
  *                                                                        *
  *  Takes a matrix and deletes rows with same values but different        *
  *  leading group identifier. Technical support ofter mcp-trans.          *

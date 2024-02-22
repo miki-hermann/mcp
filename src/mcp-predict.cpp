@@ -14,7 +14,7 @@
  *	Version: all                                                      *
  *      File:    mcp-predict.cpp                                          *
  *                                                                        *
- *      Copyright (c) 2019 - 2023                                         *
+ *      Copyright (c) 2019 - 2024                                         *
  *                                                                        *
  *  Takes a testing file and optionally a pivot file, produces the        *
  *  prediction. Similar to mcp-check. The difference is that              *

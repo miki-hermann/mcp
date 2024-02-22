@@ -14,7 +14,7 @@
  *	Version: parallel with POSIX threads and hybrid interior          *
  *      File:    mcp-posix.cpp                                            *
  *                                                                        *
- *      Copyright (c) 2019 - 2023                                         *
+ *      Copyright (c) 2019 - 2024                                         *
  *                                                                        *
  * Given several  Boolean matrices  representing the  presence/absence of *
  * attributes in  observations, this software generates  Horn, dual Horn, *

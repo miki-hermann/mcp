@@ -14,7 +14,7 @@
  *	Version: all                                                      *
  *      File:    mcp-matrix+formula.hpp                                   *
  *                                                                        *
- *      Copyright (c) 2019 - 2023                                         *
+ *      Copyright (c) 2019 - 2024                                         *
  *                                                                        *
  * Data structures for row, matrices, literals, clauses, and formula.     *
  *                                                                        *

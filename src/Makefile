@@ -14,7 +14,7 @@
 ##*	Version: all                                                       *
 ##*     File:    src/Makefile                                              *
 ##*                                                                        *
-##*      Copyright (c) 2019 - 2023                                         *
+##*      Copyright (c) 2019 - 2024                                         *
 ##*                                                                        *
 ##* Given several  Boolean matrices  representing the  presence/absence of *
 ##* attributes in  observations, this software generates  Horn, dual Horn, *

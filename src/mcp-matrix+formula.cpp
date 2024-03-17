@@ -26,6 +26,7 @@
 #include <iostream>
 // #include <sstream>
 #include <vector>
+#include <string>
 #include <algorithm>
 #include "mcp-matrix+formula.hpp"
 
@@ -84,7 +85,7 @@ vector<string> split (string strg, string delimiters) {
   // splits a string into chunks separated by delimiters (split in perl)
   vector<string> chunks;
 
-  for (int i = 0; i < strg.length(); ++i)
+  for (int i = 0; i < strg.length()-1; ++i)
     if (! isprint(strg[i])) {
       cerr << "+++ string on input has a non-printable character on position "
 	   << i

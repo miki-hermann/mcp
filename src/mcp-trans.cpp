@@ -76,6 +76,8 @@ enum Token {
   NUM,
   FLOAT,
   SCIENTIFIC,
+  MININF,		// minimum infinity = CARET
+  MAXINF,		// maximum infinity = DOLLAR
   // reserved words
   CONCEPT,
   PIVOT,
@@ -89,6 +91,7 @@ enum Token {
   SPAN,
   WARP,
   CHECKPOINTS,
+  // not implemented yet
   STEP,
   DATE,
   DNUM,
@@ -185,6 +188,8 @@ const unordered_map<Token,string> token_string = {
   {NUM,		"NUM"},
   {FLOAT,	"FLOAT"},
   {SCIENTIFIC,	"SCIENTIFIC"},
+  {MININF,	"MININF"},
+  {MAXINF,	"MAXINF"},
   // reserved words
   {CONCEPT,	"CONCEPT"},
   {PIVOT,	"PIVOT"},
@@ -260,14 +265,16 @@ vector<vector<string>> robust_vect;	// all values appearing in coordinates
 enum Drop {NODROP = 0, DROP = 1, SILENT = 2};
 Drop drop       = NODROP;
 
-string input    = STDIN;
-string output   = STDOUT;
-string metaput  = "";
-string pivotput = "";
+string input     = STDIN;
+string output    = STDOUT;
+string metaput   = "";
+string headerput = "";
+string pivotput  = "";
 
 ifstream infile;
 ifstream metafile;
 ofstream outfile;
+ofstream headerfile;
 ofstream pvtfile;
 streambuf *backup;
 
@@ -300,6 +307,9 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
     } else if (arg == "-m"
 	       || arg == "--meta") {
       metaput = argv[++argument];
+    } else if (arg == "-hdr"
+	       || arg == "--header") {
+      headerput = argv[++argument];
     } else if (arg == "-r"
 	       || arg == "--robust") {
       string rpar = argv[++argument];
@@ -382,6 +392,12 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
     string::size_type pos = input.rfind('.');
     output = (pos == string::npos ? input : input.substr(0, pos)) + ".mat";
   }
+  
+  if (input != STDIN && headerput.empty()) {
+    string::size_type pos = input.rfind('.');
+    headerput = (pos == string::npos ? input : input.substr(0, pos)) + ".hdr";
+  }
+  
   if (metaput.empty()) {
     cerr << "+++ argument error: no metafile" << endl;
     exit(1);
@@ -933,13 +949,24 @@ void IO_open () {
     }
   }
   
-  if (output != STDOUT) {
-    outfile.open(output);
-    if (outfile.is_open()) {
+  // if (output != STDOUT) {
+  //   outfile.open(output);
+  //   if (outfile.is_open()) {
+  //     // backup = cout.rdbuf();
+  //     cout.rdbuf(outfile.rdbuf());
+  //   } else {
+  //     cerr << "+++ Cannot open output file " << output << endl;
+  //     exit(1);
+  //   }
+  // }
+
+  if (! headerput.empty()) {
+    headerfile.open(headerput);
+    if (headerfile.is_open()) {
       backup = cout.rdbuf();
-      cout.rdbuf(outfile.rdbuf());
+      cout.rdbuf(headerfile.rdbuf());
     } else {
-      cerr << "+++ Cannot open output file " << output << endl;
+      cerr << "+++ Cannot open header file " << headerput << endl;
       exit(1);
     }
   }
@@ -949,6 +976,22 @@ void IO_open () {
     PVTpresent = true;
     if (! pvtfile.is_open()) {
       cerr << "+++ Cannot open pivot file " << pivotput << endl;
+      exit(1);
+    }
+  }
+}
+
+void header2matrix () {
+  headerfile.close();
+  cout.rdbuf(backup);
+  
+  if (output != STDOUT) {
+    outfile.open(output);
+    if (outfile.is_open()) {
+      backup = cout.rdbuf();
+      cout.rdbuf(outfile.rdbuf());
+    } else {
+      cerr << "+++ Cannot open output file " << output << endl;
       exit(1);
     }
   }
@@ -966,7 +1009,9 @@ void IO_close () {
 }
 
 void header () {
-  cout << "1 0" << endl;
+  // we abandon the first line indication
+  // create two files instead: *.hdr for header and *.mat for matrix
+  // cout << "1 0" << endl;
   int item_length;
   int varnum = 0;
 
@@ -1130,11 +1175,12 @@ void header () {
 	exit(1);
       }
 
-      cout << " ";
+      // cout << " ";
+      cout << endl;
     }
     varnum += item_length;
   }
-  cout << endl;
+  // cout << endl;
 }
 
 bool is_int (const string &s) {
@@ -1588,9 +1634,14 @@ int main(int argc, char **argv)
 	 << input << endl;
   IO_open();
   header();
+  header2matrix();
   matrix();
   IO_close();
   if (errorflag) {
+    if (!headerput.empty()) {
+      remove(headerput.c_str());
+      cerr << "+++ header file " << headerput << " deleted" << endl;
+    }
     if (output != STDOUT) {
       remove(output.c_str());
       cerr << "+++ output file " << output << " deleted" << endl;
@@ -1601,8 +1652,10 @@ int main(int argc, char **argv)
     }
     cerr << "+++ runtime errors in data file " << input << endl;
   } else {
-    if (output != STDOUT)
+    if (output != STDOUT) {
+      cerr << "+++ header file " << headerput << " generated" << endl;
       cerr << "+++ output file " << output << " generated" << endl;
+    }
     if (PVTpresent)
       cerr << "+++ pivot file " << pivotput << " generated" << endl;
     cerr << "+++ transformation successful" << endl;

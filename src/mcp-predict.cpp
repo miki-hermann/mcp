@@ -42,8 +42,10 @@ const string test_group = "test_group";
 
 string input  = STDIN;
 string output = STDOUT;
+string headerput = "";
 string formula_prefix;
 ifstream infile;
+ifstream headerfile;
 ofstream outfile;
 string pivot_file = "";
 string predict = "";
@@ -65,6 +67,9 @@ void read_args(int argc, char *argv[]) {	// reads the input parameters
     } else if (arg == "--output"
     	       || arg == "-o") {
       output = argv[++argument];
+    } else if (arg == "-hdr"
+	       || arg == "--header") {
+      headerput = argv[++argument];
     } else if (arg == "--pivot"
 	       || arg == "--pvt") {
       pivot_file = argv[++argument];
@@ -132,10 +137,15 @@ void adjust_and_open () {
     exit(2);
   }
 
-  // if (input != STDIN && output == STDOUT) {
-  //   string::size_type pos = input.rfind('.');
-  //   output = (pos == string::npos ? input : input.substr(0, pos)) + ".pdt";
-  // }
+  if (input != STDIN && headerput.empty()) {
+    string::size_type pos = input.rfind('.');
+    headerput = (pos == string::npos ? input : input.substr(0, pos)) + ".hdr";
+  }
+
+  if (input != STDIN && output == STDOUT) {
+    string::size_type pos = input.rfind('.');
+    output = (pos == string::npos ? input : input.substr(0, pos)) + ".pdt";
+  }
 
   if (input != STDIN && predict.empty()) {
     string::size_type pos = input.rfind('.');
@@ -161,6 +171,7 @@ void print_arg () {
   cout << "@@@ ===========" << endl;
   cout << "@@@ version       = " << version << endl;
   cout << "@@@ input         = " << input << endl;
+  cout << "@@@ header        = " << headerput << endl;
   cout << "@@@ output        = " << output << endl;
   cout << "@@@ pivot         = " << (pivot_file.empty() ? "none" : pivot_file) << endl;
   cout << "@@@ prediction    = " << (predict.empty() ? "none" : predict) << endl;
@@ -242,6 +253,34 @@ void get_formulas () {
   cout << endl;
 }
 
+void read_header () {
+  streambuf *backup;
+
+  if (headerput.empty())
+    varswitch = false;
+  else {
+    headerfile.open(headerput);
+    if (headerfile.is_open()) {
+      backup = cin.rdbuf();
+      cin.rdbuf(headerfile.rdbuf());
+    } else {
+      cerr << "+++ Cannot open header file " << headerput << endl;
+      exit(2);
+    }
+
+    cout << "+++ Own names for variables" << endl;
+    varswitch = true;
+
+    string line;
+    while(getline(cin, line))
+      varnames.push_back(line);
+    // arity = varnames.size();
+
+    headerfile.close();
+    cin.rdbuf(backup);
+  }
+}
+
 void read_matrix (Group_of_Matrix &matrix) {
   streambuf *backup;
   if (input != STDIN) {
@@ -258,26 +297,27 @@ void read_matrix (Group_of_Matrix &matrix) {
   // matrix read instructions
   // maybe to be changed and replaced with the one in mcp-seq
   // reads the input matrices
-  int ind_a, ind_b;
   string line;
 
-  getline(cin, line);
-  istringstream inds(line);
-  inds >> ind_a >> ind_b;
-  cout << "+++ Indication line: " << ind_a << " " << ind_b << endl;
+  // indication line abandoned and header reading moved to read_header
+  // int ind_a, ind_b;
+  // getline(cin, line);
+  // istringstream inds(line);
+  // inds >> ind_a >> ind_b;
+  // cout << "+++ Indication line: " << ind_a << " " << ind_b << endl;
 
-  if (ind_a == 1) {
-    cout << "+++ Own names for variables" << endl;
-    varswitch = true;
+  // if (ind_a == 1) {
+  //   cout << "+++ Own names for variables" << endl;
+  //   varswitch = true;
 
-    getline(cin, line);
-    istringstream vars(line);
-    string vname;
-    while (vars >> vname)
-      varnames.push_back(vname);
-  }
-  if (ind_b == 1)
-    getline(cin, line);
+  //   getline(cin, line);
+  //   istringstream vars(line);
+  //   string vname;
+  //   while (vars >> vname)
+  //     varnames.push_back(vname);
+  // }
+  // if (ind_b == 1)
+  //   getline(cin, line);
 
   // string group;		// there will be no groups here
   int numline = 0;
@@ -409,6 +449,7 @@ int main(int argc, char **argv)
   adjust_and_open();
   print_arg();
   get_formulas();
+  read_header();
   read_matrix(group_of_matrix);
   print_matrix(group_of_matrix[test_group]);
   get_pivot(group_of_matrix[test_group]);

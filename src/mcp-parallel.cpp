@@ -44,14 +44,19 @@ void adjust () {				// adjust input parameters
   if (!tpath.empty() && tpath[tpath.size()-1] != '/')
     tpath += '/';
 
-  if (input != STDIN) {
-    infile.open(input);
-    if (infile.is_open())
-      cin.rdbuf(infile.rdbuf());
-    else {
-      cerr << "+++ Cannot open input file " << input << endl;
-      exit(2);
-    }
+  // if (input != STDIN) {
+  //   infile.open(input);
+  //   if (infile.is_open())
+  //     cin.rdbuf(infile.rdbuf());
+  //   else {
+  //     cerr << "+++ Cannot open input file " << input << endl;
+  //     exit(2);
+  //   }
+  // }
+
+  if (input != STDIN && headerput.empty()) {
+    string::size_type pos = input.rfind('.');
+    headerput = (pos == string::npos ? input : input.substr(0, pos)) + ".hdr";
   }
 
   if (output == STDOUT) {
@@ -99,6 +104,7 @@ void print_arg () {
   outfile << "@@@ ===========" << endl;
   outfile << "@@@ version       = " << version << endl;
   outfile << "@@@ input         = " << input << endl;
+  outfile << "@@@ header        = " << headerput << endl;
   outfile << "@@@ output        = " << output << endl;
   outfile << "@@@ latex output  = "
 	  << (latex.length() > 0 ? latex : "no")
@@ -241,29 +247,68 @@ void clustering(Matrix &batch) {
   varswitch = false;
 }
 
-void read_matrix (Group_of_Matrix &matrix) {
-  // reads the input matrices
-  int ind_a, ind_b;
-  string line;
+void read_header () {
+  streambuf *backup;
+  
+  if (headerput.empty())
+    varswitch = false;
+  else {
+    headerfile.open(headerput);
+    if (headerfile.is_open()) {
+      backup = cin.rdbuf();
+      cin.rdbuf(headerfile.rdbuf());
+    } else {
+      cerr << "+++ Cannot open header file " << headerput << endl;
+      exit(2);
+    }
 
-  getline(cin, line);
-  istringstream inds(line);
-  inds >> ind_a >> ind_b;
-  outfile << "+++ Indication line: " << ind_a << " " << ind_b << endl;
-
-  if (ind_a == 1) {
     outfile << "+++ Own names for variables" << endl;
     varswitch = true;
 
-    getline(cin, line);
-    istringstream vars(line);
-    string vname;
-    while (vars >> vname)
-      varnames.push_back(vname);
+    string line;
+    while(getline(cin, line))
+      varnames.push_back(line);
     arity = varnames.size();
+
+    headerfile.close();
+    cin.rdbuf(backup);
   }
-  if (ind_b == 1)
-    getline(cin, line);
+}
+
+void read_matrix (Group_of_Matrix &matrix) {
+  // reads the input matrices
+  string line;
+
+  // moved to read_header and changed to eliminate indicator line
+  // int ind_a, ind_b;
+  // getline(cin, line);
+  // istringstream inds(line);
+  // inds >> ind_a >> ind_b;
+  // outfile << "+++ Indication line: " << ind_a << " " << ind_b << endl;
+
+  // if (ind_a == 1) {
+  //   outfile << "+++ Own names for variables" << endl;
+  //   varswitch = true;
+
+  //   getline(cin, line);
+  //   istringstream vars(line);
+  //   string vname;
+  //   while (vars >> vname)
+  //     varnames.push_back(vname);
+  //   arity = varnames.size();
+  // }
+  // if (ind_b == 1)
+  //   getline(cin, line);
+
+  if (input != STDIN) {
+    infile.open(input);
+    if (infile.is_open())
+      cin.rdbuf(infile.rdbuf());
+    else {
+      cerr << "+++ Cannot open input file " << input << endl;
+      exit(2);
+    }
+  }
 
   vector<string> gqueue;	// queue of group leading indicators
   Matrix batch;		// stored tuples which will be clustered

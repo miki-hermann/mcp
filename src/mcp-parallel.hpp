@@ -36,6 +36,7 @@ using namespace std;
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void adjust ();
+void read_header ();
 void print_arg ();
 Formula learnHornLarge (ofstream &process_outfile,
 			const Matrix &T, const Matrix &F);

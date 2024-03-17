@@ -1,8 +1,14 @@
+1.04f
+ - input gets rid of non-printable characters at the end of the string without warning
+ - indication line "1 0" abandoned
+ - output of mcp-trans split into header file *.hdr and matrix file *.mat
+
 1.04e
  - ObsGeq computes a (pointer to) row directly
  - isect_nonempty shortened
  - more professional Makefile
  - added mcp-mat2csv
+ - concept -> cncpt in mcp-trans.cpp (concept is a keyword in c++20)
 
 1.04d
  - ident -> concept

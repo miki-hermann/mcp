@@ -95,19 +95,20 @@ void matrix2tst () {
   int ind_a, ind_b;
   string line;
 
-  getline(cin, line);
-  istringstream inds(line);
-  inds >> ind_a >> ind_b;
-  cout << ind_a << " " << ind_b << endl;
+  // indication line abandoned
+  // getline(cin, line);
+  // istringstream inds(line);
+  // inds >> ind_a >> ind_b;
+  // cout << ind_a << " " << ind_b << endl;
 
-  if (ind_a == 1) {
-    getline(cin, line);
-    cout << line << endl;
-  }
-  if (ind_b == 1) {
-    getline(cin, line);
-    cout << line << endl;
-  }
+  // if (ind_a == 1) {
+  //   getline(cin, line);
+  //   cout << line << endl;
+  // }
+  // if (ind_b == 1) {
+  //   getline(cin, line);
+  //   cout << line << endl;
+  // }
 
   long nrows = 0;
   string group;

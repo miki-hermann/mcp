@@ -111,23 +111,23 @@ void IO_close () {
     outfile.close();
 }
 
-void header () {
-  int ind_a, ind_b;
-  string line;
+// void header () {
+//   int ind_a, ind_b;
+//   string line;
 
-  getline(cin, line);
-  istringstream inds(line);
-  inds >> ind_a >> ind_b;
-  cout << ind_a << " " << ind_b << endl;
-  if (ind_a == 1) {
-    getline(cin, line);
-    cout << line << endl;
-  }
-  if (ind_b == 1) {
-    getline(cin, line);
-    cout << line << endl;
-  }
-}
+//   getline(cin, line);
+//   istringstream inds(line);
+//   inds >> ind_a >> ind_b;
+//   cout << ind_a << " " << ind_b << endl;
+//   if (ind_a == 1) {
+//     getline(cin, line);
+//     cout << line << endl;
+//   }
+//   if (ind_b == 1) {
+//     getline(cin, line);
+//     cout << line << endl;
+//   }
+// }
 
 void matrix () {
   string line;
@@ -208,7 +208,7 @@ int main(int argc, char **argv)
 {
   read_args(argc, argv);
   IO_open();
-  header();
+  // header();
   matrix();
   IO_close();
 }

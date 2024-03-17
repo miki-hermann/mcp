@@ -66,6 +66,7 @@ Strategy strategy   = sLARGE;
 // Display display     = yUNDEF;
 string input        = STDIN;
 string output       = STDOUT;
+string headerput    = "";
 bool disjoint       = true;
 // int arity           = 0;
 int cluster         = SENTINEL;
@@ -76,6 +77,7 @@ unsigned chunkLIMIT      = 4096;	// heavily hardware dependent; must be optimize
 string latex        = "";		// file to store latex output
 
 ifstream infile;
+ifstream headerfile;
 ofstream outfile;
 ofstream latexfile;
 string formula_output;			// prefix of files, where formulas will be stored
@@ -282,6 +284,9 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
     } else if (arg == "--output"
 	       || arg == "-o") {
       output = argv[++argument];
+    } else if (arg == "-hdr"
+	       || arg == "--header") {
+      headerput = argv[++argument];
     } else if (arg == "--formula"
 	       || arg == "--logic"
 	       || arg == "-l") {

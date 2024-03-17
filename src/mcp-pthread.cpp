@@ -92,6 +92,7 @@ int main(int argc, char **argv)
   read_arg(argc, argv);
   adjust();
   print_arg();
+  read_header();
   read_matrix(group_of_matrix);
   print_matrix(group_of_matrix);
 

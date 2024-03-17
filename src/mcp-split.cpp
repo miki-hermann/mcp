@@ -123,22 +123,22 @@ void read_input (vector<string> &matlines) {
   int ind_a, ind_b;
   string line;
 
-  getline(cin, line);
-  learnfile << line << endl;
-  checkfile << line << endl;
-  istringstream inds(line);
-  inds >> ind_a >> ind_b;
+  // getline(cin, line);
+  // learnfile << line << endl;
+  // checkfile << line << endl;
+  // istringstream inds(line);
+  // inds >> ind_a >> ind_b;
 
-  if (ind_a == 1) {
-    getline(cin, line); 
-    learnfile << line << endl;
-    checkfile << line << endl;
-  }
-  if (ind_b == 1) {
-    getline(cin, line); 
-    learnfile << line << endl;
-    checkfile << line << endl;
-  }
+  // if (ind_a == 1) {
+  //   getline(cin, line); 
+  //   learnfile << line << endl;
+  //   checkfile << line << endl;
+  // }
+  // if (ind_b == 1) {
+  //   getline(cin, line); 
+  //   learnfile << line << endl;
+  //   checkfile << line << endl;
+  // }
 
   while (getline(cin, line))
     matlines.push_back(line);

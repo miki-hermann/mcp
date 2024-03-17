@@ -14,7 +14,7 @@ guess:
 	mcp-guess   -i mushroom.data -n mushroom.names -o dummy.txt
 
 clean:
-	rm -f *.mat *.unq *.out *.lrn *.chk *.log *.tst *.pvt *.pdx *.pdt
+	rm -f *.mat *.hdr *.unq *.out *.lrn *.chk *.log *.tst *.pvt *.pdx *.pdt
 
 scratch: clean
 	rm -f *~

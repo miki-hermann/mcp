@@ -33,7 +33,7 @@ csv: rice.mat
 	mcp-mat2csv < rice.mat > rice.csv
 
 clean:
-	rm -f *.mat *.unq *.out *.lrn *.chk *.log *.tst *.pvt *.pdx *.pdt *.csv
+	rm -f *.mat *.hdr *.unq *.out *.lrn *.chk *.log *.tst *.pvt *.pdx *.pdt *.csv
 
 scratch: clean
 	rm -f *~

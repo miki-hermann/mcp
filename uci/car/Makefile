@@ -13,7 +13,7 @@ guess:
 	mcp-guess   -i car.data -n car.names -o dummy.txt
 
 clean:
-	rm -f *.mat *.unq *.out *.lrn *.chk *.log
+	rm -f *.mat *.hdr *.unq *.out *.lrn *.chk *.log
 
 scratch: clean
 	rm -f *~

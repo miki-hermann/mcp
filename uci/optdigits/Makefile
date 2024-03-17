@@ -22,7 +22,7 @@ uniq:
 	mcp-uniq    -i optdigits-cv.mat
 
 clean:
-	rm -f *.mat *.unq *.out *.log *.tst *.pvt *.pdx *.pdt
+	rm -f *.mat *.hdr *.unq *.out *.log *.tst *.pvt *.pdx *.pdt
 
 scratch: clean
 	rm -f *~

@@ -16,7 +16,7 @@ guess:
 	mcp-guess      -i accent.csv -n accent.names -o dummy.txt
 
 clean:
-	rm -f *.mat *.unq *.out *.lrn *.chk *.log
+	rm -f *.mat *.hdr *.unq *.out *.lrn *.chk *.log
 
 scratch: clean
 	rm -f *~

@@ -25,7 +25,7 @@ guess:
 	mcp-guess -i y-s+a-s.data -n balloons.names -o dummy-y-s+a-s.txt
 
 clean:
-	rm -f *.mat *.out *.lrn *.chk *.log
+	rm -f *.mat *.hdr *.out *.lrn *.chk *.log
 
 scratch: clean
 	rm -f *~

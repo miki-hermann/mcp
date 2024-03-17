@@ -27,7 +27,7 @@ horn: ba.lrn
 .PHONY: clean scratch
 
 clean:
-	rm -f *.mat *.unq *.out *.lrn *.chk *.log *.tst *.pvt *.pdx *.pdt
+	rm -f *.mat *.hdr *.unq *.out *.lrn *.chk *.log *.tst *.pvt *.pdx *.pdt
 
 scratch: clean
 	rm -f *~

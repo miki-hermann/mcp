@@ -11,7 +11,7 @@ all:
 .PHONY: clean scratch
 
 clean:
-	rm -f *.mat *.out *.lrn *.chk *.log
+	rm -f *.mat *.hdr *.out *.lrn *.chk *.log
 
 scratch: clean
 	rm -f *~

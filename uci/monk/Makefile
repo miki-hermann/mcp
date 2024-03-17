@@ -25,7 +25,7 @@ guess:
 	mcp-guess   -i old-monks-1.train -n old-monks.names -o dummy-old.txt
 
 clean:
-	rm -f *.mat *.out *.lrn *.chk *.log
+	rm -f *.mat *.hdr *.out *.lrn *.chk *.log
 
 scratch: clean
 	rm -f *~

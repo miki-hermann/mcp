@@ -14,7 +14,7 @@ guess:
 	mcp-guess -i bcw.data -n bcw.names -o dummy.txt
 
 clean:
-	rm -f *.mat *.unq *.out *.lrn *.chk *.log
+	rm -f *.mat *.hdr *.unq *.out *.lrn *.chk *.log
 
 scratch: clean
 	rm -f *~

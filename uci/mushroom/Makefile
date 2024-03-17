@@ -1,20 +1,36 @@
-all:
-	mcp-trans   -i mushroom.data -m mushroom.txt --robust yes
-	mcp-uniq    -i mushroom.mat
-	mcp-split   -i mushroom.unq  --ratio 20
+.PHONY: all horn guess csv clean scratch
+
+all: mushroom.lrn mushroom.chk mushroom.hdr
 	mcp-seq     -i mushroom.lrn  -o mushroom.out           --formula mushroom --closure cnf
 	mcp-check   -i mushroom.chk  -l mushroom_edible.log    -o mushroom_edible.out --print clause
 	mcp-check   -i mushroom.chk  -l mushroom_poisonous.log -o mushroom_poisonous.out --print clause
 	mcp-chk2tst -i mushroom.chk
 	mcp-predict -i mushroom.tst -l mushroom -o mushroom.pdt
 
-.PHONY: guess clean scratch
+horn:  mushroom.lrn mushroom.hdr
+	mpirun mcp-mpi -i mushroom.lrn  -o mushroom.out           --formula mushroom # --closure cnf
+	mcp-check   -i mushroom.chk  -l mushroom_edible.log    -o mushroom_edible.out # --print clause
+	mcp-check   -i mushroom.chk  -l mushroom_poisonous.log -o mushroom_poisonous.out # --print clause
+	mcp-chk2tst -i mushroom.chk
+	mcp-predict -i mushroom.tst -l mushroom -o mushroom.pdt
 
-guess:
+mushroom.lrn: mushroom.unq
+	mcp-split   -i mushroom.unq  --ratio 20
+
+mushroom.unq: mushroom.mat
+	mcp-uniq    -i mushroom.mat
+
+mushroom.mat: mushroom.data mushroom.txt
+	mcp-trans   -i mushroom.data -m mushroom.txt --robust yes
+
+guess: mushroom.data mushroom.names
 	mcp-guess   -i mushroom.data -n mushroom.names -o dummy.txt
 
+csv: mushroom.mat
+	mcp-mat2csv < mushroom.mat > mushroom.csv
+
 clean:
-	rm -f *.mat *.hdr *.unq *.out *.lrn *.chk *.log *.tst *.pvt *.pdx *.pdt
+	rm -f *.hdr *.mat *.unq *.out *.lrn *.chk *.log *.tst *.pvt *.pdx *.pdt *.csv
 
 scratch: clean
 	rm -f *~

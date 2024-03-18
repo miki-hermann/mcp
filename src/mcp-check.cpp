@@ -197,8 +197,10 @@ void read_header () {
       backup = cin.rdbuf();
       cin.rdbuf(headerfile.rdbuf());
     } else {
-      cerr << "+++ Cannot open header file " << headerput << endl;
-      exit(2);
+      cerr << "+++ Cannot open header file " << headerput << endl
+	   << "... Continue with fake variable names" << endl;
+      varswitch = false;
+      return;
     }
 
     cout << "+++ Own names for variables" << endl;

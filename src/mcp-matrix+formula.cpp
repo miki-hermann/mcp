@@ -85,17 +85,18 @@ vector<string> split (string strg, string delimiters) {
   // splits a string into chunks separated by delimiters (split in perl)
   vector<string> chunks;
 
-  for (int i = 0; i < strg.length()-1; ++i)
+  // get rid of non-printable characters at the end of the string without warning
+  // because Linux, Windows, and MacOS all terminate the string differently
+  while (! strg.empty() && ! isprint(strg.back()))
+  // while (! strg.empty() && strg.back() == '\r')
+    strg.pop_back();
+  for (int i = 0; i < strg.length(); ++i)
     if (! isprint(strg[i])) {
       cerr << "+++ string on input has a non-printable character on position "
 	   << i
 	   << endl;
       exit(2);
     }
-  // get rid of non-printable characters at the end of the string without warning
-  // because Linux, Windows, and MacOS all terminate the string differently
-  while (! strg.empty() && ! isprint(strg.back()))
-    strg.pop_back();
 
   while (!strg.empty()) {
     size_t found = strg.find_first_not_of(delimiters);

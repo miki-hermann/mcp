@@ -87,9 +87,20 @@ vector<string> split (string strg, string delimiters) {
 
   // get rid of non-printable characters at the end of the string without warning
   // because Linux, Windows, and MacOS all terminate the string differently
-  while (! strg.empty() && ! isprint(strg.back()))
-  // while (! strg.empty() && strg.back() == '\r')
-    strg.pop_back();
+  // doing it the hard way
+  if (! strg.empty()) {
+    size_t i = strg.length()-1;
+    while (i >= 0 && ! isprint(strg[i]))
+      i--;
+    if (i < 0)
+      strg.clear();
+    else
+      strg = strg.substr(0, i+1);
+  }
+  // the following code does not work 
+  // while (! strg.empty() && ! isprint(strg.back()))
+  // // while (! strg.empty() && strg.back() == '\r')
+  //   strg.pop_back();
   for (int i = 0; i < strg.length(); ++i)
     if (! isprint(strg[i])) {
       cerr << "+++ string on input has a non-printable character on position "

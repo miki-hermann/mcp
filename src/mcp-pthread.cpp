@@ -29,6 +29,7 @@
 #include <iostream>
 #include <fstream>
 #include <thread>
+#include <chrono>
 // #include <mutex>
 #include "mcp-matrix+formula.hpp"
 #include "mcp-common.hpp"
@@ -84,8 +85,6 @@ void thread_split (ofstream thread_outfile[], ofstream thread_latexfile[],
 
 int main(int argc, char **argv)
 {
-  time_t start_time = time(nullptr);
-
   version += arch_strg[arch];;
   set_terminate(crash);
 
@@ -105,9 +104,13 @@ int main(int argc, char **argv)
 
   vector<thread> threads;
   const string temp_prefix = tpath + "mcp-tmp-";
+  time_t start_time = time(nullptr);
   const string basename = temp_prefix + to_string(start_time);
   ofstream *thread_outfile   = new ofstream[grps.size()];
   ofstream *thread_latexfile = new ofstream[grps.size()];
+
+  // start clock
+  auto clock_start = chrono::high_resolution_clock::now();
 
   for (int rank = 0; rank < grps.size(); ++rank)
     threads.push_back(thread(thread_split, thread_outfile, thread_latexfile, basename, rank));
@@ -143,9 +146,13 @@ int main(int argc, char **argv)
     }
   }
 
-  time_t finish_time = time(nullptr);
+  // stop the clock
+  auto clock_stop = chrono::high_resolution_clock::now();
+  auto duration = chrono::duration_cast<chrono::milliseconds>(clock_stop - clock_start);
+  size_t dtime = duration.count();
+  
   outfile << "+++ time = "
-	  << time2string(difftime(finish_time, start_time))
+	  << time2string(dtime)
 	  << endl;
   
   outfile << "+++ end of run +++" << endl;

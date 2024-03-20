@@ -140,6 +140,6 @@ void write_formula (const string &suffix,
 		    const vector<int> &names, const Formula &formula);
 Matrix polswap_matrix (const Matrix &A);
 Formula polswap_formula (const Formula &formula);
-string time2string (int seconds);
+string time2string (size_t milliseconds);
 
 //==================================================================================================

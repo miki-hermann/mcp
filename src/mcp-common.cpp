@@ -1540,28 +1540,28 @@ Formula polswap_formula (const Formula &formula) {
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-string time2string (int seconds) {
-  enum TimeUnit {second = 0, minute = 1, hour = 2, day = 3};
-  const string tu_name[] = {" second(s) ", " minute(s) ", " hour(s) ", " day(s) "};
-  const int timevalue[] = {60, 60, 24};
+string time2string (size_t mlseconds) {
+  enum TimeUnit {mlsec = 0, sec = 1, min = 2, hour = 3, day = 4};
+  const string tu_name[] = {" millisecond(s) ", " second(s) ", " minute(s) ", " hour(s) ", " day(s) "};
+  const short timevalue[] = {1000, 60, 60, 24};
 
-  int timeunit[4] = {0, 0, 0, 0};
+  size_t timeunit[5] = {0, 0, 0, 0, 0};
 
-  if (seconds == 0)
-    return "0 seconds";
+  if (mlseconds == 0)
+    return "0 milliseconds";
 
-  for (int t = second; t < day; t++) {
-    timeunit[t] = seconds % timevalue[t];
-    seconds /= timevalue[t];
+  for (size_t t = mlsec; t < day; t++) {
+    timeunit[t] = mlseconds % timevalue[t];
+    mlseconds /= timevalue[t];
   }
-  if (seconds > 0)
-    timeunit[day] = seconds;
+  if (mlseconds > 0)
+    timeunit[day] = mlseconds;
 
   string output;
-  for (int t = day; t >= second; t--) {
+  for (int t = day; t > sec; t--)
     if (timeunit[t] > 0)
       output += to_string(timeunit[t]) + tu_name[t];
-  }
+  output += to_string(timeunit[sec]) + "." + to_string(timeunit[mlsec]) + tu_name[sec];
   return output;
 }
 

@@ -2,8 +2,7 @@
 .TH mcp-split 1 "2021-03-10" "1.04" "MCP System"
 .
 .SH NAME
-mcp-split - splits a file of Boolean vectors prefixed by group
-identifiers into a learning part and checking part
+mcp-split - splits a file of vectors into a learning part and checking part
 .
 .SH SYNOPSIS
 .B mcp-split
@@ -11,8 +10,8 @@ identifiers into a learning part and checking part
 .
 .SH DESCRIPTION
 .PP
-Splits a file with Boolean vectors prefixed by group identifiers,
-which constitute a valid input for the MCP core, into a learning part
+Splits uniformly at random a file with vectors (prefixed by group identifiers,
+which constitute a valid input for the MCP core) into a learning part
 and checking part.
 .
 .SH OPTIONS

@@ -2,6 +2,7 @@
  - input gets rid of non-printable characters at the end of the string without warning
  - indication line "1 0" abandoned
  - output of mcp-trans split into header file *.hdr and matrix file *.mat
+ - use of -inf and [+]inf instead of ^ and $ in checkpoints for mcp-trans
 
 1.04e
  - ObsGeq computes a (pointer to) row directly

@@ -25,9 +25,9 @@ MCP core has four variants:
 The prequel modules are
 
     mcp-guess (for guessing the structure of the input data),
+    mcp-split (for splitting data into a learning and checking part)
     mcp-trans (for binarization of input data), and
     mcp-uniq  (for elimination of doubled data)
-    mcp-split (for splitting binarized data into a learning and checking part)
 
 The sequel modules are
 

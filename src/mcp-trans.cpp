@@ -76,8 +76,6 @@ enum Token {
   NUM,
   FLOAT,
   SCIENTIFIC,
-  MININF,		// minimum infinity = CARET
-  MAXINF,		// maximum infinity = DOLLAR
   // reserved words
   CONCEPT,
   PIVOT,
@@ -91,6 +89,7 @@ enum Token {
   SPAN,
   WARP,
   CHECKPOINTS,
+  INF,			// minimum or maximum infinity
   // not implemented yet
   STEP,
   DATE,
@@ -147,6 +146,8 @@ const unordered_map<string, Token> keywords = {
   {"warp", WARP},
   {"cp", CHECKPOINTS},
   {"checkpoints", CHECKPOINTS},
+  {"inf", INF},
+  {"INF", INF},
   {"step", STEP},
   {"date", DATE},
   {"time", TIME},
@@ -188,8 +189,6 @@ const unordered_map<Token,string> token_string = {
   {NUM,		"NUM"},
   {FLOAT,	"FLOAT"},
   {SCIENTIFIC,	"SCIENTIFIC"},
-  {MININF,	"MININF"},
-  {MAXINF,	"MAXINF"},
   // reserved words
   {CONCEPT,	"CONCEPT"},
   {PIVOT,	"PIVOT"},
@@ -203,6 +202,7 @@ const unordered_map<Token,string> token_string = {
   {SPAN,	"SPAN"},
   {WARP,	"WARP"},
   {CHECKPOINTS,	"CHECKPOINTS"},
+  {INF,         "INF"},
   {STEP,	"STEP"},
   {DATE,	"DATE"},
   {DNUM,	"DNUM"},
@@ -817,13 +817,42 @@ void specification () {
     }
     break;
   case CHECKPOINTS:
+    pred = 1.0 * LLONG_MIN;
+
     token = yylex();
-    if (token == CARET) {
+    if (token == MINUS) {
+      token = yylex();
+      if (token == INF)
+	row_args.push_back(token_string.at(CARET));
+      else if (token == NUM) {
+	size_t x = -1 * stoll(yytext);
+	row_args.push_back(to_string(x));
+	succ = 1.0 * x;
+      } else if (token == FLOAT) {
+	succ = -1 * stold(yytext);
+	row_args.push_back(to_string(succ));
+      } else {
+	error("after - must follow num of float or inf");
+	flush(token_string.at(SCOL), false);
+	return;
+      }
+      if (succ <= pred) {
+	error("consecutive checkpoints must have increasing values");
+	flush(token_string.at(SCOL), false);
+	return;
+      }
+      pred = succ;
+      if (token != INF)		// not sure about this
+	number_of_arguments++;
+      token = yylex();
+    } else if (token == CARET) {
       row_args.push_back(token_string.at(CARET));
       token = yylex();
     }
-    pred = 1.0 * LLONG_MIN;
-    while (token != SCOL && token != DOLLAR && !msrc.empty()) {
+    
+    while (token != SCOL
+	   && token != DOLLAR
+	   && !msrc.empty()) {
       minus = 1;
       if (token == MINUS) {
 	minus = -1;
@@ -831,8 +860,16 @@ void specification () {
       } else if (token == PLUS)
 	token = yylex();
 
-      if (token == NUM) {
-	int x = minus * stoi(yytext);
+      if (token == INF) {
+	if (minus == -1) {
+	  error("minimal infinity allowed only at first position");
+	  flush(token_string.at(SCOL), false);
+	  return;
+	}
+	token = DOLLAR;
+	break;
+      } else if (token == NUM) {
+	size_t x = minus * stoll(yytext);
 	row_args.push_back(to_string(x));
 	succ = 1.0 * x;
       } else if (token == FLOAT) {

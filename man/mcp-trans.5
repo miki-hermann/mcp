@@ -32,16 +32,16 @@ integer). The \fIindicator\fR has one of the following forms.
 .EX
 .B concept
 .B pivot
-.R \fBbool\fR	'[' \fIelem_0 elem_1\fR ']'
-.R \fBenum\fR	'[' \fIelem\fR\|.\|.\|. ']'
-.R \fBup\fR	'[' \fIelem\fR\|.\|.\|. ']'
-.R \fBdown\fR	'[' \fIelem\fR\|.\|.\|. ']'
-.R \fBint\fR	\fImin max\fR
-.R \fBdj\fR	\fIn min max\fR
-.R \fBcp\fR	['^'] \fInumber\fR\|.\|.\|. ['$']
-.R \fBover\fR	\fIn min max l\fR
-.R \fBspan\fR	\fIl min max\fR
-.R \fBwarp\fR	\fIl0 min max l1\fR
+.B \fBbool\fR	'[' \fIelem_0 elem_1\fR ']'
+.B \fBenum\fR	'[' \fIelem\fR\|.\|.\|. ']'
+.B \fBup\fR	'[' \fIelem\fR\|.\|.\|. ']'
+.B \fBdown\fR	'[' \fIelem\fR\|.\|.\|. ']'
+.B \fBint\fR	\fImin max\fR
+.B \fBdj\fR	\fIn min max\fR
+.B \fBcp\fR	['-inf'] \fInumber\fR\|.\|.\|. ['+inf']
+.B \fBover\fR	\fIn min max l\fR
+.B \fBspan\fR	\fIl min max\fR
+.B \fBwarp\fR	\fIl0 min max l1\fR
 .EE
 .in
 .PP
@@ -81,9 +81,9 @@ chunks.
 .B cp
 Intervals determined by checkpoints. The \fInumber\fRs must build an increasing sequence.
 Consecutive numbers \fIa\fR and \fIb\fR determine the interval [\fIa\fR, \fIb\fR).
-The optional symbols \fI^\fR and \fI$\fR stand for minimal and maximal infinity, respectively.
+The optional tokens \fI-inf\fR and \fI+inf\fR stand for minimal and maximal infinity, respectively.
 .IP
-Example: BMI = 5: cp ^ 16.0 17.0 18.5 25.0 30.0 35.0 40.0 $;
+Example: BMI = 5: cp -inf 16.0 17.0 18.5 25.0 30.0 35.0 40.0 +inf;
 .TP
 .B over
 Continuous interval [\fImin\fR, \fImax\fR) cut into \fIn\fR chunks

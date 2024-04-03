@@ -23,10 +23,10 @@
 ##*                                                                        *
 ##**************************************************************************
 
-.PHONY: check guess seq mpi pthread hybrid split trans sparse chk2tst \
+.PHONY: check guess seq mpi pthread hybrid split trans chk2tst \
 	predict uniq
 
-all: check guess seq mpi pthread hybrid split trans sparse chk2tst \
+all: check guess seq mpi pthread hybrid split trans chk2tst \
 	predict uniq
 
 check: mcp-check.1
@@ -62,10 +62,6 @@ trans: mcp-trans.1 mcp-trans.5
 	sudo cp -f mcp-trans.1 /usr/local/share/man/man1/
 	sudo mkdir -p /usr/local/share/man/man5/
 	sudo cp -f mcp-trans.5 /usr/local/share/man/man5/
-
-sparse: mcp-sparse.1
-	sudo mkdir -p /usr/local/share/man/man1/
-	sudo cp -f mcp-sparse.1 /usr/local/share/man/man1/
 
 chk2tst: mcp-chk2tst.1
 	sudo mkdir -p /usr/local/share/man/man1/

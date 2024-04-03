@@ -50,5 +50,5 @@ clean:
 	rm -f bin/mcp-*
 	rm -f src/*.o
 
-scratch: clean ex
+scratch: clean
 	rm -f *~

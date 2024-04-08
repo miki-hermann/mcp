@@ -393,9 +393,9 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
     output = (pos == string::npos ? input : input.substr(0, pos)) + ".mat";
   }
   
-  if (input != STDIN && headerput.empty()) {
-    string::size_type pos = input.rfind('.');
-    headerput = (pos == string::npos ? input : input.substr(0, pos)) + ".hdr";
+  if (output != STDOUT && headerput.empty()) {
+    string::size_type pos = output.rfind('.');
+    headerput = (pos == string::npos ? output : output.substr(0, pos)) + ".hdr";
   }
   
   if (metaput.empty()) {
@@ -450,16 +450,6 @@ Token symbol (const char ch) {
   symbol_tab[0] = ch;
   size_t found = symbol_tab.find_last_of(ch);
   return (Token) found;
-}
-
-bool eng () {
-  if (msrc[0] == 'e' || msrc[0] == 'E') {
-    auto nostring = msrc.find_first_of(NOSTRING, 0);
-    yytext = yytext + msrc.substr(0, nostring);
-    msrc.erase(0, nostring);
-    return true;
-  }
-  return false;
 }
 
 Token yylex () {
@@ -519,26 +509,19 @@ Token yylex () {
     auto nodigit = msrc.find_first_not_of(DIGITS, 1);
     yytext = msrc.substr(0, nodigit);
     msrc.erase(0, nodigit);
-    // if (msrc[0] == 'e' || msrc[0] == 'E') {
-    //   auto nostring = msrc.find_first_of(NOSTRING, 0);
-    //   yytext = yytext + msrc.substr(0, nostring);
-    //   msrc.erase(0, nostring);
-    // }
-    eng();
     token = FLOAT;
   } else if (isdigit(msrc[0])) {		// int or float
     auto nodigit = msrc.find_first_not_of(DIGITS, 0);
     if (msrc[nodigit] != '.') {
       yytext = msrc.substr(0, nodigit);
       msrc.erase(0, nodigit);
-      token = eng() ? NUM : FLOAT;
+      token = NUM;
     } else {
       yytext = msrc.substr(0, nodigit+1);
       msrc.erase(0, nodigit+1);
       nodigit = msrc.find_first_not_of(DIGITS, 0);
       yytext = yytext + msrc.substr(0, nodigit);
       msrc.erase(0, nodigit);
-      eng();
       token = FLOAT;
     }
   } else if (token != ERROR) {			// symbol

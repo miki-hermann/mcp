@@ -101,12 +101,13 @@ vector<string> split (string strg, string delimiters) {
   // while (! strg.empty() && ! isprint(strg.back()))
   // // while (! strg.empty() && strg.back() == '\r')
   //   strg.pop_back();
-  for (int i = 0; i < strg.length(); ++i)
+  for (size_t i = 0; i < strg.length(); ++i)
     if (! isprint(strg[i])) {
       cerr << "+++ string on input has a non-printable character on position "
 	   << i
-	   << endl
-	   << "... use dos2unix to fix it" << endl;
+	   << endl;
+      if (i >= strg.length()-1)
+	cout << "... use dos2unix to fix it" << endl;
       exit(2);
     }
 

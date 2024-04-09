@@ -105,7 +105,8 @@ vector<string> split (string strg, string delimiters) {
     if (! isprint(strg[i])) {
       cerr << "+++ string on input has a non-printable character on position "
 	   << i
-	   << endl;
+	   << endl
+	   << "... use dos2unix to fix it" << endl;
       exit(2);
     }
 

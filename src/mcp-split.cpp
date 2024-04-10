@@ -45,7 +45,7 @@ ofstream checkfile;
 
 int ratio = 10;
 vector<string> matlines;
-vector<int> checklines;
+vector<size_t> checklines;
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -114,62 +114,45 @@ void adjust_and_open () {			// adjusts the input parameters
   if (ratio <= 0 || ratio >= 100) {
     cerr << "+++ Ratio must be bigger than 0 and smaller than 100" << endl;
     exit(3);
-  }
-  else if (ratio >= 80)
-    cerr << "+++ Your ratio of " << ratio << "% may not produce the desired results" << endl;
+  } else if (ratio >= 80)
+    cerr << "+++ Your ratio of " << ratio
+	 << "% may not produce the desired results"
+	 << endl;
 }
 
 void read_input (vector<string> &matlines) {
-  int ind_a, ind_b;
   string line;
-
-  // getline(cin, line);
-  // learnfile << line << endl;
-  // checkfile << line << endl;
-  // istringstream inds(line);
-  // inds >> ind_a >> ind_b;
-
-  // if (ind_a == 1) {
-  //   getline(cin, line); 
-  //   learnfile << line << endl;
-  //   checkfile << line << endl;
-  // }
-  // if (ind_b == 1) {
-  //   getline(cin, line); 
-  //   learnfile << line << endl;
-  //   checkfile << line << endl;
-  // }
 
   while (getline(cin, line))
     matlines.push_back(line);
 }
 
-vector<int> rand_vectors (const vector<string> &matlines) {
+vector<size_t> rand_vectors (const vector<string> &matlines) {
   random_device rd;
   static uniform_int_distribution<int> uni_dist(0,matlines.size()-1);
   static default_random_engine dre(rd());
 
-  int rand_card = matlines.size() * (1.0 * ratio / 100.0);
-  vector<int> rand_nums;
+  const size_t rand_card = matlines.size() * (1.0 * ratio / 100.0);
+  vector<size_t> rand_nums;
   
   // Needs to be generated through a loop and checked if every
   // generated value is new
 
   while (rand_nums.size() < rand_card) {
-    int rnd = uni_dist(dre);
-    auto it = find(cbegin(rand_nums), cend(rand_nums), rnd);
+    size_t rnd = uni_dist(dre);
+    auto it = find(rand_nums.cbegin(), rand_nums.cend(), rnd);
     if (it == cend(rand_nums))
       rand_nums.push_back(rnd);
   }
-  sort(begin(rand_nums), end(rand_nums));
+  sort(rand_nums.begin(), rand_nums.end());
 
   return rand_nums;
 }
 
 void distribute (const vector<string> &matlines,
-		 const vector<int> &checklines) {
-  int cl = 0;	// checkline pointer
-  for (int i = 0; i < matlines.size(); ++i) {
+		 const vector<size_t> &checklines) {
+  size_t cl = 0;	// checkline pointer
+  for (size_t i = 0; i < matlines.size(); ++i) {
     if (cl < checklines.size()
 	&& checklines[cl] == i) {
       checkfile << matlines[i] << endl;
@@ -179,7 +162,7 @@ void distribute (const vector<string> &matlines,
   }
 }
 
-void cleanup (const int &matsize, const int &checksize) {
+void cleanup (const size_t &matsize, const size_t &checksize) {
   learnfile.close();
   checkfile.close();
 

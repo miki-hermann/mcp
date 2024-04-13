@@ -3,6 +3,11 @@
  - indication line "1 0" abandoned
  - output of mcp-trans split into header file *.hdr and matrix file *.mat
  - use of -inf and [+]inf instead of ^ and $ in checkpoints for mcp-trans
+ - mcp-clean introduced
+ - mcp-sample introduced
+ - mcp-guess ENUM_RATIO abandoned
+ - mcp-guess also float numerated when number of items <= ENUM_MAX
+ - mcp-guess trailing 0's in floats suppressed
 
 1.04e
  - ObsGeq computes a (pointer to) row directly

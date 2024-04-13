@@ -36,7 +36,7 @@
 
 using namespace std;
 
-float  ENUM_RATIO = 0.01;
+// float  ENUM_RATIO = 0.01;
 int    ENUM_MAX   = 20;		// 50 80 200 20
 const string QMARK      = "?";
 
@@ -77,9 +77,9 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
     } else if (arg == "-e"
 	       || arg == "--enum") {
       ENUM_MAX = stoi(argv[++argument]);
-    } else if (arg == "-r"
-	       || arg == "--ratio") {
-      ENUM_RATIO = stof(argv[++argument]);
+    // } else if (arg == "-r"
+    // 	       || arg == "--ratio") {
+    //   ENUM_RATIO = stof(argv[++argument]);
     } else {
       cerr << "+++ argument error: " << arg << endl;
       exit(1);
@@ -93,10 +93,10 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
 }
 
 void adjust () {
-  if (ENUM_RATIO < 0.0 || ENUM_RATIO > 1.0) {
-    cerr << "*** ENUM_RATIO reset to 0.01" << endl;
-    ENUM_RATIO = 0.01;
-  }
+  // if (ENUM_RATIO < 0.0 || ENUM_RATIO > 1.0) {
+  //   cerr << "*** ENUM_RATIO reset to 0.01" << endl;
+  //   ENUM_RATIO = 0.01;
+  // }
 
   if (ENUM_MAX < 3 || ENUM_MAX > 500) {
     cerr << "*** ENUM_MAX reset to 20" << endl;
@@ -155,6 +155,15 @@ vector<vector<string>> transpose (const vector<vector<string>> &trd) {
     d.push_back(temp);
   }
   return d;
+}
+
+// drop trailing 0's from floats
+string notrail0 (string fnum) {
+  while (fnum.back() == '0')
+    fnum = fnum.substr(0, fnum.length()-1);
+  if (fnum.back() == '.')
+    fnum = fnum + "0";
+  return fnum;
 }
 
 int main (int argc, char **argv)
@@ -217,7 +226,7 @@ int main (int argc, char **argv)
   mydata = transpose(trdata);
   regex int_pattern("^-?[0-9]+$", regex::egrep);
   regex float_pattern("^-?[0-9]*\\.([0-9]+)$", regex::egrep);
-  regex efloat_pattern("^-?[0-9]+\\.([0-9]+)e(\\-|\\+)[0-9]+$", regex::egrep);
+  regex efloat_pattern("^-?[0-9]+\\.([0-9]+)[e|E](\\-|\\+)[0-9]+$", regex::egrep);
   smatch result;
   for (int col = 0; col < mydata.size(); ++col) {
     type.push_back(UNDEF);
@@ -343,26 +352,29 @@ int main (int argc, char **argv)
     auto ref = unique(row.begin(), row.end());
     row.resize(distance(row.begin(), ref));
 
-    int rsz = row.size();
-    int rsz1 = rsz - 1;
+    const size_t rsz = row.size();
+    const long rsz1 = rsz - 1;
 
     bool is_enum = rsz <= ENUM_MAX
-      ||
-      rsz <= (row_count * ENUM_RATIO);
+      // ||
+      // rsz <= (row_count * ENUM_RATIO)
+      ;
     if (rsz == 2)
       cout << "bool ";
-    else if (is_enum && type[col] != FLOAT)
+    // else if (is_enum && type[col] != FLOAT)
+    else if (is_enum)
       cout << "enum " << item_name[type[col]] << " ";
     else
       cout << item_name[type[col]] << " ";
-    if (is_enum && type[col] != FLOAT) {
+    // if (is_enum && type[col] != FLOAT) {
+    if (is_enum) {
       cout << "[";
-      for (int i = 0; i < rsz1; ++i)
-	cout << row[i] << " ";
-      cout << row[rsz-1] << "]";
-    } else if (type[col] == FLOAT) {
-      float r0f   = stof(row[0]);
-      float rsz1f = stof(row[rsz1]);
+      for (size_t i = 0; i < rsz1; ++i)
+	cout << (type[col] != FLOAT ? row[i] : notrail0(row[i])) << " ";
+      cout << (type[col] != FLOAT ? row[rsz-1] : notrail0(row[rsz-1])) <<  "]";
+    } else if (!is_enum && type[col] == FLOAT) {
+      const float r0f   = stof(row[0]);
+      const float rsz1f = stof(row[rsz1]);
       cout << showpoint;
       cout << setprecision(flength[col] + to_string((int)r0f).length());
       cout << r0f << " ";

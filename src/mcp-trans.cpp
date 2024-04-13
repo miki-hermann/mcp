@@ -822,10 +822,11 @@ void specification () {
     token = yylex();
     if (token == MINUS) {
       token = yylex();
-      if (token == INF)
+      if (token == INF) {
 	row_args.push_back(token_string.at(CARET));
-      else if (token == NUM) {
-	size_t x = -1 * stoll(yytext);
+	succ = pred + 1.0;
+      } else if (token == NUM) {
+	long long x = -1 * stoll(yytext);
 	row_args.push_back(to_string(x));
 	succ = 1.0 * x;
       } else if (token == FLOAT) {

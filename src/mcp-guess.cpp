@@ -166,7 +166,7 @@ int main (int argc, char **argv)
   read_arg(argc, argv);
   adjust();
   IO_open();
-  
+
   while (getline(cin, line)) {
     row_count++;
     if (line.empty() || regex_match(line, empty_pattern))

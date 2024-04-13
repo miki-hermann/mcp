@@ -39,7 +39,7 @@ string output = STDOUT;
 ifstream infile;
 ofstream outfile;
 
-string confidence;
+string confidence = "2.5%";
 double conf;
 string error_bound;
 string proportion;
@@ -136,6 +136,11 @@ void adjust_and_open () {
   else {
     cerr << "+++ No confidence interval or error bound specified" << endl;
     exit(2);
+  }
+
+  if (conf < 0.001 || conf > 0.2) {
+    cerr << "+++ Confidence interval reset to 2.5%" << endl;
+    conf = 0.025;
   }
 
   if (!proportion.empty() && (!concept_column.empty() || !value.empty())) {

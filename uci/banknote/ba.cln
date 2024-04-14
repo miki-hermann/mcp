@@ -1,0 +1,2 @@
+0..3: real = 2sigma;
+4: string = forged | genuine;

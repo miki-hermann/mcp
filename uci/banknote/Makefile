@@ -1,7 +1,11 @@
-all: bij horn cnf
+.PHONY: all clean scratch
 
-ba.lrn: ba.data ba.txt
+all: bij horn cnf perl
+
+ba.mat: ba.data ba.txt
 	mcp-trans   -i ba.data -m ba.txt
+
+ba.lrn: ba.mat
 	mcp-uniq    -i ba.mat
 	mcp-split   -i ba.unq  --ratio 10
 	mcp-chk2tst -i ba.chk
@@ -24,10 +28,15 @@ horn: ba.lrn
 	mcp-check   -i ba.chk  -l ba-hrn_forged.log   -o ba-hrn_forged.out
 	mcp-predict -i ba.tst  -l ba-hrn              -o ba-hrn.pdt --pdx ba-hrn.pdx
 
-.PHONY: clean scratch
+perl: ba.data
+	ba.pl < ba.data > ba.csv
+
+csv: ba.mat
+	mcp-mat2csv < ba.mat > ba.csv
 
 clean:
 	rm -f *.mat *.hdr *.unq *.out *.lrn *.chk *.log *.tst *.pvt *.pdx *.pdt
 
 scratch: clean
 	rm -f *~
+	rm -f *_clean.*

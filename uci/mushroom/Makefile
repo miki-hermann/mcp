@@ -7,7 +7,7 @@ all: mushroom.lrn mushroom.chk mushroom.hdr
 	mcp-chk2tst -i mushroom.chk
 	mcp-predict -i mushroom.tst -l mushroom -o mushroom.pdt
 
-horn:  mushroom.lrn mushroom.hdr
+horn:  mushroom.lrn mushroom.chk mushroom.hdr
 	mpirun mcp-mpi -i mushroom.lrn  -o mushroom.out           --formula mushroom # --closure cnf
 	mcp-check   -i mushroom.chk  -l mushroom_edible.log    -o mushroom_edible.out # --print clause
 	mcp-check   -i mushroom.chk  -l mushroom_poisonous.log -o mushroom_poisonous.out # --print clause

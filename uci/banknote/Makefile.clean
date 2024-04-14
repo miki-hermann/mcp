@@ -1,0 +1,40 @@
+.PHONY: all bij horn cnf perl csv clean scratch
+
+all: bij horn cnf # perl
+
+ba_clean.unq: ba.data ba.cln ba.txt
+	mcp-clean -i ba.data   -m ba.cln
+	mcp-split -i ba_clean.data  --ratio 10
+	mcp-trans -i ba_clean.lrn -m ba.txt
+	mcp-uniq  -i ba_clean.mat
+
+ba_chk.unq: ba_clean.chk
+	mcp-trans -i ba_clean.chk -m ba.txt -o ba_chk.mat
+	mcp-uniq  -i ba_chk.mat
+
+bij: ba_clean.unq ba_chk.unq
+	mcp-pthread -i ba_clean.unq -o ba-bij.out -l ba-bij --closure bij
+	mcp-check   -i ba_chk.unq   -l ba-bij_genuine.log   -o ba-bij_genuine.out
+	mcp-check   -i ba_chk.unq   -l ba-bij_forged.log    -o ba-bij_forged.out
+
+cnf: ba_clean.unq ba_chk.unq
+	mcp-pthread -i ba_clean.unq -o ba-cnf.out -l ba-cnf --closure cnf
+	mcp-check   -i ba_chk.unq   -l ba-cnf_genuine.log   -o ba-cnf_genuine.out
+	mcp-check   -i ba_chk.unq   -l ba-cnf_forged.log    -o ba-cnf_forged.out
+
+horn: ba_clean.unq ba_chk.unq
+	mcp-pthread -i ba_clean.unq -o ba-hrn.out -l ba-hrn
+	mcp-check   -i ba_chk.unq   -l ba-hrn_genuine.log  -o ba-hrn_genuine.out
+	mcp-check   -i ba_chk.unq   -l ba-hrn_forged.log   -o ba-hrn_forged.out
+
+perl: ba.data
+	ba.pl < ba.data > ba.csv
+
+csv: ba.mat
+	mcp-mat2csv < ba.mat > ba.csv
+
+clean:
+	rm -f *.mat *.hdr *.unq *.out *.lrn *.chk *.log *.tst *.pvt *.pdx *.pdt
+
+scratch: clean
+	rm -f *~

@@ -162,7 +162,7 @@ string notrail0 (string fnum) {
   while (fnum.back() == '0')
     fnum = fnum.substr(0, fnum.length()-1);
   if (fnum.back() == '.')
-    fnum = fnum + "0";
+    fnum = fnum.substr(0, fnum.length()-1);
   return fnum;
 }
 

@@ -306,13 +306,17 @@ int main (int argc, char **argv)
     cerr << endl;
     IO_close();
     if (output != STDOUT) {
-      cerr << "*** no otput file generated" << endl;
+      cerr << "*** no output file generated" << endl;
       remove(output.c_str());
     }
     exit(1);
   }
 
-  string fmt = "= %" + to_string(to_string(mydata.size()).length()) + "d: ";
+  const string fmt = "= %" + to_string(to_string(mydata.size()).length()) + "d: ";
+  cout << "# This file has been produced by mcp-guess" << endl
+       << "# It is NOT a valid transformation meta-file for mcp-trans" << endl
+       << "# It must be edited following the meta-file syntax before use" << endl
+       << endl;
   for (int col = 0; col < mydata.size(); ++col) {
     vector<string> row = mydata[col];
     vector<int> irow;
@@ -356,6 +360,7 @@ int main (int argc, char **argv)
     const long rsz1 = rsz - 1;
 
     bool is_enum = rsz <= ENUM_MAX
+      || type[col] == STRING
       // ||
       // rsz <= (row_count * ENUM_RATIO)
       ;

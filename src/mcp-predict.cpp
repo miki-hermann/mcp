@@ -147,9 +147,9 @@ void adjust_and_open () {
     output = (pos == string::npos ? input : input.substr(0, pos)) + ".pdt";
   }
 
-  if (input != STDIN && predict.empty()) {
-    string::size_type pos = input.rfind('.');
-    predict = (pos == string::npos ? input : input.substr(0, pos)) + ".pdx";
+  if (output != STDOUT && predict.empty()) {
+    string::size_type pos = output.rfind('.');
+    predict = (pos == string::npos ? output : output.substr(0, pos)) + ".pdx";
   }
 
   if (output != STDOUT) {
@@ -302,24 +302,6 @@ void read_matrix (Group_of_Matrix &matrix) {
   string line;
 
   // indication line abandoned and header reading moved to read_header
-  // int ind_a, ind_b;
-  // getline(cin, line);
-  // istringstream inds(line);
-  // inds >> ind_a >> ind_b;
-  // cout << "+++ Indication line: " << ind_a << " " << ind_b << endl;
-
-  // if (ind_a == 1) {
-  //   cout << "+++ Own names for variables" << endl;
-  //   varswitch = true;
-
-  //   getline(cin, line);
-  //   istringstream vars(line);
-  //   string vname;
-  //   while (vars >> vname)
-  //     varnames.push_back(vname);
-  // }
-  // if (ind_b == 1)
-  //   getline(cin, line);
 
   // string group;		// there will be no groups here
   int numline = 0;
@@ -371,21 +353,9 @@ void sat_test (Group_of_Matrix &matrix) {
   long ctr = SENTINEL;
 
   int it_pivot = 0;
-  // cout << endl << "+++ Results:" << endl;
-  // for (Row row : gmtx) {
-  //   if (nod_id)
-  //     cout << "\tRow" << ++ctr;
-  //   else
-  //     cout << "\t" << pivot[it_pivot++];
-  //   string separator = ",";
-  //   for (string gp : grps)
-  //     if (sat_formula(row, formula[gp])) {
-  // 	cout << separator << gp;
-  // 	separator = "+";
-  //     }
-  //   cout << endl;
-  // }
   cout << endl << "+++ Result: " << gmtx.size() << " row(s) in " << predict << endl;
+  if (output != STDOUT)
+    cerr << "+++ " << gmtx.size() << " row(s) in " << predict << endl;
   cout << "+++ end of run +++" << endl;
   if (output != STDOUT)
     outfile.close();

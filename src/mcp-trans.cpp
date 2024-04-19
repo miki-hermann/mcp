@@ -1565,7 +1565,11 @@ void matrix () {
     bool is_string = false;
     for (int i = 0; i < line1.size(); ++i) {
       char chr = line1[i];
-      if (chr == '"') {
+      if (chr == '\\' && i == line1.size()-1)
+	error("line cannot terminate with a backslash");
+      else if (chr == '\\')
+	line2 += chr + line1[++i];
+      else if (chr == '"') {
 	is_string = ! is_string;
       } else if (is_string && chr == ' ')
 	line2 += "_";
@@ -1587,8 +1591,9 @@ void matrix () {
     string line;
     for (int i = 0; i < line2.size(); ++i)
       line +=
-	(line2[i] == '"' || line2[i] == ',' || line2[i] == ';' ? ' ' : line2[i]);
-    line += ' ';
+	// (line2[i] == '"' || line2[i] == ',' || line2[i] == ';' ? ' ' : line2[i]);
+	(line2[i] == ',' || line2[i] == ';' ? ' ' : line2[i]);
+    // line += ' ';
 
     vector<string> chunk = split(line, " \t");
     if (chunk.size() < target.size()) {

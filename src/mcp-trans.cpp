@@ -1568,11 +1568,11 @@ void matrix () {
       if (chr == '"') {
 	is_string = ! is_string;
       } else if (is_string && chr == ' ')
-	line2 = "_";
+	line2 += "_";
       else if (is_string && chr == '?')
-	line2 = "<>";
+	line2 += "<>";
       else if (is_string && (chr == ',' || chr == ';'))
-	line2 = ".";
+	line2 += ".";
       else
 	line2 += chr;
     }

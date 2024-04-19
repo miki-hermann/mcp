@@ -1565,9 +1565,10 @@ void matrix () {
     bool is_string = false;
     for (int i = 0; i < line1.size(); ++i) {
       char chr = line1[i];
-      if (chr == '\\' && i == line1.size()-1)
+      if (chr == '\\' && i == line1.size()-1) {
 	error("line cannot terminate with a backslash");
-      else if (chr == '\\')
+	return;
+      } else if (chr == '\\')
 	line2 += chr + line1[++i];
       else if (chr == '"') {
 	is_string = ! is_string;

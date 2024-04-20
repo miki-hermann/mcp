@@ -1,0 +1,48 @@
+.PHONY: all common setosa versicolor virginica guess clean scratch perl
+
+all: setosa versicolor virginica # perl
+
+iris_clean.unq: iris.data iris.cln iris.txt
+	mcp-overview -i iris.data -c 4
+	mcp-split -i iris.data      --ratio 49
+	mcp-clean -i iris.lrn       -m iris.cln
+	mcp-trans -i iris_clean.lrn -m iris.txt
+	mcp-uniq  -i iris_clean.mat
+
+iris_chk.unq: iris.chk
+	mcp-trans -i iris.chk -m iris.txt -o iris_chk.mat
+	mcp-uniq  -i iris_chk.mat
+
+common: iris_clean.unq
+	mcp-seq   -i iris_clean.unq  -o iris-hrn.out --formula iris-hrn
+	mcp-seq   -i iris_clean.unq  -o iris-bij.out --formula iris-bij  --closure bij
+	mcp-seq   -i iris_clean.unq  -o iris-cnf.out --formula iris-cnf  --closure cnf
+
+setosa: common iris_chk.unq
+	mcp-check -i iris_chk.unq  -l iris-hrn_setosa.log     -o iris-hrn_setosa.out
+	mcp-check -i iris_chk.unq  -l iris-bij_setosa.log     -o iris-bij_setosa.out
+	mcp-check -i iris_chk.unq  -l iris-cnf_setosa.log     -o iris-cnf_setosa.out
+
+versicolor: common iris_chk.unq
+	mcp-check -i iris_chk.unq  -l iris-hrn_versicolor.log -o iris-hrn_versicolor.out
+	mcp-check -i iris_chk.unq  -l iris-bij_versicolor.log -o iris-bij_versicolor.out
+	mcp-check -i iris_chk.unq  -l iris-cnf_versicolor.log -o iris-cnf_versicolor.out
+
+virginica: common iris_chk.unq
+	mcp-check -i iris_chk.unq  -l iris-hrn_virginica.log  -o iris-hrn_virginica.out
+	mcp-check -i iris_chk.unq  -l iris-bij_virginica.log  -o iris-bij_virginica.out
+	mcp-check -i iris_chk.unq  -l iris-cnf_virginica.log  -o iris-cnf_virginica.out
+
+
+guess:
+	mcp-guess -i iris.data -n iris.names -o dummy.txt
+
+perl: iris.pl iris.data
+	iris.pl < iris.data > iris.csv
+
+clean:
+	rm -f *.mat *.hdr *.unq *.out *.lrn *.chk *.log
+
+scratch: clean
+	rm -f *~
+	rm -f dummy.txt

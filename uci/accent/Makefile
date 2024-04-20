@@ -1,4 +1,5 @@
 all:
+	mcp-overview   -i accent.csv -c 0
 	mcp-trans      -i accent.csv -m accent.txt
 	mcp-uniq       -i accent.mat
 	mcp-split      -i accent.unq  --ratio 25
@@ -20,6 +21,7 @@ guess:
 
 clean:
 	rm -f *.mat *.hdr *.unq *.out *.lrn *.chk *.log
+	rm -f *-overview.*
 
 scratch: clean
 	rm -f *~

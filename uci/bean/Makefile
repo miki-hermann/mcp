@@ -45,7 +45,10 @@ bean.unq: bean.mat
 	mcp-uniq    -i bean.mat
 
 bean.mat: bean.data bean-3sigma.data bean-2sigma.data bean.txt
-	mcp-trans   -i bean.data -m bean.txt
+	mcp-overview -i bean.data -c 16
+	mcp-trans    -i bean.data -m bean.txt
+#	mcp-trans    -i bean-3sigma.data -m bean.txt -o bean.mat
+#	mcp-trans    -i bean-2sigma.data -m bean.txt -o bean.mat
 
 guess: bean.data
 	mcp-guess   -i bean.data -n bean.nam -o dummy.txt
@@ -55,6 +58,7 @@ csv: bean.mat
 
 clean:
 	rm -f *.mat *.hdr *.unq *.out *.lrn *.chk *.log *.tst *.pvt *.pdx *.pdt *.csv
+	rm -f *-overview.*
 
 scratch: clean
 	rm -f *~

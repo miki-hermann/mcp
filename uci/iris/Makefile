@@ -1,6 +1,7 @@
-all: setosa versicolor virginica
+all: setosa versicolor virginica # perl
 
 iris.lrn: iris.data iris.txt
+	mcp-overview -i iris.data -c 4
 	mcp-trans -i iris.data -m iris.txt
 	mcp-uniq  -i iris.mat
 	mcp-split -i iris.unq  --ratio 49
@@ -26,13 +27,17 @@ virginica: common
 	mcp-check -i iris.chk  -l iris-cnf_virginica.log  -o iris-cnf_virginica.out
 
 
-.PHONY: guess clean scratch
+.PHONY: guess clean scratch perl
 
 guess:
 	mcp-guess -i iris.data -n iris.names -o dummy.txt
 
+perl: iris.pl iris.data
+	iris.pl < iris.data > iris.csv
+
 clean:
 	rm -f *.mat *.hdr *.unq *.out *.lrn *.chk *.log
+	rm -f *-overview.*
 
 scratch: clean
 	rm -f *~

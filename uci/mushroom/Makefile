@@ -21,7 +21,8 @@ mushroom.unq: mushroom.mat
 	mcp-uniq    -i mushroom.mat
 
 mushroom.mat: mushroom.data mushroom.txt
-	mcp-trans   -i mushroom.data -m mushroom.txt --robust yes
+	mcp-overview -i mushroom.data -c 0
+	mcp-trans    -i mushroom.data -m mushroom.txt --robust yes
 
 guess: mushroom.data mushroom.names
 	mcp-guess   -i mushroom.data -n mushroom.names -o dummy.txt
@@ -31,6 +32,7 @@ csv: mushroom.mat
 
 clean:
 	rm -f *.hdr *.mat *.unq *.out *.lrn *.chk *.log *.tst *.pvt *.pdx *.pdt *.csv
+	rm -f *-overview.*
 
 scratch: clean
 	rm -f *~

@@ -3,6 +3,7 @@
 all: bij horn cnf # perl
 
 ba_clean.unq: ba.data ba.cln ba.txt
+	mcp-overview -i ba.data -c 4
 	mcp-clean -i ba.data   -m ba.cln
 	mcp-split -i ba_clean.data  --ratio 10
 	mcp-trans -i ba_clean.lrn -m ba.txt
@@ -35,6 +36,7 @@ csv: ba.mat
 
 clean:
 	rm -f *.mat *.hdr *.unq *.out *.lrn *.chk *.log *.tst *.pvt *.pdx *.pdt
+	rm -f *-overview.*
 
 scratch: clean
 	rm -f *~

@@ -3,7 +3,8 @@
 all: bij horn cnf perl
 
 ba.mat: ba.data ba.txt
-	mcp-trans   -i ba.data -m ba.txt
+	mcp-overview -i ba.data -c 4
+	mcp-trans    -i ba.data -m ba.txt
 
 ba.lrn: ba.mat
 	mcp-uniq    -i ba.mat
@@ -36,6 +37,7 @@ csv: ba.mat
 
 clean:
 	rm -f *.mat *.hdr *.unq *.out *.lrn *.chk *.log *.tst *.pvt *.pdx *.pdt
+	rm -f *-overview.*
 
 scratch: clean
 	rm -f *~

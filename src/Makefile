@@ -144,7 +144,7 @@ $(BIN)/mcp-hybrid: mcp-matrix+formula-hybrid.o mcp-common-hybrid.o mcp-parallel-
 
 trans: $(BIN)/mcp-trans
 
-$(BIN)/mcp-trans: mcp-trans.o mcp-matrix+formula-trans.o
+$(BIN)/mcp-trans: mcp-matrix+formula-trans.o mcp-trans.o
 	$(CXX) -o $(BIN)/mcp-trans mcp-trans.o mcp-matrix+formula-trans.o
 
 mcp-trans.o: mcp-trans.cpp

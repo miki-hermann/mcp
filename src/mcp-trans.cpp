@@ -1570,9 +1570,9 @@ void matrix () {
 	return;
       } else if (chr == '\\')
 	line2 += chr + line1[++i];
-      else if (chr == '"') {
+      else if (chr == '"')
 	is_string = ! is_string;
-      } else if (is_string && chr == ' ')
+      else if (is_string && chr == ' ')
 	line2 += "_";
       else if (is_string && chr == '?')
 	line2 += "<>";
@@ -1597,6 +1597,7 @@ void matrix () {
     // line += ' ';
 
     vector<string> chunk = split(line, " \t");
+    
     if (chunk.size() < target.size()) {
       error(to_string(target.size())
 	    +

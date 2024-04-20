@@ -1,4 +1,5 @@
 all:
+	mcp-overview -i bsc.data -c 0
 	mcp-trans -m bsc.txt -i bsc.data
 	mcp-split -i bsc.mat --ratio 5
 	mpirun    -np 3 mcp-mpi -i bsc.lrn -o bsc.out -l bsc
@@ -13,6 +14,7 @@ guess:
 
 clean:
 	rm -f *.mat *.hdr *.out *.lrn *.chk *.log
+	rm -f *-overview.*
 
 scratch: clean
 	rm -f *~

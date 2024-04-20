@@ -1,4 +1,5 @@
 all:
+	mcp-overview -i bcw.data -c 10
 	mcp-trans -i bcw.data -m bcw.txt
 	mcp-uniq  -i bcw.mat
 	mcp-split -i bcw.unq  --ratio 49
@@ -15,6 +16,7 @@ guess:
 
 clean:
 	rm -f *.mat *.hdr *.unq *.out *.lrn *.chk *.log
+	rm -f *-overview.*
 
 scratch: clean
 	rm -f *~

@@ -1,4 +1,5 @@
 all:
+	mcp-overview -i divorce.csv -c 54
 	mcp-trans -i divorce.csv -m divorce.txt
 	mcp-split -i divorce.mat  --ratio 49
 	mcp-seq   -i divorce.lrn -o divorce-hrn.out --formula divorce-hrn -d hcard
@@ -17,6 +18,7 @@ guess:
 
 clean:
 	rm -f *.mat *.hdr *.out *.lrn *.chk *.log
+	rm -f *-overview.*
 
 scratch: clean
 	rm -f *~

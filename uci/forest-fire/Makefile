@@ -1,4 +1,7 @@
-all:
+.PHONY: all guess clean scratch
+
+all: ff.csv ff.txt
+	mcp-overview -i ff.csv -c 2
 	mcp-trans      -i ff.csv -m ff.txt
 	mcp-uniq       -i ff.mat
 	mcp-split      -i ff.unq -r 10
@@ -9,13 +12,12 @@ all:
 	mcp-check      -i ff.chk -l ff-bij_jul.log -o ff-bij_jul.out
 	mcp-check      -i ff.chk -l ff-cnf_aug.log -o ff-cnf_aug.out
 
-.PHONY: guess clean scratch
-
 guess:
 	mcp-guess      -i ff.csv -n ff.names -o dummy.txt
 
 clean:
 	rm -f *.mat *.hdr *.unq *.out *.lrn *.chk *.log
+	rm -f *-overview.*
 
 scratch: clean
 	rm -f *~

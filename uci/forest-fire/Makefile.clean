@@ -1,0 +1,26 @@
+.PHONY: all guess clean scratch
+
+all: ff.csv ff.cln ff.txt
+	mcp-overview   -i ff.csv -c 2
+	mcp-split      -i ff.csv       -r 10
+	mcp-clean      -i ff.lrn       -m ff.cln
+	mcp-trans      -i ff_clean.lrn -m ff.txt
+	mcp-uniq       -i ff_clean.mat
+	mpirun mcp-mpi -i ff_clean.unq -o ff-hrn.out --formula ff-hrn
+	mcp-seq        -i ff_clean.unq -o ff-bij.out --formula ff-bij --closure bij
+	mcp-pthread    -i ff_clean.unq -o ff-cnf.out --formula ff-cnf --closure cnf
+	mcp-trans      -i ff.chk       -m ff.txt         -o ff_chk.mat
+	mcp-check      -i ff_chk.mat   -l ff-hrn_sep.log -o ff-hrn_sep.out
+	mcp-check      -i ff_chk.mat   -l ff-bij_jul.log -o ff-bij_jul.out
+	mcp-check      -i ff_chk.mat   -l ff-cnf_aug.log -o ff-cnf_aug.out
+
+guess: ff.csv ff.names
+	mcp-guess      -i ff.csv -n ff.names -o dummy.txt
+
+clean:
+	rm -f *.mat *.hdr *.unq *.out *.lrn *.chk *.log
+	rm -f *-overview.*
+
+scratch: clean
+	rm -f *~
+	rm -f dummy.txt

@@ -1,4 +1,5 @@
 all:
+	mcp-overview -i car.data -c 6
 	mcp-trans   -i car.data -m car.txt
 	mcp-uniq    -i car.mat
 	mcp-split   -i car.unq  --ratio 49
@@ -14,6 +15,7 @@ guess:
 
 clean:
 	rm -f *.mat *.hdr *.unq *.out *.lrn *.chk *.log
+	rm -f *-overview.*
 
 scratch: clean
 	rm -f *~

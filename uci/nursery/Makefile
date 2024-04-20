@@ -1,4 +1,5 @@
 all:
+	mcp-overview -i nursery.data -c 8
 	mcp-trans   -i nursery.data -m nursery.txt
 	mcp-uniq    -i nursery.mat
 	mcp-split   -i nursery.unq  --ratio 20
@@ -16,6 +17,7 @@ guess:
 
 clean:
 	rm -f *.mat *.hdr *.unq *.out *.lrn *.chk *.log
+	rm -f *-overview.*
 
 scratch: clean
 	rm -f *~

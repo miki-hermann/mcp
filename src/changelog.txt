@@ -8,6 +8,7 @@
  - mcp-guess ENUM_RATIO abandoned
  - mcp-guess also float numerated when number of items <= ENUM_MAX
  - mcp-guess trailing 0's in floats suppressed
+ - mcp-overview introduced
 
 1.04e
  - ObsGeq computes a (pointer to) row directly

@@ -29,18 +29,23 @@
 BIN = ../bin
 CXX_VERSION := -std=c++20
 # CXX_VERSION :=
-FLAGS := $(CXX_VERSION) -O4 -march=native -flto -fopenmp
 MINIMAL_FLAGS := -O4
+VANILLA_FLAGS := $(CXX_VERSION) -O4 -march=native -flto -fopenmp
+# VANILLA_FLAGS := -O4 -march=native -flto -fopenmp
+RELEASE_FLAGS := $(CXX_VERSION) -O4 -march=native -flto -fopenmp -Wall -Werror -Wfatal-errors
+DEBUG_FLAGS := $(CXX_VERSION) -g -Og -fopenmp -Wall -Werror -Wfatal-errors -fsanitize=undefined -fsanitize=address
 GXX   := g++
-CXX   := $(GXX) $(FLAGS)
+CXX   := $(GXX) $(VANILLA_FLAGS)
+# CXX   := g++ $(RELEASE_FLAGS)
+# CXX   := g++ $(DEBUG_FLAGS)
 
-.PHONY: compile compile-no-mpi seq mpi pthread hybrid trans guess cnf csv split check sparse predict chk2tst uniq export clean scratch
+.PHONY: compile compile-no-mpi seq mpi pthread hybrid trans guess cnf csv split sample check sparse predict chk2tst uniq overview export clean scratch
 
 compile: seq mpi pthread hybrid \
-	trans guess cnf csv split check sparse predict chk2tst uniq
+	trans guess cnf csv split sample check sparse predict chk2tst uniq overview clean
 
 compile-no-mpi: seq pthread \
-	trans guess cnf csv split check sparse predict chk2tst uniq
+	trans guess cnf csv split sample check sparse predict chk2tst uniq overview clean
 
 #---------------------------------------------------------------------------------------------------
 
@@ -66,19 +71,19 @@ $(BIN)/mcp-seq: mcp-matrix+formula-seq.o mcp-common-seq.o mcp-seq.o
 mpi: $(BIN)/mcp-mpi
 
 mcp-matrix+formula-mpi.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
-	mpic++ $(FLAGS) -c -o $@ mcp-matrix+formula.cpp
+	mpic++ $(VANILLA_FLAGS) -c -o $@ mcp-matrix+formula.cpp
 
 mcp-common-mpi.o: mcp-common.cpp mcp-common.hpp mcp-matrix+formula.hpp
-	mpic++ $(FLAGS) -c -o $@ mcp-common.cpp
+	mpic++ $(VANILLA_FLAGS) -c -o $@ mcp-common.cpp
 
 mcp-parallel-mpi.o: mcp-parallel.cpp mcp-parallel.hpp mcp-common.hpp mcp-matrix+formula.hpp
-	mpic++ $(FLAGS) -c -o $@ mcp-parallel.cpp
+	mpic++ $(VANILLA_FLAGS) -c -o $@ mcp-parallel.cpp
 
 mcp-mpi.o: mcp-mpi.cpp mcp-parallel.hpp mcp-common.hpp mcp-matrix+formula.hpp
-	mpic++ $(FLAGS) -c -o $@ mcp-mpi.cpp
+	mpic++ $(VANILLA_FLAGS) -c -o $@ mcp-mpi.cpp
 
 $(BIN)/mcp-mpi: mcp-matrix+formula-mpi.o mcp-common-mpi.o mcp-parallel-mpi.o mcp-mpi.o
-	mpic++ $(FLAGS) -o $(BIN)/mcp-mpi \
+	mpic++ $(VANILLA_FLAGS) -o $(BIN)/mcp-mpi \
 		mcp-mpi.o \
 		mcp-parallel-mpi.o \
 		mcp-common-mpi.o \
@@ -117,23 +122,23 @@ $(BIN)/mcp-pthread: mcp-matrix+formula-pthread.o mcp-common-pthread.o mcp-parall
 hybrid: $(BIN)/mcp-hybrid
 
 mcp-matrix+formula-hybrid.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
-	mpic++ $(FLAGS) -pthread -c -o $@ mcp-matrix+formula.cpp
+	mpic++ $(VANILLA_FLAGS) -pthread -c -o $@ mcp-matrix+formula.cpp
 
 mcp-common-hybrid.o: mcp-common.cpp mcp-common.hpp mcp-matrix+formula.hpp
-	mpic++ $(FLAGS) -pthread -c -o $@ mcp-common.cpp
+	mpic++ $(VANILLA_FLAGS) -pthread -c -o $@ mcp-common.cpp
 
 mcp-parallel-hybrid.o: mcp-parallel.cpp mcp-parallel.hpp mcp-common.hpp mcp-matrix+formula.hpp
-	mpic++ $(FLAGS) -pthread -c -o $@ mcp-parallel.cpp
+	mpic++ $(VANILLA_FLAGS) -pthread -c -o $@ mcp-parallel.cpp
 
 mcp-posix-hybrid.o: mcp-posix.cpp mcp-posix.hpp mcp-parallel.hpp mcp-common.hpp mcp-matrix+formula.hpp
-	mpic++ $(FLAGS) -pthread -c -o $@ mcp-posix.cpp
+	mpic++ $(VANILLA_FLAGS) -pthread -c -o $@ mcp-posix.cpp
 
 mcp-hybrid.o: mcp-hybrid.cpp mcp-common.hpp mcp-parallel.hpp mcp-posix.hpp mcp-matrix+formula.hpp
-	mpic++ $(FLAGS) -pthread -c -o $@ mcp-hybrid.cpp
+	mpic++ $(VANILLA_FLAGS) -pthread -c -o $@ mcp-hybrid.cpp
 
 $(BIN)/mcp-hybrid: mcp-matrix+formula-hybrid.o mcp-common-hybrid.o mcp-parallel-hybrid.o \
 		mcp-posix-hybrid.o mcp-hybrid.o
-	mpic++ $(FLAGS) -pthread -o $(BIN)/mcp-hybrid \
+	mpic++ $(VANILLA_FLAGS) -pthread -o $(BIN)/mcp-hybrid \
 		mcp-hybrid.o \
 		mcp-posix-hybrid.o \
 		mcp-parallel-hybrid.o \
@@ -169,6 +174,13 @@ $(BIN)/mcp-cnf: mcp-cnf
 
 #---------------------------------------------------------------------------------------------------
 
+clean: $(BIN)/mcp-clean
+
+$(BIN)/mcp-clean: mcp-clean
+	cp -f mcp-clean $(BIN)/mcp-clean
+
+#---------------------------------------------------------------------------------------------------
+
 csv: $(BIN)/mcp-csv
 
 $(BIN)/mcp-csv: mcp-mat2csv
@@ -180,6 +192,36 @@ split: $(BIN)/mcp-split
 
 $(BIN)/mcp-split: mcp-split.cpp
 	$(CXX) -o $(BIN)/mcp-split mcp-split.cpp
+
+#---------------------------------------------------------------------------------------------------
+
+sample: $(BIN)/mcp-sample
+
+mcp-matrix+formula-sample.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
+	$(CXX) -c -o $@ mcp-matrix+formula.cpp
+
+mcp-sample.o: mcp-sample.cpp mcp-matrix+formula.hpp
+	$(CXX) -c -o mcp-sample.o mcp-sample.cpp
+
+$(BIN)/mcp-sample: mcp-matrix+formula-sample.o mcp-sample.o
+	$(CXX) -o $(BIN)/mcp-sample \
+		mcp-sample.o \
+		mcp-matrix+formula-sample.o
+
+#---------------------------------------------------------------------------------------------------
+
+overview: $(BIN)/mcp-overview
+
+mcp-matrix+formula-overview.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
+	$(CXX) -c -o $@ mcp-matrix+formula.cpp
+
+mcp-overview.o: mcp-overview.cpp mcp-matrix+formula.hpp
+	$(CXX) -c -o mcp-overview.o mcp-overview.cpp
+
+$(BIN)/mcp-overview: mcp-matrix+formula-overview.o mcp-overview.o
+	$(CXX) -o $(BIN)/mcp-overview \
+		mcp-overview.o \
+		mcp-matrix+formula-overview.o
 
 #---------------------------------------------------------------------------------------------------
 
@@ -261,11 +303,9 @@ $(BIN)/mcp-uniq: mcp-matrix+formula-uniq.o mcp-uniq.o
 export:
 	cp -f $(BIN)/mcp-* ..
 
-clean:
+scratch:
 	rm -f *.o
 	rm -f $(BIN)/mcp-*
-
-scratch: clean
 	rm -f *~
 
 #---------------------------------------------------------------------------------------------------

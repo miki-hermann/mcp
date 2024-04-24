@@ -32,7 +32,8 @@ Default: STDOUT or \fIbasename\fR of \fIinput-file\fR with
 .IP
 Confidence interval written either as a float between 0.001 and 0.2 or a
 percentage with \fI%\fR sign between 0.1% and 20%. Equivalent to
-double of \fIerror bound\R.
+double of \fIerror bound\fR. Cannot be specified together with
+\fIerror bound\fR.
 .IP
 Default: 2.5%.
 .
@@ -41,7 +42,14 @@ Default: 2.5%.
 .IP
 Error bound written either as a float between 0.0005 and 0.1 or a
 percentage with \fI%\fR sign between 0.05% and 10%. Equivalent to half
-of \fIconfidence interval\fR.
+of \fIconfidence interval\fR. Cannot be specified together with
+\fIconfidence interval\fR.
+.
+.TP
+\fB\-#\fR, \fB\-\-card\fR \fINUMBER \fR
+.IP
+Cardinality of the sample. Overrides confidence interval and error
+bound.
 .
 .TP
 \fB\-\-big\fR

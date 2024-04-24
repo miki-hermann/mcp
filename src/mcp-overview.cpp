@@ -67,8 +67,8 @@ void read_arg (int argc, char *argv[]) {
     } else if (arg == "-o"
 	       || arg == "--output") {
       output = argv[++argument];
-    } else if (arg == "--csv") {
-      csvput = argv[++argument];
+    // } else if (arg == "--csv") {
+    //   csvput = argv[++argument];
     } else if (arg == "-c"
 	       || arg == "--concept") {
       concept_column = stoi(argv[++argument]);
@@ -94,12 +94,12 @@ void adjust_and_open () {
 	      : input.substr(0, pos)) + "-overview.txt";
   }
 
-  if (output != STDOUT && csvput.empty()) {
-    auto pos = output.rfind('.');
-    csvput = (pos == string::npos
-	      ? output + "-overview.csv"
-	      : output.substr(0, pos)) + ".csv";
-  }
+  // if (output != STDOUT && csvput.empty()) {
+  //   auto pos = output.rfind('.');
+  //   csvput = (pos == string::npos
+  // 	      ? output + "-overview.csv"
+  // 	      : output.substr(0, pos)) + ".csv";
+  // }
 
   if (input != STDIN) {
     infile.open(input);
@@ -204,31 +204,31 @@ void write_output () {
   cerr << "+++ overview written on " << output << endl;
 }
 
-void out2csv () {
-  outfile.close();
-  cout.rdbuf(backup);
+// void out2csv () {
+//   outfile.close();
+//   cout.rdbuf(backup);
 
-  if (!csvput.empty()) {
-    csvfile.open(csvput);
-    if (csvfile.is_open()) {
-      backup = cout.rdbuf();
-      cout.rdbuf(csvfile.rdbuf());
-    } else {
-      cerr << "+++ Cannot open csv file " << csvput << endl;
-      exit(1);
-    }
-  }
-}
+//   if (!csvput.empty()) {
+//     csvfile.open(csvput);
+//     if (csvfile.is_open()) {
+//       backup = cout.rdbuf();
+//       cout.rdbuf(csvfile.rdbuf());
+//     } else {
+//       cerr << "+++ Cannot open csv file " << csvput << endl;
+//       exit(1);
+//     }
+//   }
+// }
 
-void write_csv () {
-  cout << "value,number,percentage" << endl;
-  for (const auto &val : accountant)
-    cout << val.first << ","
-	 << val.second << ","
-	 << ((1.0 * val.second) / (1.0 * lineno)) * 100.0
-	 << endl;
-  cerr << "+++ csv file written on " << csvput << endl;
-}
+// void write_csv () {
+//   cout << "value,number,percentage" << endl;
+//   for (const auto &val : accountant)
+//     cout << val.first << ","
+// 	 << val.second << ","
+// 	 << ((1.0 * val.second) / (1.0 * lineno)) * 100.0
+// 	 << endl;
+//   cerr << "+++ csv file written on " << csvput << endl;
+// }
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -238,9 +238,9 @@ int main(int argc, char **argv)
   adjust_and_open();
   read_input();
   write_output();
-  out2csv();
-  if (!csvput.empty())
-    write_csv();
+  // out2csv();
+  // if (!csvput.empty())
+  //   write_csv();
   return 0;
 }
 ////////////////////////////////////////////////////////////////////////////////

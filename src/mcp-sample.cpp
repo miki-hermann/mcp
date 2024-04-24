@@ -42,6 +42,7 @@ ofstream outfile;
 string confidence = "2.5%";
 double conf;
 string error_bound;
+string sample_card;
 string proportion;
 double prop;
 string concept_column;
@@ -75,6 +76,10 @@ void read_arg (int argc, char *argv[]) {
 	       || arg == "-B"
 	       || arg == "-b") {
       error_bound = argv[++argument];
+    } else if (arg == "--cardinality"
+	       || arg == "--card"
+	       || arg == "-#") {
+      sample_card = argv[++argument];
     } else if (arg == "--proportion"
 	       || arg == "-p") {
       proportion = argv[++argument];
@@ -129,6 +134,14 @@ void adjust_and_open () {
   if (! confidence.empty() && ! error_bound.empty()) {
     cerr << "+++ Both confidence interval and error bound specified" << endl;
     exit(2);
+  } else if (! confidence.empty() && ! sample_card.empty()) {
+    cerr << "+++ Sample cardinality " << sample_size
+	 << " overrides confidence interval" << endl;
+    sample_size = stoul(sample_card);
+  } else if (! error_bound.empty() && ! sample_card.empty()) {
+    cerr << "+++ Sample cardinality " << sample_size
+	 << " overrides error bound" << endl;
+    sample_size = stoul(sample_card);
   } else if (!error_bound.empty())
     conf = 2.0 * string2double(error_bound);
   else if (!confidence.empty())
@@ -138,7 +151,7 @@ void adjust_and_open () {
     exit(2);
   }
 
-  if (conf < 0.001 || conf > 0.2) {
+  if ((conf < 0.001 || conf > 0.2) && sample_size == 0) {
     cerr << "+++ Confidence interval reset to 2.5%" << endl;
     conf = 0.025;
   }
@@ -267,7 +280,8 @@ int main(int argc, char **argv)
   adjust_and_open();
   if (big || !concept_column.empty())
     fst_pass();
-  sample_size = sample_cardinality(prop, conf);
+  if (sample_size == 0)
+    sample_size = sample_cardinality(prop, conf);
   if (big)
     big_pass();
   else

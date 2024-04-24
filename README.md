@@ -27,6 +27,7 @@ The prequel modules are
     mcp-guess    (for guessing the structure of the input dataset),
     mcp-overview (overview of concept values and their percentage in dataset)
     mcp-sample   (choosing a representative sample of dataset determined by confidence interval, error bound, or cardinality)
+    mcp-clean    (cleaning the dataset from outliers)
     mcp-split    (for splitting a dataset into a learning and checking part)
     mcp-trans    (for binarization of input dataset), and
     mcp-uniq     (for elimination of doubled data)

@@ -24,15 +24,17 @@ MCP core has four variants:
 
 The prequel modules are
 
-    mcp-guess (for guessing the structure of the input data),
-    mcp-split (for splitting data into a learning and checking part)
-    mcp-trans (for binarization of input data), and
-    mcp-uniq  (for elimination of doubled data)
+    mcp-guess    (for guessing the structure of the input dataset),
+    mcp-overview (overview of concept values and their percentage in dataset)
+    mcp-sample   (choosing a representative sample of dataset determined by confidence interval, error bound, or cardinality)
+    mcp-split    (for splitting a dataset into a learning and checking part)
+    mcp-trans    (for binarization of input dataset), and
+    mcp-uniq     (for elimination of doubled data)
 
 The sequel modules are
 
     mcp-check   (for checking the accuracy of the produced formula)
-    mcp-predict (for prediction of values in test data files)
+    mcp-predict (for prediction of values in test dataset)
     mcp-chk2tst (for transforming check files to test files)
     mc-mat2csv  (for transforming a matrix file to CSV file: spaces -> commas)
 

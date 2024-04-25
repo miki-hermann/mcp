@@ -24,26 +24,26 @@ MCP core has four variants:
 
 The prequel modules are
 
-    mcp-guess    (for guessing the structure of the input dataset),
+    mcp-guess    (guessing the structure of the input dataset),
     mcp-overview (overview of concept values and their percentage in dataset)
     mcp-sample   (choosing a representative sample of dataset determined by confidence interval, error bound, or cardinality)
     mcp-clean    (cleaning the dataset from outliers)
-    mcp-split    (for splitting a dataset into a learning and checking part)
-    mcp-trans    (for binarization of input dataset), and
-    mcp-uniq     (for elimination of doubled data)
+    mcp-split    (splitting a dataset into a learning and checking part)
+    mcp-trans    (binarization of input dataset)
+    mcp-uniq     (elimination of doubled data)
 
 The sequel modules are
 
-    mcp-check   (for checking the accuracy of the produced formula)
-    mcp-predict (for prediction of values in test dataset)
-    mcp-chk2tst (for transforming check files to test files)
-    mc-mat2csv  (for transforming a matrix file to CSV file: spaces -> commas)
+    mcp-check   (checking the accuracy of the produced formula)
+    mcp-predict (prediction of values in test dataset)
+    mcp-chk2tst (transforming check files to test files)
+    mc-mat2csv  (transforming a matrix file to CSV file: spaces -> commas)
 
 Additionally, the distribution contains the following files:
 
     README.md (this document),
     LICENCE   (GNU General Public Licence v.3, under which this software is distributed),
-    Makefile  (for the compilation and installation of the MCP system)
+    Makefile  (compilation and installation of the MCP system)
 
 ## Compilation and Installation
 * [Outline of the distribution](#outline-of-the-distribution)

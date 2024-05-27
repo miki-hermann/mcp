@@ -4,7 +4,9 @@
 
 * [Brief Description](#brief-description)
 * [Compilation and Installation](#compilation-and-installation)
+* [Examples](#examples)
 * [UCI Examples](#uci-examples)
+* [kaggle Examples](#kaggle-examples)
 
 
 
@@ -99,6 +101,14 @@ If you do  not have MPI installed, compile and  install the MCP system
     make no-mpi
 ```
 
+## Examples
+
+All  examples  are  equipped   with  a  `Makefile`,  facilitating  the
+execution of  the MCP system on  them. Some of these  examples use the
+parallel modules  `mcp-mpi` or `mcp-hybrid`.   If you did  not install
+them,  please  replace  the  commands  `mpirun  mcp-mpi`  and  `mpirun
+mcp-hybrid` by `mcp-pthread`.
+
 ## UCI Examples
 
 The  uci subdirectory  contains the  following examples  from the  [UCI
@@ -125,10 +135,12 @@ to be treated by the MCP system. These examples are
  - **vote**                    (identifying democrats and republicans in the House of
                                 Representatives according to the 1984 US Congressional Voting Records).
 
-All  examples  are  equipped   with  a  `Makefile`,  facilitating  the
-execution of  the MCP system on  them. Some of these  examples use the
-parallel modules  `mcp-mpi` or `mcp-hybrid`.   If you did  not install
-them,  please  replace  the  commands  `mpirun  mcp-mpi`  and  `mpirun
-mcp-hybrid` by `mcp-pthread`.
+## kaggle Examples
+
+The  kaggle  subdirectory contains  the  following  examples from  the
+[kaggle Machine Learning Repository](https://www.kaggle.com/),
+prepared to be treated by the MCP system. These examples are
+
+ - **credit card fraud**                 (identifying credit card fraud in 2023).
 
 EOF

@@ -1,5 +1,5 @@
 .\" Copyright (c) 2019-2021 Miki Hermann & Gernot Salzer
-.TH mcp-check 1 "2021-03-10" "1.04" "MCP System"
+.TH mcp-check 1 "2024-08-19" "1.04" "MCP System"
 .
 .SH NAME
 mcp-check - checking the accuracy of a formula
@@ -38,6 +38,14 @@ File containing the formula produced by MCP core. The
 \fIformula-file\fR has the name \fIformula-prefix_G.log\fR if it has
 been produced by the option "\fB\-\-formula \fIformula-prefix\fR" for
 some group \fIG\fR.
+.
+.TP
+\fB\-\-header\fI header-file
+Internal file containing the variables names produced by MCP transformation.
+This parameter is rarely explicitly specified.
+The header file is produced by the module \fImcp-trans(1)\fR.
+.IP
+Default: \fIbasename\fR of \fIinput-file\fR with \fI.hdr\fR suffix.
 .
 .TP
 \fB\-\-print\fR clause | implication | mix | dimacs

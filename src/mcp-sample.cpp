@@ -135,13 +135,27 @@ void adjust_and_open () {
     cerr << "+++ Both confidence interval and error bound specified" << endl;
     exit(2);
   } else if (! confidence.empty() && ! sample_card.empty()) {
+    try {
+      sample_size = stoul(sample_card);
+    } catch (invalid_argument err) {
+      cerr << "+++ " << sample_card
+	     << " is not a valid sample size"
+	     << endl;
+	exit(2);
+    }
     cerr << "+++ Sample cardinality " << sample_size
 	 << " overrides confidence interval" << endl;
-    sample_size = stoul(sample_card);
   } else if (! error_bound.empty() && ! sample_card.empty()) {
+    try {    
+      sample_size = stoul(sample_card);
+    } catch (invalid_argument err) {
+      cerr << "+++ " << sample_card
+	     << " is not a valid sample size"
+	     << endl;
+	exit(2);
+    }
     cerr << "+++ Sample cardinality " << sample_size
 	 << " overrides error bound" << endl;
-    sample_size = stoul(sample_card);
   } else if (!error_bound.empty())
     conf = 2.0 * string2double(error_bound);
   else if (!confidence.empty())
@@ -171,12 +185,32 @@ void adjust_and_open () {
     if (proportion.empty())
       prop = 0.5;
     else if (proportion.back() == '%')
-      prop = stod(proportion.substr(0, proportion.length()-1)) / 100.0;
+      try {
+	prop = stod(proportion.substr(0, proportion.length()-1)) / 100.0;
+      } catch (invalid_argument err) {
+	cerr << "+++ '" << proportion
+	     << "' is not a valid proportion"
+	     << endl;
+	exit(2);
+      }
     else
-      prop = stod(proportion);
+      try {
+	prop = stod(proportion);
+      } catch (invalid_argument err) {
+	cerr << "+++ '" << proportion
+	     << "' is not a valid proportion"
+	     << endl;
+	exit(2);
+      }
   } else
-    ccol = stoul(concept_column);
-
+    try {
+      ccol = stoul(concept_column);
+    } catch (invalid_argument err) {
+      cerr << "+++ '" << proportion
+	     << "' after --concept is not a valid column number"
+	     << endl;
+	exit(2);
+    }
 }
 
 void cleanup () {

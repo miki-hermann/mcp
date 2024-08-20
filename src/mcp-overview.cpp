@@ -25,7 +25,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <vector>
 #include "mcp-matrix+formula.hpp"
 
@@ -48,7 +48,7 @@ streambuf *backup;
 
 size_t lineno = 0;
 int concept_column = SENTINEL;
-unordered_map<string, size_t> accountant;
+map<string, size_t> accountant;
 
 //------------------------------------------------------------------------------
 
@@ -71,7 +71,14 @@ void read_arg (int argc, char *argv[]) {
     //   csvput = argv[++argument];
     } else if (arg == "-c"
 	       || arg == "--concept") {
-      concept_column = stoi(argv[++argument]);
+      try {
+	concept_column = stoi(argv[++argument]);
+      } catch (invalid_argument err) {
+	cerr << "+++ '" << argv[argument]
+	     << "' after --concept is not a valid column number"
+	     << endl;
+	exit(1);
+      }
     } else {
       cerr << "+++ argument error: " << arg << endl;
       exit(1);

@@ -201,7 +201,7 @@ mcp-matrix+formula-sample.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
 	$(CXX) -c -o $@ mcp-matrix+formula.cpp
 
 mcp-sample.o: mcp-sample.cpp mcp-matrix+formula.hpp
-	$(CXX) -c -o mcp-sample.o mcp-sample.cpp
+	$(CXX) -c -o $@ mcp-sample.cpp
 
 $(BIN)/mcp-sample: mcp-matrix+formula-sample.o mcp-sample.o
 	$(CXX) -o $(BIN)/mcp-sample \
@@ -215,12 +215,16 @@ overview: $(BIN)/mcp-overview
 mcp-matrix+formula-overview.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
 	$(CXX) -c -o $@ mcp-matrix+formula.cpp
 
-mcp-overview.o: mcp-overview.cpp mcp-matrix+formula.hpp
-	$(CXX) -c -o mcp-overview.o mcp-overview.cpp
+mcp-tally-overview.o: mcp-tally.cpp mcp-tally.hpp mcp-matrix+formula.hpp
+	$(CXX) -c -o $@ mcp-tally.cpp
 
-$(BIN)/mcp-overview: mcp-matrix+formula-overview.o mcp-overview.o
+mcp-overview.o: mcp-overview.cpp mcp-matrix+formula.hpp
+	$(CXX) -c -o $@ mcp-overview.cpp
+
+$(BIN)/mcp-overview: mcp-matrix+formula-overview.o mcp-tally-overview.o mcp-overview.o
 	$(CXX) -o $(BIN)/mcp-overview \
 		mcp-overview.o \
+		mcp-tally-overview.o \
 		mcp-matrix+formula-overview.o
 
 #---------------------------------------------------------------------------------------------------

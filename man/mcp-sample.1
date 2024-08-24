@@ -28,6 +28,21 @@ Default: STDOUT or \fIbasename\fR of \fIinput-file\fR with
 \_\fIsample\fR infix and \fIinput-file\fR suffix.
 .
 .TP
+\fB\-pp\fR, \fB\-\-population\fR proportional | absolute
+.IP
+proportional | prop:
+.br
+The proportion in the sample of items with different concept values reflects
+their proportion in the input data file.
+.IP
+absolute | abs:
+.br
+The sample is taken from the input data file as a whole without respecting
+the proportions of concept values.
+.IP
+Default: proportional
+.
+.TP
 \fB\-W\fR, \fB\-\-confidence\fR \fIFLOAT \fR or \fR \fIPERCENTAGE \fR
 .IP
 Confidence interval written either as a float between 0.001 and 0.2 or a

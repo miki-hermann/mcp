@@ -30,7 +30,7 @@ BIN = ../bin
 CXX_VERSION := -std=c++20
 # CXX_VERSION :=
 MINIMAL_FLAGS := -O4
-VANILLA_FLAGS := $(CXX_VERSION) -O4 -march=native -flto -fopenmp
+VANILLA_FLAGS := $(CXX_VERSION) -O4 -march=native -flto -fopenmp -Wfatal-errors
 # VANILLA_FLAGS := -O4 -march=native -flto -fopenmp
 RELEASE_FLAGS := $(CXX_VERSION) -O4 -march=native -flto -fopenmp -Wall -Werror -Wfatal-errors
 DEBUG_FLAGS := $(CXX_VERSION) -g -Og -fopenmp -Wall -Werror -Wfatal-errors -fsanitize=undefined -fsanitize=address
@@ -200,12 +200,16 @@ sample: $(BIN)/mcp-sample
 mcp-matrix+formula-sample.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
 	$(CXX) -c -o $@ mcp-matrix+formula.cpp
 
+mcp-tally-sample.o: mcp-tally.cpp mcp-tally.hpp mcp-matrix+formula.hpp
+	$(CXX) -c -o $@ mcp-tally.cpp
+
 mcp-sample.o: mcp-sample.cpp mcp-matrix+formula.hpp
 	$(CXX) -c -o $@ mcp-sample.cpp
 
-$(BIN)/mcp-sample: mcp-matrix+formula-sample.o mcp-sample.o
+$(BIN)/mcp-sample: mcp-matrix+formula-sample.o mcp-tally-sample.o mcp-sample.o
 	$(CXX) -o $(BIN)/mcp-sample \
 		mcp-sample.o \
+		mcp-tally-sample.o \
 		mcp-matrix+formula-sample.o
 
 #---------------------------------------------------------------------------------------------------

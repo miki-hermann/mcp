@@ -91,7 +91,7 @@ void read_input (const int concept_column) {
   // cerr << "+++ read " << total << " nonempty lines" << endl;
 }
 
-size_t tally (const int concept_column) {
+size_t tally (const long concept_column) {
   read_input(concept_column);
   for (const auto &val : accountant)
     percentage[val.first] = ((1.0 * val.second) / (1.0 * total)) * 100.0;

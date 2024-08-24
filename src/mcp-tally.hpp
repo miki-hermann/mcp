@@ -29,6 +29,6 @@ using namespace std;
 extern map<string, size_t> accountant;
 extern map<string, double> percentage;
 
-size_t tally (const int);
+size_t tally (const long);
 
 //////////////////////////////////////////////////////////////////////////////

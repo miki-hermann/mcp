@@ -147,7 +147,7 @@ void adjust_and_open () {
     if (quiet)
       outfile.open(output, ios::out | ios::app);
     else
-      outfile.open(output);
+      outfile.open(output, ios::out | ios::trunc);
     if (outfile.is_open())
       cout.rdbuf(outfile.rdbuf());
     else {

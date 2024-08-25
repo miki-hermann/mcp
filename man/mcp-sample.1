@@ -33,7 +33,10 @@ Default: STDOUT or \fIbasename\fR of \fIinput-file\fR with
 proportional | prop:
 .br
 The proportion in the sample of items with different concept values reflects
-their proportion in the input data file.
+their proportion in the input data file. It makes calls to \fImcp-clean\fR
+to select items for each concept value from the input file and
+recursive calls to \fImcp-sample\fR with \fIabsolute\fR population parameter
+to compute the sample from them.
 .IP
 absolute | abs:
 .br
@@ -71,6 +74,10 @@ bound.
 .IP
 Indication that the data file is too big (e.g., 100GB) to be held
 entirely in the memory.
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+.IP
+Quiet mode.
 .
 .SH SEE ALSO
 mcp-clean(1)

@@ -124,8 +124,17 @@ inline double string2double (const string &s) {
   return (s.back() == '%' ? stod(s.substr(0, s.length()-1)) * 0.01 : stod(s));
 }
 
+size_t sample_cardinality (const double &prop, const double &conf) {
+  double val = (16.0 * prop * (1.0 - prop)) / (conf * conf);
+  size_t sz = val;
+  if (val > sz)
+    sz++;
+  return sz;
+}
+
 // adjusts input parameters and open files
 void adjust_and_open () {
+  // input and output
   if (input != STDIN) {
     infile.open(input);
     if (infile.is_open())
@@ -156,6 +165,17 @@ void adjust_and_open () {
     }
   }
 
+  // coliding concept column
+  if (!proportion.empty() && (!concept_column.empty())) {
+    cerr << "+++ Both proportion and concept specified" << endl;
+    exit(2);
+  }
+
+  if (concept_column.empty() && population == proportional) {
+    cerr << "+++ Proportional population without concept column" << endl;
+    exit(2);
+  }
+
   if (! confidence.empty() && ! error_bound.empty()) {
     cerr << "+++ Both confidence interval and error bound specified" << endl;
     exit(2);
@@ -183,7 +203,7 @@ void adjust_and_open () {
     if (!quiet)
       cerr << "+++ Sample cardinality " << sample_size
 	   << " overrides error bound" << endl;
-  } else if (!error_bound.empty())
+  } else if (!error_bound.empty()) {
     try {
       conf = 2.0 * string2double(error_bound);
     } catch (invalid_argument err) {
@@ -192,7 +212,7 @@ void adjust_and_open () {
 	     << endl;
       exit(2);
     }
-  else if (!confidence.empty())
+  } else if (!confidence.empty()) {
     try {
       conf = string2double(confidence);
     } catch (invalid_argument err) {
@@ -201,7 +221,7 @@ void adjust_and_open () {
 	     << endl;
       exit(2);
     }
-  else if (! sample_card.empty())
+  } else if (! sample_card.empty()) {
     try {
       sample_size = stoul(sample_card);
     } catch (invalid_argument err) {
@@ -210,7 +230,7 @@ void adjust_and_open () {
 	     << endl;
       exit(2);
     }
-  else {
+  } else {
     cerr << "+++ No confidence interval and no error bound and no cardinality specified" << endl;
     exit(2);
   }
@@ -218,17 +238,6 @@ void adjust_and_open () {
   if ((conf < 0.001 || conf > 0.2) && sample_size == 0) {
     cerr << "+++ Confidence interval reset to 2.5%" << endl;
     conf = 0.025;
-  }
-
-  // if (!proportion.empty() && (!concept_column.empty() || !value.empty())) {
-  if (!proportion.empty() && (!concept_column.empty())) {
-    cerr << "+++ Both proportion and concept specified" << endl;
-    exit(2);
-  }
-
-  if (concept_column.empty() && population == proportional) {
-    cerr << "+++ Proportional population without concept column" << endl;
-    exit(2);
   }
 
   if (concept_column.empty())
@@ -245,15 +254,19 @@ void adjust_and_open () {
 	   << endl;
       exit(2);
     }
-  else
+  else {
+    prop = 0.5;
     try {
       ccol = stoul(concept_column);
     } catch (invalid_argument err) {
-      cerr << "+++ '" << proportion
+      cerr << "+++ '" << concept_column
 	     << "' after --concept is not a valid column number"
 	     << endl;
 	exit(2);
     }
+  }
+  if (sample_size == 0)
+    sample_size = sample_cardinality(prop, conf);
 }
 
 void cleanup () {
@@ -266,7 +279,6 @@ void cleanup () {
 void fst_pass () {
   string line;
   size_t lineno = 0;
-  size_t pcount = 0;
   bool warning = false;
   
   while (getline(cin, line)) {
@@ -276,9 +288,7 @@ void fst_pass () {
     n_of_lines++;
     if (!concept_column.empty()) {
       vector<string> chunks = split(line, ", \t");
-      if (ccol < chunks.size())
-	pcount++;
-      else {
+      if (ccol >= chunks.size()) {
 	cerr << "++ concept column beyond item size on input line "
 	     << lineno
 	     << endl;
@@ -296,18 +306,6 @@ void fst_pass () {
   infile.clear();
   cin.seekg(0);
   infile.seekg(0);
-
-  // compute proportion
-  if (! concept_column.empty())
-    prop = (1.0 * pcount) / (1.0 * n_of_lines);
-}
-
-size_t sample_cardinality (const double &prop, const double &conf) {
-  double val = (16.0 * prop * (1.0 - prop)) / (conf * conf);
-  size_t sz = val;
-  if (val > sz)
-    sz++;
-  return sz;
 }
 
 void snd_pass () {
@@ -361,11 +359,11 @@ int main(int argc, char **argv)
 {
   read_arg(argc, argv);
   adjust_and_open();
+  // if (sample_size == 0)
+  //   sample_size = sample_cardinality(prop, conf);
   if (population == absolute) {
     if (big || !concept_column.empty())
       fst_pass();
-    if (sample_size == 0)
-      sample_size = sample_cardinality(prop, conf);
     if (big)
       big_pass();
     else
@@ -379,7 +377,8 @@ int main(int argc, char **argv)
 
     size_t real_size = 0;
     for (const auto &val:percentage) {
-      size_t section = (0.01 * val.second + 0.005 / percentage.size()) * sample_size;
+      // size_t section = (0.01 * val.second + 0.005 / percentage.size()) * sample_size;
+      size_t section = (0.01 * val.second) * sample_size;
       cerr << "+++ section for " << val.first << " = " << section << endl;
       real_size += section;
       string metacmd = concept_column + " : string = " + val.first + ";";

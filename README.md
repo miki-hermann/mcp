@@ -58,9 +58,10 @@ The subdirectories of this distribution are:
  - *src*   containing the sources of the MCP system,
  - *man*   containing the manual pages,
  - *paper* containing the PDF document `mcp.pdf` with a detailed description of the MCP system
- - *bin*   is necessary for compilation, and
+ - *bin*   is necessary for compilation,
  - *uci*   containing several examples from the UCI Machine Learning
-         Repository, treated by the MCP system.
+         Repository, treated by the MCP system, and
+ - *kaggle* containing example(s) from the kaggle rrepository, treated by the MCP system
 
 ### Compilation
 

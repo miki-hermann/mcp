@@ -61,7 +61,7 @@ The subdirectories of this distribution are:
  - *bin*   is necessary for compilation,
  - *uci*   containing several examples from the UCI Machine Learning
          Repository, treated by the MCP system, and
- - *kaggle* containing example(s) from the kaggle rrepository, treated by the MCP system
+ - *kaggle* containing example(s) from the kaggle machine learning repository, treated by the MCP system
 
 ### Compilation
 

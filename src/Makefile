@@ -1,7 +1,7 @@
 ##**************************************************************************
 ##*                                                                        *
 ##*                                                                        *
-##*	       Multiple Characterization Problem (MCP)                     *
+##*	       Multiple Classification   Problem (MCP)                     *
 ##*                                                                        *
 ##*	Author:   Miki Hermann                                             *
 ##*	e-mail:   hermann@lix.polytechnique.fr                             *

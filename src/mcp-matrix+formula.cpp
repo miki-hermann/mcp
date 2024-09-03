@@ -112,18 +112,13 @@ vector<string> split (string strg, string delimiters) {
     }
 
   while (!strg.empty()) {
-    size_t found = strg.find_first_not_of(delimiters);
-    if (found == string::npos)
-      break;
-    strg.erase(0, found);
-    found = strg.find_first_of(delimiters);
-    if (found == string::npos) {	// strg can be nonempty
-      if (strg.length() > 0)
-	chunks.push_back(strg);
+    size_t found = strg.find_first_of(delimiters);
+    if (found == string::npos) {
+      chunks.push_back(strg);
       break;
     }
     chunks.push_back(strg.substr(0, found));
-    strg.erase(0, found);
+    strg.erase(0, found+1);
   }
   return chunks;
 }

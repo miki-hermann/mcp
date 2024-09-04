@@ -112,7 +112,7 @@ vector<string> split (string strg, string delimiters) {
     }
 
   size_t pointer = 0;
-  while (!strg.empty()) {
+  while (pointer < strg.length()) {
     size_t found = strg.find_first_of(delimiters, pointer);
     if (found == string::npos) {
       chunks.push_back(strg.substr(pointer));

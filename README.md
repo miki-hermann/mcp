@@ -1,4 +1,4 @@
-# MULTI-CLASSIFICATION PROBLEM (MCP), v1.04
+# MULTI-CLASSIFICATION PROJECT (MCP), v1.04
 				   
 ## Table of contents
 
@@ -59,8 +59,7 @@ The subdirectories of this distribution are:
  - *man*   containing the manual pages,
  - *paper* containing the PDF document `mcp.pdf` with a detailed description of the MCP system
  - *bin*   is necessary for compilation,
- - *uci*   containing several examples from the UCI Machine Learning
-         Repository, treated by the MCP system, and
+ - *uci*   containing several examples from the UCI Machine Learning Repository, treated by the MCP system, and
  - *kaggle* containing example(s) from the kaggle machine learning repository, treated by the MCP system
 
 ### Compilation
@@ -70,7 +69,7 @@ successfully  compile the  MCP system,  mainly for  the use  of `auto`
 types and POSIX threads.  Only  the standard and **`boost`** libraries
 are used,  therefore there is  no need  to install any  additional C++
 libraries.  However, you  will need to install the  `boost` library if
-ou do  not have it  yet , since the  system uses the  *dynamic bitset*
+you do not  have it yet ,  since the system uses  the *dynamic bitset*
 structure.  The g++ GNU Project compiler is used in the `Makefile`. If
 you have a different compiler,  please modify the `Makefile` according
 to your installation.

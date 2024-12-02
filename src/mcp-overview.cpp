@@ -1,7 +1,7 @@
 /**************************************************************************
  *                                                                        *
  *                                                                        *
- *	       Multiple Classification   Problem (MCP)                    *
+ *	         Multiple Classification Project (MCP)                    *
  *                                                                        *
  *	Author:   Miki Hermann                                            *
  *	e-mail:   hermann@lix.polytechnique.fr                            *
@@ -23,6 +23,7 @@
  **************************************************************************/
 
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <string>
 #include <map>
@@ -150,8 +151,8 @@ void write_output (const size_t &total) {
 	 << val1buf
 	 << num1buf
 	 << " " << val.second
-	 << (pc < 10.0 ? "     " : "    ")
-	 << pc  << "%"
+	 << (pc < 10.0 ? "      " : "     ")
+	 << setprecision(2) << fixed << pc  << "%"
 	 << endl;
   }
   const string val2buf(numlen - to_string(total).length(), ' ');

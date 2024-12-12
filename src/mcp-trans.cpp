@@ -1,7 +1,7 @@
 /**************************************************************************
  *                                                                        *
  *                                                                        *
- *	       Multiple Classification   Problem (MCP)                    *
+ *	         Multiple Classification Project (MCP)                    *
  *                                                                        *
  *	Author:   Miki Hermann                                            *
  *	e-mail:   hermann@lix.polytechnique.fr                            *
@@ -700,11 +700,9 @@ void specification () {
   case ENUM:
   case UP:
   case DOWN:
-    while (true) {
-      token = yylex();
-      if (token == RBRA)
-	break;
-      else if (token == SCOL) {
+    token = yylex();
+    while (token != RBRA) {
+      if (token == SCOL) {
 	error("missing ]");
 	msrc = ";" + msrc;
 	break;
@@ -726,6 +724,7 @@ void specification () {
       else if (token == QMARK)
 	cerr << "+++ question mark on line " << lineno << " ignored" << endl;
       number_of_arguments++;
+      token = yylex();
     }
     if (spec == BOOL && number_of_arguments != 2)
       error("bool must have 2 arguments");

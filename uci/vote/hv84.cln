@@ -1,0 +1,2 @@
+0: string = democrat | republican;
+1..16: string = no | yes;

@@ -52,10 +52,10 @@ enum Token {
   QMARK,	// ?
   DOLLAR,	// $
   CARET,	// ^
-  // limit of used symbols
-  // unused symbols
   LPAR,		// (
   RPAR,		// )
+  // limit of used symbols
+  // unused symbols
   EXMARK,	// !
   AT,		// @
   PERCENT,	// %
@@ -129,7 +129,7 @@ enum Token_Type {
   MONTH_T   = 4,
   YEAR_T    = 5
 };
-string symbol_tab = " =:;[]+-?$^";	// must agree with Token
+string symbol_tab = " =:;[]+-?$^()";	// must agree with Token
 const unordered_map<string, Token> keywords = {
   {"concept", CONCEPT},
   {"pivot", PIVOT},
@@ -185,6 +185,8 @@ const unordered_map<Token,string> token_string = {
   {BSLASH,	"BSLASH"},
   {TILDA,	"TILDA"},
   {CARET,	"CARET"},
+  {LPAR,	"LPAR"},
+  {RPAR,	"RPAR"},
   //entities
   {STRING,	"STRING"},
   {NUM,		"NUM"},
@@ -273,11 +275,13 @@ string output    = STDOUT;
 string metaput   = "";
 string headerput = "";
 string pivotput  = "";
+string precput   = "";
 
 ifstream infile;
 ifstream metafile;
 ofstream outfile;
 ofstream headerfile;
+ofstream precfile;
 ofstream pvtfile;
 streambuf *backup;
 
@@ -291,9 +295,10 @@ int cncpt = SENTINEL;
 bool IDpresent = true;
 int pivot = SENTINEL;
 bool PVTpresent = false;
-unordered_map<int, Token> type;
+unordered_map<size_t, Token> type;
 vector<int> target = {SENTINEL};
 vector<vector<string>> args;
+map<size_t, size_t> precedence;
 
 //------------------------------------------------------------------------------
 
@@ -313,6 +318,10 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
     } else if (arg == "-hdr"
 	       || arg == "--header") {
       headerput = argv[++argument];
+    } else if (arg == "-p"
+	       || arg == "--prec"
+	       || arg == "--precedence") {
+      precput = argv[++argument];
     } else if (arg == "-r"
 	       || arg == "--robust") {
       string rpar = argv[++argument];
@@ -399,6 +408,11 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
   if (output != STDOUT && headerput.empty()) {
     string::size_type pos = output.rfind('.');
     headerput = (pos == string::npos ? output : output.substr(0, pos)) + ".hdr";
+  }
+  
+  if (output != STDOUT && precput.empty()) {
+    string::size_type pos = output.rfind('.');
+    precput = (pos == string::npos ? output : output.substr(0, pos)) + ".prc";
   }
   
   if (metaput.empty()) {
@@ -948,7 +962,9 @@ void attribute_line () {
     desc = yytext;
   else {
     error("attribute description must start with a string");
-    flush(token_string.at(EQUAL) + token_string.at(COLON) + token_string.at(SCOL),
+    flush(token_string.at(EQUAL)
+	  + token_string.at(COLON)
+	  + token_string.at(SCOL),
 	  false);
   }
   auto res_ins = symtab.insert(desc);
@@ -963,13 +979,31 @@ void attribute_line () {
 
   token = yylex();
   if (token == NUM)
-    orig_column = stoi(yytext);
+    orig_column = stoul(yytext);
   else {
     error("column number missing");
-    flush(token_string.at(COLON), false);
+    flush(token_string.at(COLON) + token_string.at(LPAR), false);
   }
 
   token = yylex();
+  if (token == LPAR) {
+    token = yylex();
+    if (token != NUM) {
+      error("precedence weight must be a positive integer");
+      flush(token_string.at(COLON) + token_string.at(RPAR), false);
+    } else if (precedence.count(orig_column) > 0) {
+      error("precedence for column "
+	    + to_string(orig_column)
+	    + " exists already");
+    } else
+      precedence[orig_column] = stoul(yytext);
+    token = yylex();
+    if (token != RPAR) {
+      error("missing )");
+      flush(token_string.at(COLON), false);
+    } else
+      token = yylex();
+  }
   if (token != COLON) {
     error("missing :");
     flush(token_string.at(SCOL), false);
@@ -1030,11 +1064,20 @@ void IO_open () {
 
   if (! headerput.empty()) {
     headerfile.open(headerput);
-    if (headerfile.is_open()) {
-      backup = cout.rdbuf();
-      cout.rdbuf(headerfile.rdbuf());
-    } else {
+    // if (headerfile.is_open()) {
+    //   backup = cout.rdbuf();
+    //   cout.rdbuf(headerfile.rdbuf());
+    // } else {
+    if (! headerfile.is_open()) {
       cerr << "+++ Cannot open header file " << headerput << endl;
+      exit(1);
+    }
+  }
+
+  if (! precput.empty()) {
+    precfile.open(precput);
+    if (! precfile.is_open()) {
+      cerr << "+++ Cannot open precedence file " << precput << endl;
       exit(1);
     }
   }
@@ -1051,7 +1094,7 @@ void IO_open () {
 
 void header2matrix () {
   headerfile.close();
-  cout.rdbuf(backup);
+  // cout.rdbuf(backup);
   
   if (output != STDOUT) {
     outfile.open(output);
@@ -1072,6 +1115,8 @@ void IO_close () {
     outfile.close();
     cout.rdbuf(backup);
   }
+  if (! precput.empty())
+    precfile.close();
   if (! pivotput.empty())
     pvtfile.close();
 }
@@ -1080,10 +1125,11 @@ void header () {
   // we abandon the first line indication
   // create two files instead: *.hdr for header and *.mat for matrix
   // cout << "1 0" << endl;
-  int item_length;
-  int varnum = 0;
+  size_t item_length;
+  size_t varnum = 0;
+  size_t precount = 0;
 
-  for (int tgt = 1; tgt < target.size(); ++tgt) {
+  for (size_t tgt = 1; tgt < target.size(); ++tgt) {
     if (idx == LOCAL)
       varnum = 0;
     int ocl = target[tgt];
@@ -1104,7 +1150,7 @@ void header () {
       break;
     case DISJOINT:
     case OVERLAP:
-      item_length = stoi(args[tgt][0]);
+      item_length = stol(args[tgt][0]);
       break;
     case SPAN:
     case WARP:
@@ -1114,7 +1160,7 @@ void header () {
       break;
     }
     for (int i = 1; i <= item_length; ++i) {
-      cout << description[tgt] << "_"
+      headerfile << description[tgt] << "_"
 	   << (type[ocl] == BOOL
 	       || type[ocl] == ENUM
 	       || type[ocl] == UP
@@ -1122,27 +1168,33 @@ void header () {
 	       || type[ocl] == INT
 	       ? item_length - i : i - 1)
 	      + varnum + offset;
+      
+      precfile << precount++ << " "
+	       << (precedence.count(ocl) > 0
+		   ? precedence.at(ocl)
+		   : 50)
+	       << endl;
 
       long double min, max, ilngt;
       long double over = 0.0;
       // positive case
-      cout << ":";
+      headerfile << ":";
       switch (type[ocl]) {
       case BOOL:
-	cout << description[tgt] << "==" << args[tgt][1];
-	// cout << description[tgt] << "==" << args[tgt][0];
+	headerfile << description[tgt] << "==" << args[tgt][1];
+	// headerfile << description[tgt] << "==" << args[tgt][0];
 	break;
       case ENUM:
-	cout << description[tgt] << "==" << args[tgt][item_length - i];
+	headerfile << description[tgt] << "==" << args[tgt][item_length - i];
 	break;
       case UP:
-	cout << description[tgt] << ">=" << args[tgt][item_length - i];
+	headerfile << description[tgt] << ">=" << args[tgt][item_length - i];
 	break;
       case DOWN:
-	cout << description[tgt] << "<=" << args[tgt][item_length - i];
+	headerfile << description[tgt] << "<=" << args[tgt][item_length - i];
 	break;
       case INT:
-	cout << description[tgt] << "==" << stoi(args[tgt][1]) - i + 1;
+	headerfile << description[tgt] << "==" << stoi(args[tgt][1]) - i + 1;
 	break;
       case DISJOINT:
       case OVERLAP:
@@ -1155,7 +1207,7 @@ void header () {
 	  : stold(args[tgt][0]);
 	if (type[ocl] == OVERLAP || type[ocl] == WARP)
 	  over = stold(args[tgt][3]);
-	cout << min + ilngt * (i-1) - over/2
+	headerfile << min + ilngt * (i-1) - over/2
 	     << "<="
 	     << description[tgt]
 	     << "<"
@@ -1163,15 +1215,15 @@ void header () {
 	break;
       case CHECKPOINTS:
 	if (args[tgt][i-1] == token_string.at(CARET))
-	  cout << description[tgt]
+	  headerfile << description[tgt]
 	     << "<"
 	     << stold(args[tgt][i]);
 	else if (args[tgt][i] == token_string.at(DOLLAR))
-	  cout << description[tgt]
+	  headerfile << description[tgt]
 	       << ">="
 	       << stold(args[tgt][i-1]);
 	else
-	  cout << stold(args[tgt][i-1])
+	  headerfile << stold(args[tgt][i-1])
 	       << "<="
 	       << description[tgt]
 	       << "<"
@@ -1183,23 +1235,23 @@ void header () {
       }
 
       // negative case
-      cout << ":";
+      headerfile << ":";
       switch (type[ocl]) {
       case BOOL:
-	cout << description[tgt] << "==" << args[tgt][0];
-	// cout << description[tgt] << "==" << args[tgt][1];
+	headerfile << description[tgt] << "==" << args[tgt][0];
+	// headerfile << description[tgt] << "==" << args[tgt][1];
 	break;
       case ENUM:
-	cout << description[tgt] << "!=" << args[tgt][item_length - i];
+	headerfile << description[tgt] << "!=" << args[tgt][item_length - i];
 	break;
       case UP:
-	cout << description[tgt] << "<" << args[tgt][item_length - i];
+	headerfile << description[tgt] << "<" << args[tgt][item_length - i];
 	break;
       case DOWN:
-	cout << description[tgt] << ">" << args[tgt][item_length - i];
+	headerfile << description[tgt] << ">" << args[tgt][item_length - i];
 	break;
       case INT:
-	cout << description[tgt] << "!=" << stoi(args[tgt][1]) - i + 1;
+	headerfile << description[tgt] << "!=" << stoi(args[tgt][1]) - i + 1;
 	break;
       case DISJOINT:
       case OVERLAP:
@@ -1212,7 +1264,7 @@ void header () {
 	  : stold(args[tgt][0]);
 	if (type[ocl] == OVERLAP || type[ocl] == WARP)
 	  over = stold(args[tgt][3]);
-	cout << description[tgt]
+	headerfile << description[tgt]
 	     << "<"
 	     << min + ilngt * (i-1) - over/2
 	     << "||"
@@ -1222,15 +1274,15 @@ void header () {
 	break;
       case CHECKPOINTS:
 	if (args[tgt][i-1] == token_string.at(CARET))
-	  cout << description[tgt]
+	  headerfile << description[tgt]
 	     << ">="
 	     << stold(args[tgt][i]);
 	else if (args[tgt][i] == token_string.at(DOLLAR))
-	  cout << description[tgt]
+	  headerfile << description[tgt]
 	       << "<"
 	       << stold(args[tgt][i-1]);
 	else
-	  cout << description[tgt]
+	  headerfile << description[tgt]
 	       << "<"
 	       << stold(args[tgt][i-1])
 	       << "||"
@@ -1243,12 +1295,12 @@ void header () {
 	exit(1);
       }
 
-      // cout << " ";
-      cout << endl;
+      // headerfile << " ";
+      headerfile << endl;
     }
     varnum += item_length;
   }
-  // cout << endl;
+  // headerfile << endl;
 }
 
 bool is_int (const string &s) {

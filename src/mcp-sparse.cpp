@@ -14,12 +14,9 @@
  *	Version: all                                                      *
  *      File:    mcp-sparse.cpp                                           *
  *                                                                        *
- *      Copyright (c) 2019 - 2024                                         *
+ *      Copyright (c) 2019 - 2025                                         *
  *                                                                        *
  * Transform files from sparse format to full format                      *
- *                                                                        *
- * This software has been created within the ACCA Project.                *
- *                                                                        *
  *                                                                        *
  **************************************************************************/
 

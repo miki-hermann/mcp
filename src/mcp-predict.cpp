@@ -14,15 +14,12 @@
  *	Version: all                                                      *
  *      File:    mcp-predict.cpp                                          *
  *                                                                        *
- *      Copyright (c) 2019 - 2024                                         *
+ *      Copyright (c) 2019 - 2025                                         *
  *                                                                        *
  *  Takes a testing file and optionally a pivot file, produces the        *
  *  prediction. Similar to mcp-check. The difference is that              *
  *  mcp-predict does not have the information which row belongs to        *
  *  which group, but predicts it.                                         *
- *                                                                        *
- * This software has been created within the ACCA Project.                *
- *                                                                        *
  *                                                                        *
  **************************************************************************/
 

@@ -14,12 +14,9 @@
  *	Version: all                                                      *
  *      File:    mcp-guess.cpp                                            *
  *                                                                        *
- *      Copyright (c) 2019 - 2024                                         *
+ *      Copyright (c) 2019 - 2025                                         *
  *                                                                        *
  * Guess a skeleton of a meta file from a (CSV) data file                 *
- *                                                                        *
- * This software has been created within the ACCA Project.                *
- *                                                                        *
  *                                                                        *
  **************************************************************************/
 

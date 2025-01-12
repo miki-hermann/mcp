@@ -14,12 +14,9 @@
  *	Version: all                                                      *
  *      File:    mcp-matrix+formula.cpp                                   *
  *                                                                        *
- *      Copyright (c) 2019 - 2024                                         *
+ *      Copyright (c) 2019 - 2025                                         *
  *                                                                        *
  * Data structures for row, matrices, literals, clauses, and formula.     *
- *                                                                        *
- * This software has been created within the ACCA Project.                *
- *                                                                        *
  *                                                                        *
  **************************************************************************/
 

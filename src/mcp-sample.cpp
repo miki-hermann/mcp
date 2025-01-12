@@ -14,7 +14,7 @@
  *	Version: all                                                      *
  *      File:    mcp-sample.cpp                                           *
  *                                                                        *
- *      Copyright (c) 2019 - 2024                                         *
+ *      Copyright (c) 2019 - 2025                                         *
  *                                                                        *
  * Output a sample from an input file.                                    *
  *                                                                        *

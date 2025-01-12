@@ -14,14 +14,11 @@
  *	Version: all                                                      *
  *      File:    mcp-split.cpp                                            *
  *                                                                        *
- *      Copyright (c) 2019 - 2024                                         *
+ *      Copyright (c) 2019 - 2025                                         *
  *                                                                        *
  * Given an input  file with matrices, this procedure splits  it into two *
  * files: one  with vectors to LEARN  the fomula, second one  to CHECK if *
  * the learned formulas correspond to the vectors.                        *
- *                                                                        *
- * This software has been created within the ACCA Project.                *
- *                                                                        *
  *                                                                        *
  **************************************************************************/
 

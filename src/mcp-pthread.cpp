@@ -14,15 +14,12 @@
  *	Version: parallel with POSIX threads                              *
  *      File:    mcp-pthread.cpp                                          *
  *                                                                        *
- *      Copyright (c) 2019 - 2024                                         *
+ *      Copyright (c) 2019 - 2025                                         *
  *                                                                        *
  * Given several  Boolean matrices  representing the  presence/absence of *
  * attributes in  observations, this software generates  Horn, dual Horn, *
  * or bijunctive formulas from positive and negative examples represented *
  * by these matrices.                                                     *
- *                                                                        *
- * This software has been created within the ACCA Project.                *
- *                                                                        *
  *                                                                        *
  **************************************************************************/
 

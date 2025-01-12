@@ -16,12 +16,9 @@
 #	Version: all                                                      #
 #       File:    mcp-mat2csv.pl                                           #
 #                                                                         #
-#      Copyright (c) 2019 - 2024                                          #
+#      Copyright (c) 2019 - 2025                                          #
 #                                                                         #
 # Transform a matrix file to a CSV file                                   #
-#                                                                         #
-# This software has been created within the ACCA Project.                 #
-#                                                                         #
 #                                                                         #
 ###########################################################################
 

@@ -14,14 +14,11 @@
  *	Version: all                                                      *
  *      File:    mcp-check.cpp                                            *
  *                                                                        *
- *      Copyright (c) 2019 - 2024                                         *
+ *      Copyright (c) 2019 - 2025                                         *
  *                                                                        *
  * Given a  formula and  a set  of boolean  vectors, check  which vectors *
  * satisfy  and which  falsify the  given formula.  Report precision  and *
  * recall (https://en.wikipedia.org/wiki/Precision_and_recall).           *
- *                                                                        *
- * This software has been created within the ACCA Project.                *
- *                                                                        *
  *                                                                        *
  **************************************************************************/
 

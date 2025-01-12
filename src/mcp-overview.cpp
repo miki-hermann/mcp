@@ -14,7 +14,7 @@
  *	Version: all                                                      *
  *      File:    mcp-overview.cpp                                         *
  *                                                                        *
- *      Copyright (c) 2019 - 2024                                         *
+ *      Copyright (c) 2019 - 2025                                         *
  *                                                                        *
  * Given the position of the concept, this software gives the overview    *
  * of the values and their percentual representation in the dataset.      *

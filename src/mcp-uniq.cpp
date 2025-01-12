@@ -14,13 +14,10 @@
  *	Version: all                                                      *
  *      File:    mcp-uniq.cpp                                             *
  *                                                                        *
- *      Copyright (c) 2019 - 2024                                         *
+ *      Copyright (c) 2019 - 2025                                         *
  *                                                                        *
  *  Takes a matrix and deletes rows with same values but different        *
  *  leading group identifier. Technical support ofter mcp-trans.          *
- *                                                                        *
- * This software has been created within the ACCA Project.                *
- *                                                                        *
  *                                                                        *
  **************************************************************************/
 

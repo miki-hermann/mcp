@@ -1,7 +1,7 @@
 /**************************************************************************
  *                                                                        *
  *                                                                        *
- *	       Multiple Classification   Problem (MCP)                    *
+ *	         Multiple Classification Project (MCP)                    *
  *                                                                        *
  *	Author:   Miki Hermann                                            *
  *	e-mail:   hermann@lix.polytechnique.fr                            *
@@ -40,15 +40,15 @@ Arch arch = archSEQ;
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void IOadjust () {			// adjusts the input parameters
-  // if (input != STDIN) {
-  //   infile.open(input);
-  //   if (infile.is_open())
-  //     cin.rdbuf(infile.rdbuf());
-  //   else {
-  //     cerr << "+++ Cannot open input file " << input << endl;
-  //     exit(2);
-  //   }
-  // }
+  if (input != STDIN) {
+    infile.open(input);
+    if (infile.is_open())
+      cin.rdbuf(infile.rdbuf());
+    else {
+      cerr << "+++ Cannot open input file " << input << endl;
+      exit(2);
+    }
+  }
 
   if (input != STDIN && headerput.empty()) {
     string::size_type pos = input.rfind('.');
@@ -99,6 +99,8 @@ void print_arg () {
   cout << "@@@ version       = " << version << endl;
   cout << "@@@ input         = " << input << endl;
   cout << "@@@ header        = " << headerput << endl;
+  if (direction == dPREC)
+    cout << "@@@ prec. weights = " << weights << endl;
   cout << "@@@ output        = " << output << endl;
   cout << "@@@ latex output  = "
        << (latex.length() > 0 ? latex : "no")
@@ -269,41 +271,18 @@ void read_header () {
 void read_matrix (Group_of_Matrix &matrix) {
   // reads the input matrices
 
-  // moved to read_header and changed to eliminate indicator line
-  // int ind_a, ind_b;
-  // string line;
-
-  // getline(cin, line);
-  // istringstream inds(line);
-  // inds >> ind_a >> ind_b;
-  // cout << "+++ Indication line: " << ind_a << " " << ind_b << endl;
-
-  // if (ind_a == 1) {
-  //   cout << "+++ Own names for variables" << endl;
-  //   varswitch = true;
-
-  //   getline(cin, line);
-  //   istringstream vars(line);
-  //   string vname;
-  //   while (vars >> vname)
-  //     varnames.push_back(vname);
-  //   arity = varnames.size();
+  // if (input != STDIN) {
+  //   infile.open(input);
+  //   if (infile.is_open())
+  //     cin.rdbuf(infile.rdbuf());
+  //   else {
+  //     cerr << "+++ Cannot open input file " << input << endl;
+  //     exit(2);
+  //   }
   // }
-  // if (ind_b == 1)
-  //   getline(cin, line);
-
-  if (input != STDIN) {
-    infile.open(input);
-    if (infile.is_open())
-      cin.rdbuf(infile.rdbuf());
-    else {
-      cerr << "+++ Cannot open input file " << input << endl;
-      exit(2);
-    }
-  }
 
   vector<string> gqueue;	// queue of group leading indicators
-  Matrix batch;		// stored tuples which will be clustered
+  Matrix batch;			// stored tuples which will be clustered
 
   string group;
   int numline = 0;

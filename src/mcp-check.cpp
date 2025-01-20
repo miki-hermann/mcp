@@ -1,7 +1,7 @@
 /**************************************************************************
  *                                                                        *
  *                                                                        *
- *	       Multiple Classification   Problem (MCP)                    *
+ *	         Multiple Classification Project (MCP)                    *
  *                                                                        *
  *	Author:   Miki Hermann                                            *
  *	e-mail:   hermann@lix.polytechnique.fr                            *
@@ -184,16 +184,17 @@ void print_arg () {
 }
 
 void read_header () {
-  streambuf *backup;
+  // streambuf *backup;
 
   if (headerput.empty())
     varswitch = false;
   else {
     headerfile.open(headerput);
-    if (headerfile.is_open()) {
-      backup = cin.rdbuf();
-      cin.rdbuf(headerfile.rdbuf());
-    } else {
+    // if (headerfile.is_open()) {
+    //   backup = cin.rdbuf();
+    //   cin.rdbuf(headerfile.rdbuf());
+    // } else {
+    if (! headerfile.is_open()) {
       cerr << "+++ Cannot open header file " << headerput << endl
 	   << "... Continue with fake variable names" << endl;
       varswitch = false;
@@ -209,7 +210,7 @@ void read_header () {
     // arity = varnames.size();
 
     headerfile.close();
-    cin.rdbuf(backup);
+    // cin.rdbuf(backup);
   }
 }
 

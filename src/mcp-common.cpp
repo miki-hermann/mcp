@@ -1,7 +1,7 @@
 /**************************************************************************
  *                                                                        *
  *                                                                        *
- *	       Multiple Classification   Problem (MCP)                    *
+ *	         Multiple Classification Project (MCP)                    *
  *                                                                        *
  *	Author:   Miki Hermann                                            *
  *	e-mail:   hermann@lix.polytechnique.fr                            *
@@ -53,6 +53,14 @@ const string STDOUT    = "STDOUT";
 // const int MTXLIMIT     = 4000;
 const int CLUSTERLIMIT = 15;
 
+map<size_t, int> idx2w;		// coordinate index to weight for precedence dir
+struct cmp_prec { 
+  bool operator() (const size_t &idx1, const size_t &idx2) {
+    return idx2w.at(idx1) < idx2w.at(idx2);
+    // return idx2w[idx1] < idx2w[idx2];
+  }
+};
+
 // Action action       = aALL;
 Closure closure     = clHORN;
 Cooking cooking     = ckWELLDONE;
@@ -64,6 +72,7 @@ Strategy strategy   = sLARGE;
 string input        = STDIN;
 string output       = STDOUT;
 string headerput    = "";
+string weights      = "";
 bool disjoint       = true;
 // int arity           = 0;
 int cluster         = SENTINEL;
@@ -75,6 +84,7 @@ string latex        = "";		// file to store latex output
 
 ifstream infile;
 ifstream headerfile;
+ifstream precfile;			// file with attribute precedence
 ofstream outfile;
 ofstream latexfile;
 string formula_output;			// prefix of files, where formulas will be stored
@@ -84,7 +94,7 @@ const string action_strg[]    = {"One to One", "One to All Others", "One to All 
 const string closure_strg[]   = {"Horn",       "dual Horn",  "bijunctive", "affine", "CNF"};
 const string cooking_strg[]   = {"raw",        "bleu",       "medium",     "well done"};
 const string direction_strg[] = {"begin",      "end",        "optimum",    "random",
-				 "low cardinality", "high cardinality"};
+				 "low cardinality", "high cardinality", "precedence"};
 const string pcl_strg[]       = {"Horn",       "Horn",       "bijunctive", "affine", "cnf"};
 const string strategy_strg[]  = {"large",      "exact"};
 // const string print_strg[]     = {"void",       "clause",     "implication", "mixed",   "DIMACS"};
@@ -124,6 +134,9 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
 	  cerr << "+++ no group selected, revert to default" << endl;
       } else
 	cerr << "+++ unknown action " << act << endl;
+    } else if (arg == "-w"
+	       || arg == "--weights") {
+      weights = argv[++argument];
     } else if  (arg == "-d"
 		|| arg == "--direction") {
       string dir = argv[++argument];
@@ -145,6 +158,10 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
 		 || dir == "rand"
 		 || dir ==  "r") {
 	direction =dRAND;
+      } else if (dir == "precedence"
+		 || dir == "prec"
+		 || dir == "p") {
+	direction = dPREC;
       // } else if (dir == "optimum"
       // 		 || dir == "optimal"
       // 		 || dir == "opt"
@@ -479,10 +496,10 @@ Matrix join (const Matrix &head, const Matrix &tail) {
 }
 
 Row minsect (const Matrix &T, const Matrix &F) {
-  // computes the minimal section for Horn or dual Horn closures
-  const int lngt  = T[0].size();
-  const int Tsize = T.size();
-  const int Fsize = F.size();
+  // computes the minimal section
+  const size_t lngt  = T[0].size();
+  const size_t Tsize = T.size();
+  const size_t Fsize = F.size();
 
   if (inadmissible(T,F)) {
     disjoint = false;
@@ -585,49 +602,19 @@ Row minsect (const Matrix &T, const Matrix &F) {
       //   Matrix Fa = section(A,F);
       //   if (inadmissible(Ta,Fa)) A[i] = true;
     }
-  // } else if (direction == dOPT) {	// optimum = exponential
-  //   // search for the smallest number of selected columns
-  //   cerr << "+++ Optimal direction takes forever" << endl;
-  //   cerr << "+++ Therefore it has been suspended" << endl;
-  //   exit(99);
-
-  //   // Matrix Q;
-  //   // int mincard = lngt;
-  //   // Row minsct(lngt,false);
-  //   // Q.push_back(minsct);
-  //   // int counter = 0;
-  //   // while (! Q.empty()) {
-  //   //   if (++counter % 10000 == 0)
-  //   // 	cerr << "*** loop " << counter << ", \t|queue| = " << Q.size() << endl;
-  //   //   A = Q.front();
-  //   //   Q.pop_front();
-  //   //   Matrix Ta = section(A,T);
-  //   //   Matrix Fa = section(A,F);
-  //   //   if (inadmissible(Ta,Fa)) {
-  //   // 	for (int i = 0; i < lngt; ++i)
-  //   // 	  if (A[i] == false) {
-  //   // 	    A[i] = true;
-  //   // 	    Q.push_back(A);
-  //   // 	    A[i] = false;
-  //   // 	  }
-  //   //   } else {
-  //   // 	int hw = hamming_weight(A);
-  //   // 	if (hw < mincard) {
-  //   // 	  mincard = hw;
-  //   // 	  minsct = A;
-  //   // 	}
-  //   //   }
-  //   // }
-  //   // A = minsct;
   } else if (direction == dRAND) {	// random order
     random_device rd;
     static uniform_int_distribution<int> uni_dist(0,lngt-1);
     static default_random_engine dre(rd());
 
     vector<int> coord;
-    for (int i = 0; i < lngt; ++i)
+    for (size_t i = 0; i < lngt; ++i)
       coord.push_back(i);
     shuffle(coord.begin(), coord.end(), dre);
+    cout << "+++ precedence of coordinates:";
+    for (size_t i = 0; i < coord.size(); ++i)
+      cout << " " << coord[i];
+    cout << endl;
     
     Matrix Thead, Fhead, Ttail, Ftail;
     for (Row t : T) {
@@ -706,9 +693,9 @@ Row minsect (const Matrix &T, const Matrix &F) {
     //   }
 
     if (direction == dLOWCARD)
-      sort(indicator.begin(), indicator.end(), greater<int>());
+      stable_sort(indicator.begin(), indicator.end(), greater<int>());
     else if (direction == dHIGHCARD)
-      sort(indicator.begin(), indicator.end());
+      stable_sort(indicator.begin(), indicator.end());
 
     int coord[lngt];
     for (int i = 0; i < lngt; ++i) {
@@ -717,6 +704,10 @@ Row minsect (const Matrix &T, const Matrix &F) {
       coord[i] = j;
       card[j] = SENTINEL;
     }
+    cout << "+++ precedence of coordinates:";
+    for (size_t i = 0; i < lngt; ++i)
+      cout << " " << coord[i];
+    cout << endl;
 
     Matrix Thead, Fhead, Ttail, Ftail;
     for (Row t : T) {
@@ -774,6 +765,92 @@ Row minsect (const Matrix &T, const Matrix &F) {
     //   Matrix Fa = section(A,F);
     //   if (inadmissible(Ta,Fa)) A[coord[i]] = true;
     // }
+  } else if (direction == dPREC) {	// precedence
+    vector<int> coord;			// coordinates
+
+    for (size_t i = 0; i < lngt; ++i) {
+      coord.push_back(i);		// each coordinate has its place
+      idx2w[i] = 50;			// 50 is the default value
+    }
+
+    if (input != STDIN && weights.empty()) {
+      string::size_type pos = input.rfind('.');
+      weights = (pos == string::npos ? input : input.substr(0, pos)) + ".prc";
+    }
+    ifstream weightstream;
+    weightstream.open(weights);
+    if (! weightstream.is_open()) {
+      cerr << "+++ cannot open file " << weights << endl
+	   << "+++ reverting to default direction (" << direction_strg[dBEGIN] << ")"
+	   << endl;
+      direction = dBEGIN;
+      return minsect(T, F);
+    } else {
+      size_t idx;	// coordinate index
+      int w;		// weight
+      while (weightstream >> idx >> w)
+	if (idx >= lngt)
+	  cerr << "+++ coordinate " << idx << " out of bounds ignored" << endl;
+	else
+	  idx2w[idx] = w;
+      weightstream.close();
+    }
+    stable_sort(coord.begin(), coord.end(), cmp_prec());
+    cout << "+++ precedence of coordinates:";
+    for (size_t i = 0; i < coord.size(); ++i)
+      cout << " " << coord[i];
+    cout << endl;
+        
+    Matrix Thead, Fhead, Ttail, Ftail;
+    for (Row t : T) {
+      Row row;
+      for (int j = 0; j < lngt; ++j)
+	row.push_back(t[coord[j]]);
+      Ttail.push_back(row);
+    }
+    for (Row f : F) {
+      Row row;
+      for (int j = 0; j < lngt; ++j)
+	row.push_back(f[coord[j]]);
+      Ftail.push_back(row);
+    }
+    for (int i = 0; i < lngt; ++i) {
+      A[coord[i]] = false;
+      Row Tcolumn, Fcolumn;
+      // if (!Ttail.empty())
+      for (int j = 0; j < Tsize; ++j) {
+	Tcolumn.push_back(front(Ttail[j]));
+	pop_front(Ttail[j]);
+      }
+      // if (!Ftail.empty())
+      for (int j = 0; j < Fsize; ++j) {
+	Fcolumn.push_back(front(Ftail[j]));
+	pop_front(Ftail[j]);
+      }
+      Matrix Ta = join(Thead, Ttail);
+      Matrix Fa = join(Fhead, Ftail);
+      if (inadmissible(Ta,Fa)) {
+	A[coord[i]] = true;
+	if (Thead.empty())
+	  for (int j = 0; j < Tsize; ++j) {
+	    Row row(1, Tcolumn[j]);
+	    // row.push_back(Tcolumn[j]);
+	    Thead.push_back(row);
+	  }
+	else
+	  for (int j = 0; j < Tsize; ++j)
+	    Thead[j].push_back(Tcolumn[j]);
+	if (Fhead.empty())
+	  for (int j = 0; j < Fsize; ++j) {
+	    Row row(1, Fcolumn[j]);
+	    // row.push_back(Fcolumn[j]);
+	    Fhead.push_back(row);
+	  }
+	else
+	  for (int j = 0; j < Fsize; ++j)
+	    Fhead[j].push_back(Fcolumn[j]);
+      }
+    }
   }
   return A;
 }
@@ -880,11 +957,11 @@ bool operator>= (const Clause &a, const Clause &b) {
   return true;
 }
 
-// struct {
+// struct cmp_numlit {
 //   bool operator() (const Clause &a, const Clause &b) {
 //     return numlit(a) < numlit(b);
 //   }
-// } cmp_numlit;
+// };
 
 // bool operator< (const Clause &a, const Clause &b) {
 //   if (a.length() != b.length())
@@ -895,13 +972,13 @@ bool operator>= (const Clause &a, const Clause &b) {
 //   return false;
 // }
 
-// struct {
+// struct cmp_clause {
 //   bool operator() (const Clause &a, const Clause &b) {
 //     return numlit(a) < numlit(b)
 //       || firstlit(a) < firstlit(b)
 //       || a < b;
 //   }
-// } cmp_clause;
+// };
 
 // partition matrix or formula
 template <typename U, template<typename> typename T>
@@ -1538,16 +1615,19 @@ Formula polswap_formula (const Formula &formula) {
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 string time2string (size_t mlseconds) {
-  enum TimeUnit {mlsec = 0, sec = 1, min = 2, hour = 3, day = 4};
-  const string tu_name[] = {" millisecond(s) ", " second(s) ", " minute(s) ", " hour(s) ", " day(s) "};
-  const short timevalue[] = {1000, 60, 60, 24};
-
+  enum TimeUnit : char {mlsec = 0, sec = 1, min = 2, hour = 3, day = 4};
+  const string tu_name[] = {" millisecond(s) ",
+			    " second(s) ",
+			    " minute(s) ",
+			    " hour(s) ",
+			    " day(s) "};
+  const size_t timevalue[] = {1000, 60, 60, 24};
   size_t timeunit[5] = {0, 0, 0, 0, 0};
 
   if (mlseconds == 0)
     return "0 milliseconds";
 
-  for (size_t t = mlsec; t < day; t++) {
+  for (size_t t = mlsec; t < day; ++t) {
     timeunit[t] = mlseconds % timevalue[t];
     mlseconds /= timevalue[t];
   }
@@ -1555,10 +1635,13 @@ string time2string (size_t mlseconds) {
     timeunit[day] = mlseconds;
 
   string output;
-  for (int t = day; t > sec; t--)
+  for (int t = day; t > sec; --t)
     if (timeunit[t] > 0)
       output += to_string(timeunit[t]) + tu_name[t];
-  output += to_string(timeunit[sec]) + "." + to_string(timeunit[mlsec]) + tu_name[sec];
+  output += to_string(timeunit[sec])
+    + "."
+    + to_string(timeunit[mlsec])
+    + tu_name[sec];
   return output;
 }
 

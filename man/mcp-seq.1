@@ -27,7 +27,7 @@ mpirun [\| "MPI options" \|]
 .
 .SH DESCRIPTION
 .PP
-MCP core generates Horn, dual Horn, bijunctive, or CNF formulas from
+MCP core generates Horn, dual Horn, 2SAT, or CNF formulas from
 positive and negative samples presented as Boolean matrices,
 where each entry indicates the presence/absence of an attribute in an observation.
 .
@@ -75,14 +75,14 @@ positive instances.
 Default: all.
 .
 .TP
-\fB\-c\fR, \fB\-\-closure \fRHorn | dualHorn | bijunctive | cnf
-Compute Horn, dual Horn, bijunctive, or general CNF formulas,
+\fB\-c\fR, \fB\-\-closure \fRHorn | dualHorn | 2sat | cnf
+Compute Horn, dual Horn, 2SAT, or general CNF formulas,
 respectively.
 .IP
 Default: Horn.
 .
 .TP
-\fB-d\fR, \fB\-\-direction\fR begin | end | lowcard | highcard | random
+\fB-d\fR, \fB\-\-direction\fR begin | end | lowcard | highcard | random | precedence
 .IP
 begin:
 .br
@@ -110,8 +110,19 @@ random:
 .br
 Remove columns in random order.
 .IP
+precedence:
+.br
+Remove columns in the order of non-decreasing precedence (see \fB--weights\fR option).
+.IP
 Default: begin.
 .
+.TP
+\fB\-w\fR, \fB\-\-weights\fR weights-file
+.IP
+File with prcedence weights (positive integers) for each attribute coordinate.
+This option is active only with "\fB--direction\fI precedence\fR".
+.IP
+default: The \fIbasename\fR of \fIinput-file\fR with \fI.prc\fR suffix.
 .TP
 \fB\-s\fR, \fB\-\-strategy\fR large | exact
 .IP

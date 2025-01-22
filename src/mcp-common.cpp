@@ -186,7 +186,9 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
 	closure = clDHORN;
       } else if (cl == "bij"
 		 || cl == "bijunctive"
-		 || cl == "b") {
+		 || cl == "b"
+		 || cl == "2sat"
+		 || cl == "2SAT") {
 	closure = clBIJUNCTIVE;
       } else if (cl == "general"
 		 || cl == "gen"

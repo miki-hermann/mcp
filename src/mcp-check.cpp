@@ -184,16 +184,10 @@ void print_arg () {
 }
 
 void read_header () {
-  // streambuf *backup;
-
   if (headerput.empty())
     varswitch = false;
   else {
     headerfile.open(headerput);
-    // if (headerfile.is_open()) {
-    //   backup = cin.rdbuf();
-    //   cin.rdbuf(headerfile.rdbuf());
-    // } else {
     if (! headerfile.is_open()) {
       cerr << "+++ Cannot open header file " << headerput << endl
 	   << "... Continue with fake variable names" << endl;
@@ -205,12 +199,11 @@ void read_header () {
     varswitch = true;
 
     string line;
-    while(getline(cin, line))
+    while(getline(headerfile, line))
       varnames.push_back(line);
     // arity = varnames.size();
 
     headerfile.close();
-    // cin.rdbuf(backup);
   }
 }
 
@@ -230,27 +223,6 @@ void read_matrix (Group_of_Matrix &matrix) {
   // reads the input matrices
 
   string line;
-
-  // moved into read_header and changed
-  // int ind_a, ind_b;
-  // getline(cin, line);
-  // istringstream inds(line);
-  // inds >> ind_a >> ind_b;
-  // cout << "+++ Indication line: " << ind_a << " " << ind_b << endl;
-
-  // if (ind_a == 1) {
-  //   cout << "+++ Own names for variables" << endl;
-  //   varswitch = true;
-
-  //   getline(cin, line);
-  //   istringstream vars(line);
-  //   string vname;
-  //   while (vars >> vname)
-  //     varnames.push_back(vname);
-  // }
-  // if (ind_b == 1)
-  //   getline(cin, line);
-
   string group;
   int numline = 0;
   while (getline(cin, line)) {

@@ -239,16 +239,11 @@ void clustering(Matrix &batch) {
 }
 
 void read_header () {
-  streambuf *backup;
-  
   if (headerput.empty())
     varswitch = false;
   else {
     headerfile.open(headerput);
-    if (headerfile.is_open()) {
-      backup = cin.rdbuf();
-      cin.rdbuf(headerfile.rdbuf());
-    } else {
+    if (! headerfile.is_open()) {
       cerr << "+++ Cannot open header file " << headerput << endl
 	   << "... Continue with fake variable names" << endl;
       varswitch = false;
@@ -259,12 +254,11 @@ void read_header () {
     varswitch = true;
 
     string line;
-    while(getline(cin, line))
+    while(getline(headerfile, line))
       varnames.push_back(line);
     arity = varnames.size();
 
     headerfile.close();
-    cin.rdbuf(backup);
   }
 }
 

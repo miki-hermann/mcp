@@ -1,7 +1,7 @@
 /**************************************************************************
  *                                                                        *
  *                                                                        *
- *	       Multiple Classification   Problem (MCP)                    *
+ *	         Multiple Classification Project (MCP)                    *
  *                                                                        *
  *	Author:   Miki Hermann                                            *
  *	e-mail:   hermann@lix.polytechnique.fr                            *
@@ -102,6 +102,8 @@ void print_arg () {
   outfile << "@@@ version       = " << version << endl;
   outfile << "@@@ input         = " << input << endl;
   outfile << "@@@ header        = " << headerput << endl;
+  if (direction == dPREC)
+    outfile << "@@@ prec. weights = " << weights << endl;
   outfile << "@@@ output        = " << output << endl;
   outfile << "@@@ latex output  = "
 	  << (latex.length() > 0 ? latex : "no")
@@ -245,18 +247,13 @@ void clustering(Matrix &batch) {
 }
 
 void read_header () {
-  streambuf *backup;
-  
   if (headerput.empty())
     varswitch = false;
   else {
     headerfile.open(headerput);
-    if (headerfile.is_open()) {
-      backup = cin.rdbuf();
-      cin.rdbuf(headerfile.rdbuf());
-    } else {
+    if (! headerfile.is_open()) {
       cerr << "+++ Cannot open header file " << headerput << endl
-	   << "... Continue with fakse variable names" << endl;
+	   << "... Continue with fake variable names" << endl;
       varswitch = false;
       return;
     }
@@ -265,39 +262,17 @@ void read_header () {
     varswitch = true;
 
     string line;
-    while(getline(cin, line))
+    while(getline(headerfile, line))
       varnames.push_back(line);
     arity = varnames.size();
 
     headerfile.close();
-    cin.rdbuf(backup);
   }
 }
 
 void read_matrix (Group_of_Matrix &matrix) {
   // reads the input matrices
   string line;
-
-  // moved to read_header and changed to eliminate indicator line
-  // int ind_a, ind_b;
-  // getline(cin, line);
-  // istringstream inds(line);
-  // inds >> ind_a >> ind_b;
-  // outfile << "+++ Indication line: " << ind_a << " " << ind_b << endl;
-
-  // if (ind_a == 1) {
-  //   outfile << "+++ Own names for variables" << endl;
-  //   varswitch = true;
-
-  //   getline(cin, line);
-  //   istringstream vars(line);
-  //   string vname;
-  //   while (vars >> vname)
-  //     varnames.push_back(vname);
-  //   arity = varnames.size();
-  // }
-  // if (ind_b == 1)
-  //   getline(cin, line);
 
   if (input != STDIN) {
     infile.open(input);

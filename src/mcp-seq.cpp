@@ -265,16 +265,6 @@ void read_header () {
 void read_matrix (Group_of_Matrix &matrix) {
   // reads the input matrices
 
-  // if (input != STDIN) {
-  //   infile.open(input);
-  //   if (infile.is_open())
-  //     cin.rdbuf(infile.rdbuf());
-  //   else {
-  //     cerr << "+++ Cannot open input file " << input << endl;
-  //     exit(2);
-  //   }
-  // }
-
   vector<string> gqueue;	// queue of group leading indicators
   Matrix batch;			// stored tuples which will be clustered
 
@@ -487,7 +477,7 @@ Formula learnBijunctive (const Matrix &T, const Matrix &F) {
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Formula post_prod(const vector<int> &A, const Matrix &F, const Formula &formula) {
+Formula post_prod (const vector<size_t> &A, const Matrix &F, const Formula &formula) {
   Formula schf;
   if (setcover == true) {
     cout << "+++ " << pcl_strg[closure]
@@ -541,7 +531,7 @@ Formula post_prod(const vector<int> &A, const Matrix &F, const Formula &formula)
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OneToOne () {
+void one2one () {
   // one group as positive agains one group of negative examples
 
   for (int i = 0; i < grps.size(); ++i) {
@@ -557,80 +547,85 @@ void OneToOne () {
       }
 
       Row sect = minsect(T, F);
-      cout << "+++ Section of groups T=" << grps[i] << " and F=" << grps[j] << ":" << endl;
+      if (nosection)
+	cout << "+++ Groups ";
+      else
+	cout << "+++ Section of groups ";
+      cout << "T=" << grps[i] << " and F=" << grps[j] << ":" << endl;
+
       if (!disjoint) {
 	cout << "+++ Matrices <T> and F are not disjoint, therefore I cannot infer a formula"
 	     << endl << endl;
       } else {
-	int hw = hamming_weight(sect);
-	cout << "+++ Relevant variables [" << hw << "]: ";
-	vector<int> A;
-	for (int k = 0; k < sect.size(); ++k)
-	  if (sect[k] == true) {
-	    A.push_back(k);
-	    if (varswitch) {
-	      vector<string> new_names = split(varnames[k], ":");
-	      cout << new_names[nOWN];
-	    } else
-	      cout << varid + to_string(offset+k);
-	    cout << " ";
+	Matrix TsectA;
+	Matrix FsectA;
+	vector<size_t> A;
+	if (!nosection) {
+	  int hw = hamming_weight(sect);
+	  // int hw = std::accumulate(sect.cbegin(), sect.cend(), 0);
+	  cout << "+++ Relevant variables [" << hw << "]: ";
+	  for (size_t k = 0; k < sect.size(); ++k)
+	    if (sect[k] == true) {
+	      A.push_back(k);
+	      if (varswitch) {
+		vector<string> new_names = split(varnames[k], ":");
+		cout << new_names[nOWN];
+	      } else
+		cout << varid + to_string(offset+k);
+	      cout << " ";
+	    }
+	  cout << endl;
+	  cout << "+++ A [" << hw << "] = {";
+	  for (const size_t &coord : A)
+	    cout << offset + coord << " ";
+	  cout << "}" << endl;
+	  TsectA = restrict(sect, T);
+	  FsectA = restrict(sect, F);
+
+	  cout << "+++ T|_A [" << TsectA.size() << "]";
+	  if (display >= ySECTION) {
+	    cout << " = { " << endl;
+	    cout << TsectA;
+	    cout << "+++ }";
 	  }
-	cout << endl;
-	cout << "+++ A [" << hw << "] = {";
-	for (int coord : A)
-	  cout << offset+coord << " ";
-	cout << "}" << endl;
-	Matrix TsectA = restrict(sect, T);
-	Matrix FsectA = restrict(sect, F);
+	  cout << endl;
 
-	cout << "+++ T|_A [" << TsectA.size() << "]";
-	if (display >= ySECTION) {
-	  cout << " = { " << endl;
-	  cout << TsectA;
-	  cout << "+++ }";
+	  cout << "+++ F|_A [" << FsectA.size() << "]";
+	  if (display >= ySECTION) {
+	    cout << " = { " << endl;
+	    cout << FsectA;
+	    cout << "+++ }";
+	  }
+	  cout << endl;
 	}
-	cout << endl;
-
-	cout << "+++ F|_A [" << FsectA.size() << "]";
-	if (display >= ySECTION) {
-	  cout << " = { " << endl;
-	  cout << FsectA;
-	  cout << "+++ }";
-	}
-	cout << endl;
-
-	// Matrix HC;
-	// if (closure == clHORN || closure == clDHORN) {
-	//   HC = HornClosure(TsectA);
-	//   cout << "+++ " << pcl_strg[closure] << "Closure(T|_A) [" << HC.size() << "]";
-	//   if (display >= ySECTION) {
-	//     cout << " = { " << endl;
-	//     cout << HC;
-	//     cout << "+++ }";
-	//   }
-	//   cout << endl;
-	// } else if (closure == clBIJUNCTIVE)
-	//   cout << "+++ " << pcl_strg[closure] << "Closure not computed" << endl;
 
 	Formula formula;
 	if (closure == clHORN || closure == clDHORN)
 	  formula =  strategy == sEXACT
-	    ? learnHornExact(TsectA)
-	    : learnHornLarge(TsectA, FsectA);
+	    ? learnHornExact(nosection ? T : TsectA)
+	    : learnHornLarge(nosection ? T : TsectA, nosection ? F : FsectA);
 	else if (closure == clBIJUNCTIVE) {
-	  formula = learnBijunctive(TsectA, FsectA);
+	  formula = learnBijunctive(nosection ? T : TsectA, nosection ? F : FsectA);
 	  if (formula.empty()) {
-	    cout << "+++ bijunctive formula not possible for this configuration" << endl << endl;
+	    cout << "+++ 2SAT formula not possible for this configuration"
+		 << endl
+		 << endl;
 	    continue;
 	  }
 	} else if (closure == clCNF)
 	  formula = strategy == sLARGE
-	    ? learnCNFlarge(FsectA)
-	    : learnCNFexact(TsectA);
+	    ? learnCNFlarge(nosection ? F : FsectA)
+	    : learnCNFexact(nosection ? T : TsectA);
 
-	Formula schf = post_prod(A, FsectA, formula);
+	vector<size_t> names(arity);
+	if (nosection)
+	  for (size_t nms = 0; nms < arity; ++nms)
+	    names[nms] = nms;
+	Formula schf = nosection
+	  ? post_prod(names, F,      formula)
+	  : post_prod(A,     FsectA, formula);
 	if (! formula_output.empty())
-	  write_formula(grps[i], grps[j], A, schf);
+	  write_formula(grps[i], grps[j], nosection ? names : A, schf);
       }
       disjoint = true;
       cout << endl;
@@ -638,13 +633,13 @@ void OneToOne () {
   }
 }
 
-void SelectedToAll (const string grp) {
+void selected2all (const string &grp) {
   // selected group of positive exaples against all other groups together as negative examples
 
   Matrix T = group_of_matrix[grp];
   Matrix F;
   vector<string> index;
-  for (int j = 0; j < grps.size(); ++j) {
+  for (size_t j = 0; j < grps.size(); ++j) {
     if (grps[j] == grp) continue;
     F.insert(F.end(), group_of_matrix[grps[j]].begin(), group_of_matrix[grps[j]].end());
     index.push_back(grps[j]);
@@ -658,186 +653,95 @@ void SelectedToAll (const string grp) {
   }
     
   Row sect= minsect(T, F);
-  cout << "+++ Section of groups T=" << grp << " and F=( ";
-  for (string coord : index)
+  if (nosection)
+    cout << "+++ Groups ";
+  else
+    cout << "+++ Section of groups ";
+  cout << "T=" << grp << " and F=( ";
+  for (const string &coord : index)
     cout << coord << " ";
   cout << "):" << endl;
+  
   if (!disjoint)
     cout << "+++ Matrices <T> and F are not disjoint, therefore I cannot infer a formula"
 	 << endl << endl;
   else {
-    int hw = hamming_weight(sect);
-    cout << "+++ Relevant variables [" << hw << "]: ";
-    vector<int> A;
-    for (int k = 0; k < sect.size(); ++k)
-      if (sect[k]) {
-	A.push_back(k);
-	if (varswitch) {
-	  vector<string> new_names = split(varnames[k], ":");
-	  cout << new_names[nOWN];
-	} else
-	  cout << varid << to_string(offset+k);
-	cout << " ";
+    Matrix TsectA;
+    Matrix FsectA;
+    vector<size_t> A;
+    if (!nosection) {
+      int hw = hamming_weight(sect);
+      cout << "+++ Relevant variables [" << hw << "]: ";
+      for (size_t k = 0; k < sect.size(); ++k)
+	if (sect[k]) {
+	  A.push_back(k);
+	  if (varswitch) {
+	    vector<string> new_names = split(varnames[k], ":");
+	    cout << new_names[nOWN];
+	  } else
+	    cout << varid << to_string(offset+k);
+	  cout << " ";
+	}
+      cout << endl;
+      cout << "+++ A [" << hw << "] = { ";
+      for (size_t var : A)
+	cout << offset + var << " ";
+      cout << "}" << endl;
+      TsectA = restrict(sect, T);
+      FsectA = restrict(sect, F);
+
+      cout << "+++ T|_A [" << TsectA.size() << "]";
+      if (display >= ySECTION) {
+	cout << " = { " << endl;
+	cout << TsectA;
+	cout << "+++ }";
       }
-    cout << endl;
-    cout << "+++ A [" << hw << "] = { ";
-    for (int var : A)
-      cout << offset+var << " ";
-    cout << "}" << endl;
-    Matrix TsectA = restrict(sect, T);
-    Matrix FsectA = restrict(sect, F);
+      cout << endl;
 
-    cout << "+++ T|_A [" << TsectA.size() << "]";
-    if (display >= ySECTION) {
-      cout << " = { " << endl;
-      cout << TsectA;
-      cout << "+++ }";
+      cout << "+++ F|_A [" << FsectA.size() << "]";
+      if (display >= ySECTION) {
+	cout << " = { " << endl;
+	cout << FsectA;
+	cout << "+++ }";
+      }
+      cout << endl;
     }
-    cout << endl;
-
-    cout << "+++ F|_A [" << FsectA.size() << "]";
-    if (display >= ySECTION) {
-      cout << " = { " << endl;
-      cout << FsectA;
-      cout << "+++ }";
-    }
-    cout << endl;
-
-    // Matrix HC;
-    // if (closure == clHORN || closure == clDHORN) {
-    //   HC = HornClosure(TsectA);
-    //   cout << "+++ " << pcl_strg[closure] << "Closure(T|_A) [" << HC.size() << "]";
-    //   if (display >= ySECTION) {
-    // 	cout << " = { " << endl;
-    // 	cout << HC;
-    // 	cout << "+++ }";
-    //   }
-    //   cout << endl;
-    // } else if (closure == clBIJUNCTIVE)
-    //   cout << "+++ " << pcl_strg[closure] << "Closure not computed" << endl;
 
     Formula formula;
     if (closure == clHORN || closure == clDHORN)
       formula =  strategy == sEXACT
-	? learnHornExact(TsectA)
-	: learnHornLarge(TsectA, FsectA);
+	? learnHornExact(nosection ? T : TsectA)
+	: learnHornLarge(nosection ? T : TsectA, nosection ? F : FsectA);
     else if (closure == clBIJUNCTIVE) {
-      formula = learnBijunctive(TsectA, FsectA);
+      formula = learnBijunctive(nosection ? T : TsectA, nosection ? F : FsectA);
       if (formula.empty()) {
-	cout << "+++ bijunctive formula not possible for this configuration" << endl << endl;
+	cout << "+++ 2SAT formula not possible for this configuration" << endl << endl;
 	return;
       }
-    }
-    else if (closure == clCNF)
+    } else if (closure == clCNF)
       formula = strategy == sLARGE
-	? learnCNFlarge(FsectA)
-	: learnCNFexact(TsectA);
+	? learnCNFlarge(nosection ? F : FsectA)
+	: learnCNFexact(nosection ? T : TsectA);
 
-    Formula schf = post_prod(A, FsectA, formula);
+    vector<size_t> names(arity);
+    if (nosection)
+      for (size_t nms = 0; nms < arity; ++nms)
+	names[nms] = nms;
+    Formula schf = nosection
+      ? post_prod(names, F,      formula)
+      : post_prod(A,     FsectA, formula);
     if (! formula_output.empty())
-      write_formula(grp, A, schf);
+      write_formula(grp, nosection ? names : A, schf);
   }
   disjoint = true;
   cout << endl;
 }
 
-void OneToAll () {
+void one2all () {
   // one group of positive exaples against all other groups together as negative examples
   
   for (auto grp : grps)
-    SelectedToAll(grp);
-}
-
-void OneToAllNosection () {
-  // one group of positive exaples against all other groups together as negative examples
-  // no section is done
-
-  
-  vector<int> names(arity);
-  for (int nms = 0; nms < arity; ++nms)
-    names[nms] = nms;
-
-  for (int i = 0; i < grps.size(); ++i) {
-    Matrix T = group_of_matrix[grps[i]];
-    Matrix F;
-    vector<string> index;
-    for (int j = 0; j < grps.size(); ++j) {
-      if (j == i) continue;
-      F.insert(F.end(), group_of_matrix[grps[j]].begin(), group_of_matrix[grps[j]].end());
-      index.push_back(grps[j]);
-    }
-    sort(index.begin(), index.end());
-
-    if (closure == clDHORN) {
-      cout << "+++ swapping polarity of vectors and treating swapped vectors as Horn" << endl;
-      T = polswap_matrix(T);
-      F = polswap_matrix(F);
-    }
-
-    cout << "+++ Groups T=" << grps[i] << " and F=( ";
-    for (string coord : index)
-      cout << coord << " ";
-    cout << "):" << endl;
-
-    if (display == ySHOW) {
-      cout << "+++ T [" << T.size() << "] = { " << endl;
-      cout << T;
-      cout << "+++ }" << endl;
-
-      cout << "+++ F [" << F.size() << "] = { " << endl;
-      cout << F;
-      cout << "+++ }" << endl;
-    } else {
-      cout << "+++ T [" << T.size() << "]" << endl;
-      cout << "+++ F [" << F.size() << "]" << endl;
-    }
-
-    // Matrix HC;
-    // if (closure == clHORN || closure == clDHORN) {
-    //   HC = HornClosure(T);
-    //   cout << "+++ " << pcl_strg[closure] << "Closure(T) [" << HC.size() << "]";
-    //   if (display == ySHOW) {
-    // 	cout << " = { " << endl;
-    // 	cout << HC;
-    // 	cout << "+++ }";
-    //   }
-    //   cout << endl;
-    // } else if (closure == clBIJUNCTIVE)
-    //   cout << "+++ " << pcl_strg[closure] << "Closure not computed" << endl;
-    
-    if (inadmissible(T,F)) {
-      cout << "*** F not disjoint from <T>" << endl;
-      disjoint = false;
-      cout << "+++ Matrices <T> and F are not disjoint, therefore I cannot infer a formula"
-	   << endl << endl;
-    }
-
-    if (disjoint) {
-      Formula formula;
-      if (closure == clHORN || closure == clDHORN)
-	formula =  strategy == sEXACT
-	  ? learnHornExact(T)
-	  : learnHornLarge(T, F);
-      else if (closure == clBIJUNCTIVE) {
-	formula = learnBijunctive(T, F);
-	if (formula.empty()) {
-	  cout << "+++ bijunctive formula not possible for this configuration"
-	       << endl << endl;
-	  continue;
-	}
-      }
-      else if (closure == clCNF)
-	formula = strategy == sLARGE
-	  ? learnCNFlarge(F)
-	  : learnCNFexact(T);
-
-      Formula schf = post_prod(names, F, formula);
-      if (! formula_output.empty())
-	write_formula(grps[i], names, schf);
-    }
-    disjoint = true;
-    cout << endl;
-  }
+    selected2all(grp);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -857,16 +761,13 @@ int main(int argc, char **argv) {
 
   switch (action) {
   case aONE:
-    OneToOne ();
+    one2one ();
     break;
   case aALL:
-    OneToAll ();
-    break;
-  case aNOSECT:
-    OneToAllNosection ();
+    one2all ();
     break;
   case aSELECTED:
-    SelectedToAll (selected);
+    selected2all (selected);
     break;
   }
 

@@ -89,7 +89,8 @@ ofstream outfile;
 ofstream latexfile;
 string formula_output;			// prefix of files, where formulas will be stored
 
-const string action_strg[]    = {"One to One", "One to All Others", "One to All Others, Nosection",
+const string action_strg[]    = {"One to One", "One to All Others",
+				 // "One to All Others, Nosection",
                                  "Selected to All Others"};
 const string closure_strg[]   = {"Horn",       "dual Horn",  "bijunctive", "affine", "CNF"};
 const string cooking_strg[]   = {"raw",        "bleu",       "medium",     "well done"};
@@ -116,13 +117,13 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
       } else if (act == "all"
 		 || act == "a") {
 	action =aALL;
-      } else if (act == "nosection"
-		 || act == "nosect"
-		 || act == "nos"
-		 || act == "no"
-		 || act == "ns"
-		 || act == "n" ) {
-	action = aNOSECT;
+      // } else if (act == "nosection"
+      // 		 || act == "nosect"
+      // 		 || act == "nos"
+      // 		 || act == "no"
+      // 		 || act == "ns"
+      // 		 || act == "n" ) {
+      // 	action = aNOSECT;
       } else if (act == "selected"
 		 || act == "select"
 		 || act == "sel"
@@ -137,6 +138,11 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
     } else if (arg == "-w"
 	       || arg == "--weights") {
       weights = argv[++argument];
+    } else if (arg == "-ns" || arg == "--nosect"
+	       || arg == "--nosection"
+	       || arg == "--no-section"
+	       || arg == "--no_section") {
+      nosection = true;
     } else if  (arg == "-d"
 		|| arg == "--direction") {
       string dir = argv[++argument];
@@ -507,6 +513,9 @@ Row minsect (const Matrix &T, const Matrix &F) {
     disjoint = false;
     Row emptyrow(lngt, false);
     return emptyrow;
+  } else if (nosection) {
+    Row fullrow(lngt, true);
+    return fullrow;
   }
 
   Row A(lngt, true);
@@ -858,7 +867,7 @@ Row minsect (const Matrix &T, const Matrix &F) {
 }
 
 void w_f (const string &filename, const string suffix,
-	  const vector<int> &names, const Formula &formula) {
+	  const vector<size_t> &names, const Formula &formula) {
   // open the file and write the formula in it
   ofstream formfile;
   formfile.open(filename);
@@ -882,7 +891,7 @@ void w_f (const string &filename, const string suffix,
 }
 
 void write_formula (const string &suffix1, const string &suffix2,
-		    const vector<int> &names, const Formula &formula) {
+		    const vector<size_t> &names, const Formula &formula) {
   // write formula to a file in DIMACS format
   // offset begins at 1, if not set otherwise
   w_f(formula_output + "_" + suffix1 + "_" + suffix2 + ".log",
@@ -890,7 +899,7 @@ void write_formula (const string &suffix1, const string &suffix2,
 }
 
 void write_formula (const string &suffix,
-		    const vector<int> &names, const Formula &formula) {
+		    const vector<size_t> &names, const Formula &formula) {
   // write formula to a file in DIMACS format
   // offset begins at 1, if not set otherwise
   w_f(formula_output + "_" + suffix + ".log",

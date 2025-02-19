@@ -482,7 +482,7 @@ Formula learnBijunctive (ofstream &process_outfile, const Matrix &T, const Matri
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Formula post_prod(ofstream &process_outfile, ofstream &latex_outfile,
-	       const vector<int> &A, const Matrix &F, const Formula &formula) {
+	       const vector<size_t> &A, const Matrix &F, const Formula &formula) {
   Formula schf;
   if (setcover == true) {
     process_outfile << "+++ " << pcl_strg[closure]
@@ -512,8 +512,8 @@ Formula post_prod(ofstream &process_outfile, ofstream &latex_outfile,
 
 Formula post_prod(ofstream &process_outfile, ofstream &latex_outfile,
 		  const Matrix &F, const Formula &formula) {
-  vector<int> names;
-  for (int i = 0; i < formula[0].size(); ++i)
+  vector<size_t> names;
+  for (size_t i = 0; i < formula[0].size(); ++i)
     names.push_back(i);
 
   return post_prod(process_outfile, latex_outfile, names, F, formula);
@@ -521,10 +521,9 @@ Formula post_prod(ofstream &process_outfile, ofstream &latex_outfile,
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OneToOne (ofstream &process_outfile, ofstream &latex_outfile, const int &i) {
+void one2one (ofstream &process_outfile, ofstream &latex_outfile, const int &i) {
   // one group as positive agains one group of negative examples
 
-  // for (int i = 0; i < grps.size(); ++i) {
   Matrix T = group_of_matrix[grps[i]];
   for (int j = 0; j < grps.size(); ++j) {
     if (j == i) continue;
@@ -537,79 +536,84 @@ void OneToOne (ofstream &process_outfile, ofstream &latex_outfile, const int &i)
     }
 
     Row sect = minsect(T, F);
-    process_outfile << "+++ Section of groups T=" << grps[i] << " and F=" << grps[j] << ":" << endl;
+    if (nosection)
+      process_outfile << "+++ Groups ";
+    else
+      process_outfile << "+++ Section of groups ";
+    process_outfile << "T=" << grps[i] << " and F=" << grps[j] << ":" << endl;
     // process_outfile << "    " << sect << endl;
+    
     if (!disjoint) {
       process_outfile << "+++ Matrices <T> and F are not disjoint, therefore I cannot infer a formula"
 		      << endl << endl;
     } else {
-      int hw = hamming_weight(sect);
-      process_outfile << "+++ Relevant variables [" << hw << "]: ";
-      vector<int> A;
-      for (int k = 0; k < sect.size(); ++k)
-	if (sect[k] == true) {
-	  A.push_back(k);
-	  if (varswitch) {
-	    vector<string> new_names = split(varnames[k], ":");
-	    process_outfile << new_names[nOWN];
-	  } else
-	    process_outfile << varid << to_string(offset+k);
-	  process_outfile << " ";
+      Matrix TsectA;
+      Matrix FsectA;
+      vector<size_t> A;
+      if (!nosection) {
+	int hw = hamming_weight(sect);
+	process_outfile << "+++ Relevant variables [" << hw << "]: ";
+	for (size_t k = 0; k < sect.size(); ++k)
+	  if (sect[k] == true) {
+	    A.push_back(k);
+	    if (varswitch) {
+	      vector<string> new_names = split(varnames[k], ":");
+	      process_outfile << new_names[nOWN];
+	    } else
+	      process_outfile << varid << to_string(offset+k);
+	    process_outfile << " ";
+	  }
+	process_outfile << endl;
+	process_outfile << "+++ A [" << hw << "] = {";
+	for (const size_t &coord : A)
+	  process_outfile << offset + coord << " ";
+	process_outfile << "}" << endl;
+	TsectA = restrict(sect, T);
+	FsectA = restrict(sect, F);
+
+	process_outfile << "+++ T|_A [" << TsectA.size() << "]";
+	if (display >= ySECTION) {
+	  process_outfile << " = { " << endl;
+	  process_outfile << TsectA;
+	  process_outfile << "+++ }";
 	}
-      process_outfile << endl;
-      process_outfile << "+++ A [" << hw << "] = {";
-      for (int coord : A)
-	process_outfile << offset+coord << " ";
-      process_outfile << "}" << endl;
-      Matrix TsectA = restrict(sect, T);
-      Matrix FsectA = restrict(sect, F);
+	process_outfile << endl;
 
-      if (display >= ySECTION) {
-	process_outfile << "+++ T|_A [" << TsectA.size() << "] = { " << endl;
-	process_outfile << TsectA;
-	process_outfile << "+++ }" << endl;
-	
-	process_outfile << "+++ F|_A [" << FsectA.size() << "] = { " << endl;
-	process_outfile << FsectA;
-	process_outfile << "+++ }" << endl;
-      } else {
-	process_outfile << "+++ T|_A [" << TsectA.size() << "]" << endl;
-	process_outfile << "+++ F|_A [" << FsectA.size() << "]" << endl;
+	process_outfile << "+++ F|_A [" << FsectA.size() << "]";
+	if (display >= ySECTION) {
+	  process_outfile << " = { " << endl;
+	  process_outfile << FsectA;
+	  process_outfile << "+++ }";
+	}
+	process_outfile << endl;
       }
-
-      // Matrix HC;
-      // if (closure == clHORN || closure == clDHORN) {
-      // 	HC = HornClosure(TsectA);
-      // 	process_outfile << "+++ " << pcl_strg[closure] << "Closure(T|_A) [" << HC.size() << "]";
-      // 	if (display >= ySECTION) {
-      // 	  process_outfile << " = { " << endl;
-      // 	  process_outfile << HC;
-      // 	  process_outfile << "+++ }";
-      // 	}
-      // 	process_outfile << endl;
-      // } else if (closure == clBIJUNCTIVE)
-      // 	process_outfile << "+++ " << pcl_strg[closure] << "Closure not computed" << endl;
 
       Formula formula;
       if (closure == clHORN || closure == clDHORN)
 	formula =  strategy == sEXACT
 	  ? learnHornExact(TsectA)
-	  : learnHornLarge(process_outfile, TsectA, FsectA);
+	  : learnHornLarge(process_outfile, nosection ? T : TsectA, nosection ? F : FsectA);
       else if (closure == clBIJUNCTIVE) {
-	formula = learnBijunctive(process_outfile, TsectA, FsectA);
+	formula = learnBijunctive(process_outfile, nosection ? T : TsectA, nosection ? F : FsectA);
 	if (formula.empty()) {
-	  process_outfile << "+++ bijunctive formula not possible for this configuration" << endl << endl;
+	  process_outfile << "+++ 2SAT formula not possible for this configuration" << endl << endl;
 	  continue;
 	}
       }
       else if (closure == clCNF)
 	formula = strategy == sLARGE
-	  ? learnCNFlarge(FsectA)
-	  : learnCNFexact(TsectA);
+	  ? learnCNFlarge(nosection ? F : FsectA)
+	  : learnCNFexact(nosection ? T : TsectA);
 
-      Formula schf = post_prod(process_outfile, latex_outfile, A, FsectA, formula);
+      vector<size_t> names(arity);
+      if (nosection)
+	for (size_t nms = 0; nms < arity; ++nms)
+	  names[nms] = nms;
+      Formula schf = nosection
+	? post_prod(process_outfile, latex_outfile, names, F,      formula)
+	: post_prod(process_outfile, latex_outfile, A,     FsectA, formula);
       if (! formula_output.empty())
-	write_formula(grps[i], grps[j], A, schf);
+	write_formula(grps[i], grps[j], nosection ? names : A, schf);
     }
     disjoint = true;
     process_outfile << endl;
@@ -617,15 +621,14 @@ void OneToOne (ofstream &process_outfile, ofstream &latex_outfile, const int &i)
   // }
 }
 
-void OneToAll (ofstream &process_outfile, ofstream &latex_outfile, const int &i) {
-  // one group of positive exaples against all other groups together as negative examples
+void selected2all (ofstream &process_outfile, ofstream &latex_outfile, const string &grp) {
+  // selected group of positive exaples against all other groups together as negative examples
   
-  // for (int i = 0; i < grps.size(); ++i) {
-  Matrix T = group_of_matrix[grps[i]];
+  Matrix T = group_of_matrix[grp];
   Matrix F;
   vector<string> index;
-  for (int j = 0; j < grps.size(); ++j) {
-    if (j == i) continue;
+  for (size_t j = 0; j < grps.size(); ++j) {
+    if (grps[j] == grp) continue;
     F.insert(F.end(), group_of_matrix[grps[j]].begin(), group_of_matrix[grps[j]].end());
     index.push_back(grps[j]);
   }
@@ -638,190 +641,109 @@ void OneToAll (ofstream &process_outfile, ofstream &latex_outfile, const int &i)
   }
     
   Row sect= minsect(T, F);
-  process_outfile << "+++ Section of groups T=" << grps[i] << " and F=( ";
-  for (string coord : index)
+  if (nosection)
+    process_outfile << "+++ Groups ";
+  else
+    process_outfile << "+++ Section of groups ";
+  process_outfile << "T=" << grp << " and F=( ";
+  for (const string &coord : index)
     process_outfile << coord << " ";
   process_outfile << "):" << endl;
-  // process_outfile << "    " << sect << endl;
+
   if (!disjoint) {
     process_outfile << "+++ Matrices <T> and F are not disjoint, therefore I cannot infer a formula"
 		    << endl << endl;
   } else {
-    int hw = hamming_weight(sect);
-    process_outfile << "+++ Relevant variables [" << hw << "]: ";
-    vector<int> A;
-    for (int k = 0; k < sect.size(); ++k)
-      if (sect[k]) {
-	A.push_back(k);
-	if (varswitch) {
-	  vector<string> new_names = split(varnames[k], ":");
-	  process_outfile << new_names[nOWN];
-	} else
-	  process_outfile << varid << to_string(offset+k);
-	process_outfile << " ";
+    Matrix TsectA;
+    Matrix FsectA;
+    vector<size_t> A;
+    if (!nosection) {
+      int hw = hamming_weight(sect);
+      process_outfile << "+++ Relevant variables [" << hw << "]: ";
+      for (size_t k = 0; k < sect.size(); ++k)
+	if (sect[k]) {
+	  A.push_back(k);
+	  if (varswitch) {
+	    vector<string> new_names = split(varnames[k], ":");
+	    process_outfile << new_names[nOWN];
+	  } else
+	    process_outfile << varid << to_string(offset+k);
+	  process_outfile << " ";
+	}
+      process_outfile << endl;
+      process_outfile << "+++ A [" << hw << "] = { ";
+      for (size_t var : A)
+	process_outfile << offset + var << " ";
+      process_outfile << "}" << endl;
+      TsectA = restrict(sect, T);
+      FsectA = restrict(sect, F);
+
+      process_outfile << "+++ T|_A [" << TsectA.size() << "]";
+      if (display >= ySECTION) {
+	process_outfile << " = { " << endl;
+	process_outfile << TsectA;
+	process_outfile << "+++ }";
       }
-    process_outfile << endl;
-    process_outfile << "+++ A [" << hw << "] = { ";
-    for (int var : A)
-      process_outfile << offset+var << " ";
-    process_outfile << "}" << endl;
-    Matrix TsectA = restrict(sect, T);
-    Matrix FsectA = restrict(sect, F);
+      process_outfile << endl;
 
-    if (display >= ySECTION) {
-      process_outfile << "+++ T|_A [" << TsectA.size() << "] = { " << endl;
-      process_outfile << TsectA;
-      process_outfile << "+++ }" << endl;
-      
-      process_outfile << "+++ F|_A [" << FsectA.size() << "] = { " << endl;
-      process_outfile << FsectA;
-      process_outfile << "+++ }" << endl;
-    } else {
-      process_outfile << "+++ T|_A [" << TsectA.size() << "]" << endl;
-      process_outfile << "+++ F|_A [" << FsectA.size() << "]" << endl;
+      process_outfile << "+++ F|_A [" << FsectA.size() << "]";
+      if (display >= ySECTION) {
+	process_outfile << " = { " << endl;
+	process_outfile << FsectA;
+	process_outfile << "+++ }";
+      }
+      process_outfile << endl;
     }
-
-    // Matrix HC;
-    // if (closure == clHORN || closure == clDHORN) {
-    //   HC = HornClosure(TsectA);
-    //   process_outfile << "+++ " << pcl_strg[closure] << "Closure(T|_A) [" << HC.size() << "]";
-    //   if (display >= ySECTION) {
-    // 	process_outfile << " = { " << endl;
-    // 	process_outfile << HC;
-    // 	process_outfile << "+++ }";
-    //   }
-    //   process_outfile << endl;
-    // } else if (closure == clBIJUNCTIVE)
-    //   process_outfile << "+++ " << pcl_strg[closure] << "Closure not computed" << endl;
 
     Formula formula;
     if (closure == clHORN || closure == clDHORN)
       formula =  strategy == sEXACT
-	? learnHornExact(TsectA)
-	: learnHornLarge(process_outfile, TsectA, FsectA);
+	? learnHornExact(nosection ? T : TsectA)
+	: learnHornLarge(process_outfile, nosection ? T : TsectA, nosection ? F : FsectA);
     else if (closure == clBIJUNCTIVE) {
-      formula = learnBijunctive(process_outfile, TsectA, FsectA);
+      formula = learnBijunctive(process_outfile, nosection ? T : TsectA, nosection ? F : FsectA);
       if (formula.empty()) {
-	process_outfile << "+++ bijunctive formula not possible for this configuration" << endl << endl;
+	process_outfile << "+++ 2SAT formula not possible for this configuration" << endl << endl;
 	disjoint = true;
 	return;
       }
-    }
-    else if (closure == clCNF)
+    } else if (closure == clCNF)
       formula = strategy == sLARGE
-	? learnCNFlarge(FsectA)
-	: learnCNFexact(TsectA);
+	? learnCNFlarge(nosection ? F : FsectA)
+	: learnCNFexact(nosection ? T : TsectA);
 
-    Formula schf = post_prod(process_outfile, latex_outfile, A, FsectA, formula);
+    vector<size_t> names(arity);
+    if (nosection)
+      for (size_t nms = 0; nms < arity; ++nms)
+	names[nms] = nms;
+    Formula schf = nosection
+      ? post_prod(process_outfile, latex_outfile, names, F,      formula)
+      : post_prod(process_outfile, latex_outfile, A,     FsectA, formula);
     if (! formula_output.empty())
-      write_formula(grps[i], A, schf);
+      write_formula(grp, nosection ? names : A, schf);
   }
   disjoint = true;
   process_outfile << endl;
   // }
 }
 
-void OneToAllNosection (ofstream &process_outfile, ofstream &latex_outfile, const int &i) {
+void one2all (ofstream &popr, ofstream &latpr) {
   // one group of positive exaples against all other groups together as negative examples
-  // no section is done
-
-  vector<int> names(arity);
-  for (int nms = 0; nms < arity; ++nms)
-    names[nms] = nms;
   
-  // for (int i = 0; i < grps.size(); ++i) {
-  Matrix T = group_of_matrix[grps[i]];
-  Matrix F;
-  vector<string> index;
-  for (int j = 0; j < grps.size(); ++j) {
-    if (j == i) continue;
-    F.insert(F.end(), group_of_matrix[grps[j]].begin(), group_of_matrix[grps[j]].end());
-    index.push_back(grps[j]);
-  }
-  sort(index.begin(), index.end());
-
-  if (closure == clDHORN) {
-    process_outfile << "+++ swapping polarity of vectors and treating swapped vectors as Horn" << endl;
-    T = polswap_matrix(T);
-    F = polswap_matrix(F);
-  }
-
-  process_outfile << "+++ Groups T=" << grps[i] << " and F=( ";
-  for (string coord : index)
-    process_outfile << coord << " ";
-  process_outfile << "):" << endl;
-
-  if (display == ySHOW) {
-    process_outfile << "+++ T [" << T.size() << "] = { " << endl;
-    process_outfile << T;
-    process_outfile << "+++ }" << endl;
-
-    process_outfile << "+++ F [" << F.size() << "] = { " << endl;
-    process_outfile << F;
-    process_outfile << "+++ }" << endl;
-  } else {
-    process_outfile << "+++ T [" << T.size() << "]" << endl;
-    process_outfile << "+++ F [" << F.size() << "]" << endl;
-  }
-
-  // Matrix HC;
-  // if (closure == clHORN || closure == clDHORN) {
-  //   HC = HornClosure(T);
-  //   process_outfile << "+++ " << pcl_strg[closure] << "Closure(T) [" << HC.size() << "]";
-  //   if (display == ySHOW) {
-  //     process_outfile << " = { " << endl;
-  //     process_outfile << HC;
-  //     process_outfile << "+++ }";
-  //   }
-  //   process_outfile << endl;
-  // } else if (closure == clBIJUNCTIVE)
-  //   process_outfile << "+++ " << pcl_strg[closure] << "Closure not computed" << endl;
-    
-  if (inadmissible(T,F)) {
-    process_outfile << "*** F not disjoint from <T>" << endl;
-    disjoint = false;
-    process_outfile << "+++ Matrices <T> and F are not disjoint, therefore I cannot infer a formula"
-		    << endl << endl;
-  }
-
-  if (disjoint) {
-    Formula formula;
-    if (closure == clHORN || closure == clDHORN)
-      formula =  strategy == sEXACT
-	? learnHornExact(T)
-	: learnHornLarge(process_outfile, T, F);
-    else if (closure == clBIJUNCTIVE) {
-      formula = learnBijunctive(process_outfile, T, F);
-      if (formula.empty()) {
-	process_outfile << "+++ bijunctive formula not possible for this configuration" << endl << endl;
-	disjoint = true;
-	return;
-      }
-    }
-    else if (closure == clCNF)
-      formula = strategy == sLARGE
-	? learnCNFlarge(F)
-	: learnCNFexact(T);
-
-    Formula schf = post_prod(process_outfile, latex_outfile, F, formula);
-    if (! formula_output.empty())
-      write_formula(grps[i], names, schf);
-  }
-  disjoint = true;
-  process_outfile << endl;
-  // }
+  for (const auto &grp : grps)
+    selected2all(popr, latpr, grp);
 }
 
 void split_action (ofstream &popr, ofstream &latpr, const int &process_id) {
   switch (action) {
   case aONE:
-    OneToOne (popr, latpr, process_id);
+    one2one(popr, latpr, process_id);
     break;
   case aALL:
-    OneToAll (popr, latpr, process_id);
+    one2all(popr, latpr);
     break;
-  case aNOSECT:
-    OneToAllNosection (popr, latpr, process_id);
+  case aSELECTED:
+    selected2all (popr, latpr, selected);
     break;
   }
 }

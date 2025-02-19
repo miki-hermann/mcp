@@ -134,9 +134,9 @@ Formula learnHornExact (Matrix T);
 Formula learnCNFlarge (const Matrix &F);
 Formula learnCNFexact (Matrix T);
 void write_formula (const string &suffix1, const string &suffix2,
-		    const vector<int> &names, const Formula &formula);
+		    const vector<size_t> &names, const Formula &formula);
 void write_formula (const string &suffix,
-		    const vector<int> &names, const Formula &formula);
+		    const vector<size_t> &names, const Formula &formula);
 Matrix polswap_matrix (const Matrix &A);
 Formula polswap_formula (const Formula &formula);
 string time2string (size_t milliseconds);

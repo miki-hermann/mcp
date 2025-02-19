@@ -1,7 +1,7 @@
 /**************************************************************************
  *                                                                        *
  *                                                                        *
- *	       Multiple Classification   Problem (MCP)                    *
+ *	         Multiple Classification Project (MCP)                    *
  *                                                                        *
  *	Author:   Miki Hermann                                            *
  *	e-mail:   hermann@lix.polytechnique.fr                            *
@@ -50,13 +50,14 @@ string varid = "x";
 bool varswitch = false;
 vector<string> varnames;
 
-Action action       = aALL;
-string selected     = "";
-Print print         = pVOID;
-Display display     = yUNDEF;
+Action action   = aALL;
+string selected = "";
+Print print     = pVOID;
+Display display = yUNDEF;
 string suffix;
-int arity           = 0;
-int offset          = 0;
+size_t arity    = 0;
+size_t offset   = 0;
+bool nosection  = false;
 
 //------------------------------------------------------------------------------
 
@@ -121,7 +122,7 @@ vector<string> split (string strg, string delimiters) {
   return chunks;
 }
 
-string clause2dimacs (const vector<int> &names, const Clause &clause) {
+string clause2dimacs (const vector<size_t> &names, const Clause &clause) {
   // transforms clause into readable clausal form in DIMACS format to print
   string output = "\t";
   bool plus = false;
@@ -140,7 +141,7 @@ string clause2dimacs (const vector<int> &names, const Clause &clause) {
   return output;
 }
 
-string formula2dimacs (const vector<int> &names, const Formula &formula) {
+string formula2dimacs (const vector<size_t> &names, const Formula &formula) {
   // transforms formula into readable clausal form in DIMACS format to print
   if (formula.empty())
     return " ";
@@ -170,7 +171,7 @@ string literal2string (const int &litname, const Literal lit) {
   return output;
 }
 
-string rlcl2string (const vector<int> &names, const Clause &clause) {
+string rlcl2string (const vector<size_t> &names, const Clause &clause) {
   string output;
   bool plus = false;
   for (int lit = 0; lit < clause.size(); ++lit) {
@@ -185,7 +186,7 @@ string rlcl2string (const vector<int> &names, const Clause &clause) {
   return output;
 }
 
-string impl2string (const vector<int> &names, const Clause &clause) {
+string impl2string (const vector<size_t> &names, const Clause &clause) {
   string output;
   for (int lit = 0; lit < clause.size(); ++lit)
     if (clause[lit] == lneg)
@@ -197,7 +198,7 @@ string impl2string (const vector<int> &names, const Clause &clause) {
   return output;
 }
 
-string clause2string (const vector<int> &names, const Clause &clause) {
+string clause2string (const vector<size_t> &names, const Clause &clause) {
   string output = "(";
   if (print == pCLAUSE) {
     output += rlcl2string(names, clause);
@@ -219,7 +220,7 @@ string clause2string (const vector<int> &names, const Clause &clause) {
   return output;
 }
 
-string formula2string (const vector<int> &names, const Formula &formula) {
+string formula2string (const vector<size_t> &names, const Formula &formula) {
   // transforms formula into readable clausal, implication or mixed form to print
   if (formula.empty())
     return " ";
@@ -258,7 +259,7 @@ string literal2latex (const int &litname, const Literal lit) {
   return output;
 }
 
-string rlcl2latex (const vector<int> &names, const Clause &clause) {
+string rlcl2latex (const vector<size_t> &names, const Clause &clause) {
   string output;
   bool lor = false;
   for (int lit = 0; lit < clause.size(); ++lit) {
@@ -273,7 +274,7 @@ string rlcl2latex (const vector<int> &names, const Clause &clause) {
   return output;
 }
 
-string impl2latex (const vector<int> &names, const Clause &clause) {
+string impl2latex (const vector<size_t> &names, const Clause &clause) {
   string output;
   for (int lit = 0; lit < clause.size(); ++lit)
     if (clause[lit] == lneg)
@@ -285,7 +286,7 @@ string impl2latex (const vector<int> &names, const Clause &clause) {
   return output;
 }
 
-string clause2latex (const vector<int> &names, const Clause &clause) {
+string clause2latex (const vector<size_t> &names, const Clause &clause) {
   string output = "(";
   if (print == pCLAUSE) {
     output += rlcl2latex(names, clause);
@@ -307,7 +308,7 @@ string clause2latex (const vector<int> &names, const Clause &clause) {
   return output;
 }
 
-string formula2latex (const vector<int> &names, const Formula &formula) {
+string formula2latex (const vector<size_t> &names, const Formula &formula) {
   // transforms formula into readable clausal form in LaTeX format to print
   if (formula.empty())
     return " ";
@@ -322,7 +323,7 @@ string formula2latex (const vector<int> &names, const Formula &formula) {
   return output;
 }
 
-void read_formula (vector<int> &names, Formula &formula) {
+void read_formula (vector<size_t> &names, Formula &formula) {
   // formula read instructions
 
   int nvars;

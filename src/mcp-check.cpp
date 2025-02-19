@@ -46,7 +46,7 @@ ofstream outfile;
 
 Formula formula;
 
-vector<int> names;
+vector<size_t> names;
 // string suffix;
 // int arity;
 // int nvars;
@@ -274,7 +274,7 @@ void print_matrix (const Group_of_Matrix &matrix) {
   cout << endl << endl;
 }
 
-void print_formula (const vector<int> &names, const Formula &formula) {
+void print_formula (const vector<size_t> &names, const Formula &formula) {
   string strg_fm = formula2string(names, formula);
   cout << "+++ Formula [" << formula.size() << "] =" << endl;
   cout << strg_fm << endl;

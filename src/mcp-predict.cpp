@@ -49,7 +49,7 @@ string predict = "";
 ofstream pdxfile;
 
 unordered_map<string, Formula> formula;
-vector<int> names;
+vector<size_t> names;
 vector<string> pivot;
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -330,7 +330,7 @@ void print_matrix (Matrix &gmtx) {
   sort(grps.begin(), grps.end());
 }
 
-void print_formula (const vector<int> &names,
+void print_formula (const vector<size_t> &names,
 		    const Formula &formula,
 		    const string gp) {
   string strg_fm = formula2string(names, formula);

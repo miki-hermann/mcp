@@ -1,13 +1,13 @@
 .PHONY: all guess clean scratch
 
 all: abalone.data abalone.cln abalone.txt
-	mcp-overview   -i abalone.data -c 8
-	mcp-split      -i abalone.data --ratio 25
-	mcp-clean      -i abalone.lrn -m abalone.cln
-	mcp-trans      -i abalone_clean.lrn -m abalone.txt
-	mcp-uniq       -i abalone_clean.mat
-	mpirun mcp-mpi -i abalone_clean.unq -o abalone.out     --formula abalone
-	mpirun mcp-mpi -i abalone_clean.unq -o abalone-bij.out --formula abalone-bij \
+	mcp-overview -i abalone.data -c 8
+	mcp-split    -i abalone.data --ratio 25
+	mcp-clean    -i abalone.lrn -m abalone.cln
+	mcp-trans    -i abalone_clean.lrn -m abalone.txt
+	mcp-uniq     -i abalone_clean.mat
+	mcp-pthread  -i abalone_clean.unq -o abalone.out     --formula abalone
+	mcp-pthread  -i abalone_clean.unq -o abalone-bij.out --formula abalone-bij \
 				--closure bij
 	mcp-trans      -i abalone.chk -m abalone.txt -o abalone_chk.mat
 	mcp-uniq       -i abalone_chk.mat
@@ -18,7 +18,7 @@ guess:
 	mcp-guess      -i abalone.data -n abalone.nam -o dummy.txt
 
 clean:
-	rm -f *.mat *.unq *.out *.lrn *.chk *.log *.hdr
+	rm -f *.mat *.unq *.out *.lrn *.chk *.log *.hdr *.prc
 	rm -f *-overview.*
 
 scratch: clean

@@ -5,7 +5,7 @@ all: ff.csv ff.txt
 	mcp-trans      -i ff.csv -m ff.txt
 	mcp-uniq       -i ff.mat
 	mcp-split      -i ff.unq -r 10
-	mpirun mcp-mpi -i ff.lrn -o ff-hrn.out --formula ff-hrn
+	mcp-pthread    -i ff.lrn -o ff-hrn.out --formula ff-hrn
 	mcp-seq        -i ff.lrn -o ff-bij.out --formula ff-bij --closure bij
 	mcp-pthread    -i ff.lrn -o ff-cnf.out --formula ff-cnf --closure cnf
 	mcp-check      -i ff.chk -l ff-hrn_sep.log -o ff-hrn_sep.out
@@ -16,7 +16,7 @@ guess:
 	mcp-guess      -i ff.csv -n ff.names -o dummy.txt
 
 clean:
-	rm -f *.mat *.hdr *.unq *.out *.lrn *.chk *.log
+	rm -f *.mat *.hdr *.prc *.unq *.out *.lrn *.chk *.log
 	rm -f *-overview.*
 
 scratch: clean

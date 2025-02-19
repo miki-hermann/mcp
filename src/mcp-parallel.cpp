@@ -29,6 +29,7 @@
 #include <queue>
 #include <algorithm>
 #include <cmath>
+#include <csignal>
 #include "mcp-matrix+formula.hpp"
 #include "mcp-common.hpp"
 #include "mcp-parallel.hpp"
@@ -621,14 +622,14 @@ void one2one (ofstream &process_outfile, ofstream &latex_outfile, const int &i) 
   // }
 }
 
-void selected2all (ofstream &process_outfile, ofstream &latex_outfile, const string &grp) {
+void selected2all (ofstream &process_outfile, ofstream &latex_outfile, const int &i) {
   // selected group of positive exaples against all other groups together as negative examples
   
-  Matrix T = group_of_matrix[grp];
+  Matrix T = group_of_matrix[grps[i]];
   Matrix F;
   vector<string> index;
   for (size_t j = 0; j < grps.size(); ++j) {
-    if (grps[j] == grp) continue;
+    if (j == i) continue;
     F.insert(F.end(), group_of_matrix[grps[j]].begin(), group_of_matrix[grps[j]].end());
     index.push_back(grps[j]);
   }
@@ -645,7 +646,7 @@ void selected2all (ofstream &process_outfile, ofstream &latex_outfile, const str
     process_outfile << "+++ Groups ";
   else
     process_outfile << "+++ Section of groups ";
-  process_outfile << "T=" << grp << " and F=( ";
+  process_outfile << "T=" << grps[i] << " and F=( ";
   for (const string &coord : index)
     process_outfile << coord << " ";
   process_outfile << "):" << endl;
@@ -720,18 +721,11 @@ void selected2all (ofstream &process_outfile, ofstream &latex_outfile, const str
       ? post_prod(process_outfile, latex_outfile, names, F,      formula)
       : post_prod(process_outfile, latex_outfile, A,     FsectA, formula);
     if (! formula_output.empty())
-      write_formula(grp, nosection ? names : A, schf);
+      write_formula(grps[i], nosection ? names : A, schf);
   }
   disjoint = true;
   process_outfile << endl;
   // }
-}
-
-void one2all (ofstream &popr, ofstream &latpr) {
-  // one group of positive exaples against all other groups together as negative examples
-  
-  for (const auto &grp : grps)
-    selected2all(popr, latpr, grp);
 }
 
 void split_action (ofstream &popr, ofstream &latpr, const int &process_id) {
@@ -740,19 +734,23 @@ void split_action (ofstream &popr, ofstream &latpr, const int &process_id) {
     one2one(popr, latpr, process_id);
     break;
   case aALL:
-    one2all(popr, latpr);
+    selected2all(popr, latpr, process_id);
     break;
   case aSELECTED:
-    selected2all (popr, latpr, selected);
+    cerr << endl;
+    cerr << "*** no need to run the selected action in parallel" << endl;
+    cerr << "*** use mcp-seq to run this example" << endl;
+    exit(2);
     break;
   }
 }
 
-void crash() {
-  // terminal handler: we erase the temporary files in case of a crash
+// terminal handler: we erase the temporary files in case of a crash
+void crash(int signal) {
   const string temp_prefix = tpath + "mcp-tmp-";
   const string erase = "rm -f " + temp_prefix + "*.txt";
   int syserr = system(erase.c_str());
 
-  throw;
+  cerr << "Segmentation fault" << endl;
+  exit(signal);
 }

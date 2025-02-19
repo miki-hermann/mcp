@@ -1,7 +1,7 @@
 /**************************************************************************
  *                                                                        *
  *                                                                        *
- *	       Multiple Classification   Problem (MCP)                    *
+ *	         Multiple Classification Project (MCP)                    *
  *                                                                        *
  *	Author:   Miki Hermann                                            *
  *	e-mail:   hermann@lix.polytechnique.fr                            *
@@ -38,10 +38,7 @@ void print_arg ();
 Formula learnHornLarge (ofstream &process_outfile,
 			const Matrix &T, const Matrix &F);
 Formula learnBijunctive (ofstream &process_outfile, const Matrix &T, const Matrix &F);
-// void OneToOne (ofstream &process_outfile, const int &i);
-// void OneToAll (ofstream &process_outfile, const int &i);
-// void OneToAllNosection (ofstream &process_outfile, const int &i);
 void split_action (ofstream &popr, ofstream &latpr, const int &process_id);
-void crash();
+void crash(int signal);
 
 //==================================================================================================

@@ -1,7 +1,7 @@
 /**************************************************************************
  *                                                                        *
  *                                                                        *
- *	       Multiple Classification   Problem (MCP)                    *
+ *	         Multiple Classification Project (MCP)                    *
  *                                                                        *
  *	Author:   Miki Hermann                                            *
  *	e-mail:   hermann@lix.polytechnique.fr                            *
@@ -28,6 +28,7 @@
 #include <mpi.h>
 #include <memory>
 #include <chrono>
+#include <csignal>
 // #include <mutex>
 #include "mcp-matrix+formula.hpp"
 #include "mcp-common.hpp"
@@ -56,7 +57,8 @@ int main(int argc, char **argv)
   int process_rank;		// for MPI
 
   version += arch_strg[arch];
-  set_terminate(crash);
+  // set_terminate(crash);
+  signal(SIGSEGV, crash);
 
   read_arg(argc, argv);
   adjust();

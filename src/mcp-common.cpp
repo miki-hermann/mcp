@@ -358,7 +358,7 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
   }
 }
 
-Matrix transpose (Matrix &batch) {
+Matrix transpose (const Matrix &batch) {
   Matrix tr_batch;
 
   for (int column = 0; column < batch[0].size(); ++column) {

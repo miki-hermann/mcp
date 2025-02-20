@@ -684,7 +684,7 @@ void selected2all (const string &grp) {
 	}
       cout << endl;
       cout << "+++ A [" << hw << "] = { ";
-      for (size_t var : A)
+      for (const size_t &var : A)
 	cout << offset + var << " ";
       cout << "}" << endl;
       TsectA = restrict(sect, T);
@@ -740,7 +740,7 @@ void selected2all (const string &grp) {
 void one2all () {
   // one group of positive exaples against all other groups together as negative examples
   
-  for (auto grp : grps)
+  for (const auto &grp : grps)
     selected2all(grp);
 }
 
@@ -761,13 +761,13 @@ int main(int argc, char **argv) {
 
   switch (action) {
   case aONE:
-    one2one ();
+    one2one();
     break;
   case aALL:
-    one2all ();
+    one2all();
     break;
   case aSELECTED:
-    selected2all (selected);
+    selected2all(selected);
     break;
   }
 

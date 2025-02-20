@@ -106,7 +106,7 @@ extern const string arch_strg[];
 //--------------------------------------------------------------------------------------------------
 
 void read_arg (int argc, char *argv[]);
-Matrix transpose (Matrix &batch);
+Matrix transpose (const Matrix &batch);
 int hamming_distance (const Row &u, const Row &v);
 void clustering(Matrix &batch);
 Row Min (const Row &a, const Row &b);

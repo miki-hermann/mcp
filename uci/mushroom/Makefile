@@ -1,4 +1,4 @@
-.PHONY: all horn guess csv clean scratch
+.PHONY: all horn dhorn guess csv clean scratch
 
 all: mushroom.lrn mushroom.chk mushroom.hdr
 	mcp-seq     -i mushroom.lrn  -o mushroom.out           --formula mushroom        --closure cnf
@@ -9,6 +9,13 @@ all: mushroom.lrn mushroom.chk mushroom.hdr
 
 horn:  mushroom.lrn mushroom.chk mushroom.hdr
 	mcp-pthread -i mushroom.lrn  -o mushroom.out           --formula mushroom        # --closure cnf
+	mcp-check   -i mushroom.chk  -l mushroom_edible.log    -o mushroom_edible.out    # --print clause
+	mcp-check   -i mushroom.chk  -l mushroom_poisonous.log -o mushroom_poisonous.out # --print clause
+	mcp-chk2tst -i mushroom.chk
+	mcp-predict -i mushroom.tst  -l mushroom               -o mushroom.pdt
+
+dhorn:  mushroom.lrn mushroom.chk mushroom.hdr
+	mcp-pthread -i mushroom.lrn  -o mushroom.out           --formula mushroom        --closure dhorn
 	mcp-check   -i mushroom.chk  -l mushroom_edible.log    -o mushroom_edible.out    # --print clause
 	mcp-check   -i mushroom.chk  -l mushroom_poisonous.log -o mushroom_poisonous.out # --print clause
 	mcp-chk2tst -i mushroom.chk

@@ -39,7 +39,7 @@ Arch arch = archSEQ;
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void IOadjust () {			// adjusts the input parameters
+void adjust () {			// adjusts the input parameters
   if (input != STDIN) {
     infile.open(input);
     if (infile.is_open())
@@ -745,7 +745,7 @@ int main(int argc, char **argv) {
   version += arch_strg[arch];
 
   read_arg(argc, argv);
-  IOadjust();
+  adjust();
   print_arg();
   read_header();
   read_matrix(group_of_matrix);

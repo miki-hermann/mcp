@@ -1581,20 +1581,19 @@ Formula learnCNFexact (Matrix T) {
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-// swap the polarity of values in a tuple
-Row polswap_row (const Row &row) {
-  Row swapped = ~row;
-  // for (bool bit : row)
-  //   swapped.push_back(! bit);
-  return swapped;
-}
+// // swap the polarity of values in a tuple
+// void polswap_row (Row &row) {
+//   row = ~row;
+//   // Row swapped = ~row;
+//   // for (bool bit : row)
+//   //   swapped.push_back(! bit);
+// }
 
 // swap polarity of every tuple in a matrix
-Matrix polswap_matrix (const Matrix &A) {
-  Matrix swapped;
-  for (const Row &row : A)
-    swapped.push_back(polswap_row(row));
-  return swapped;
+void polswap_matrix (Matrix &A) {
+  for (Row &row : A)
+    // polswap_row(row);
+    row = ~row;
 }
 
 // swap polarity of literals in a clause

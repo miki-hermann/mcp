@@ -137,7 +137,7 @@ void write_formula (const string &suffix1, const string &suffix2,
 		    const vector<size_t> &names, const Formula &formula);
 void write_formula (const string &suffix,
 		    const vector<size_t> &names, const Formula &formula);
-Matrix polswap_matrix (const Matrix &A);
+void polswap_matrix (Matrix &A);
 Formula polswap_formula (const Formula &formula);
 string time2string (size_t milliseconds);
 

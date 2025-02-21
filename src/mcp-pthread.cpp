@@ -86,6 +86,8 @@ int main(int argc, char **argv)
   version += arch_strg[arch];;
   // set_terminate(crash);
   signal(SIGSEGV, crash);
+  if (!debug)
+    signal(SIGINT, interrupt);
 
   read_arg(argc, argv);
   adjust();
@@ -111,7 +113,7 @@ int main(int argc, char **argv)
   // start clock
   auto clock_start = chrono::high_resolution_clock::now();
 
-  for (int rank = 0; rank < grps.size(); ++rank)
+  for (size_t rank = 0; rank < grps.size(); ++rank)
     threads.push_back(thread(thread_split, thread_outfile, thread_latexfile, basename, rank));
 
   for (auto &t : threads)
@@ -119,7 +121,7 @@ int main(int argc, char **argv)
   delete [] thread_outfile;
   delete [] thread_latexfile;
 
-  for (int rank = 0; rank < grps.size(); ++rank) {
+  for (size_t rank = 0; rank < grps.size(); ++rank) {
     string filename = basename + "-" + to_string(rank) + ".txt";
     ifstream in(filename);
     string line;

@@ -542,8 +542,8 @@ void one2one () {
 
       if (closure == clDHORN) {
 	cout << "+++ swapping polarity of vectors and treating swapped vectors as Horn" << endl;
-	T = polswap_matrix(T);
-	F = polswap_matrix(F);
+	polswap_matrix(T);
+	polswap_matrix(F);
       }
 
       Row sect = minsect(T, F);
@@ -557,15 +557,13 @@ void one2one () {
 	cout << "+++ Matrices <T> and F are not disjoint, therefore I cannot infer a formula"
 	     << endl << endl;
       } else {
-	Matrix TsectA;
-	Matrix FsectA;
 	vector<size_t> A;
 	if (!nosection) {
 	  int hw = hamming_weight(sect);
 	  // int hw = std::accumulate(sect.cbegin(), sect.cend(), 0);
 	  cout << "+++ Relevant variables [" << hw << "]: ";
 	  for (size_t k = 0; k < sect.size(); ++k)
-	    if (sect[k] == true) {
+	    if (sect[k]) {
 	      A.push_back(k);
 	      if (varswitch) {
 		vector<string> new_names = split(varnames[k], ":");
@@ -579,21 +577,21 @@ void one2one () {
 	  for (const size_t &coord : A)
 	    cout << offset + coord << " ";
 	  cout << "}" << endl;
-	  TsectA = restrict(sect, T);
-	  FsectA = restrict(sect, F);
+	  T = restrict(sect, T);
+	  F = restrict(sect, F);
 
-	  cout << "+++ T|_A [" << TsectA.size() << "]";
+	  cout << "+++ T|_A [" << T.size() << "]";
 	  if (display >= ySECTION) {
 	    cout << " = { " << endl;
-	    cout << TsectA;
+	    cout << T;
 	    cout << "+++ }";
 	  }
 	  cout << endl;
 
-	  cout << "+++ F|_A [" << FsectA.size() << "]";
+	  cout << "+++ F|_A [" << F.size() << "]";
 	  if (display >= ySECTION) {
 	    cout << " = { " << endl;
-	    cout << FsectA;
+	    cout << F;
 	    cout << "+++ }";
 	  }
 	  cout << endl;
@@ -602,10 +600,10 @@ void one2one () {
 	Formula formula;
 	if (closure == clHORN || closure == clDHORN)
 	  formula =  strategy == sEXACT
-	    ? learnHornExact(nosection ? T : TsectA)
-	    : learnHornLarge(nosection ? T : TsectA, nosection ? F : FsectA);
+	    ? learnHornExact(T)
+	    : learnHornLarge(T, F);
 	else if (closure == clBIJUNCTIVE) {
-	  formula = learnBijunctive(nosection ? T : TsectA, nosection ? F : FsectA);
+	  formula = learnBijunctive(T, F);
 	  if (formula.empty()) {
 	    cout << "+++ 2SAT formula not possible for this configuration"
 		 << endl
@@ -614,16 +612,14 @@ void one2one () {
 	  }
 	} else if (closure == clCNF)
 	  formula = strategy == sLARGE
-	    ? learnCNFlarge(nosection ? F : FsectA)
-	    : learnCNFexact(nosection ? T : TsectA);
+	    ? learnCNFlarge(F)
+	    : learnCNFexact(T);
 
 	vector<size_t> names(arity);
 	if (nosection)
 	  for (size_t nms = 0; nms < arity; ++nms)
 	    names[nms] = nms;
-	Formula schf = nosection
-	  ? post_prod(names, F,      formula)
-	  : post_prod(A,     FsectA, formula);
+	Formula schf = post_prod(nosection ? names : A, F, formula);
 	if (! formula_output.empty())
 	  write_formula(grps[i], grps[j], nosection ? names : A, schf);
       }
@@ -640,16 +636,18 @@ void selected2all (const string &grp) {
   Matrix F;
   vector<string> index;
   for (size_t j = 0; j < grps.size(); ++j) {
-    if (grps[j] == grp) continue;
-    F.insert(F.end(), group_of_matrix[grps[j]].begin(), group_of_matrix[grps[j]].end());
+    if (grps[j] == grp)
+      continue;
+    F.insert(F.end(),
+	     group_of_matrix[grps[j]].begin(), group_of_matrix[grps[j]].end());
     index.push_back(grps[j]);
   }
   sort(index.begin(), index.end());
 
   if (closure == clDHORN) {
     cout << "+++ swapping polarity of vectors and treating swapped vectors as Horn" << endl;
-    T = polswap_matrix(T);
-    F = polswap_matrix(F);
+    polswap_matrix(T);
+    polswap_matrix(F);
   }
     
   Row sect= minsect(T, F);
@@ -666,8 +664,6 @@ void selected2all (const string &grp) {
     cout << "+++ Matrices <T> and F are not disjoint, therefore I cannot infer a formula"
 	 << endl << endl;
   else {
-    Matrix TsectA;
-    Matrix FsectA;
     vector<size_t> A;
     if (!nosection) {
       int hw = hamming_weight(sect);
@@ -687,21 +683,21 @@ void selected2all (const string &grp) {
       for (const size_t &var : A)
 	cout << offset + var << " ";
       cout << "}" << endl;
-      TsectA = restrict(sect, T);
-      FsectA = restrict(sect, F);
+      T = restrict(sect, T);
+      F = restrict(sect, F);
 
-      cout << "+++ T|_A [" << TsectA.size() << "]";
+      cout << "+++ T|_A [" << T.size() << "]";
       if (display >= ySECTION) {
 	cout << " = { " << endl;
-	cout << TsectA;
+	cout << T;
 	cout << "+++ }";
       }
       cout << endl;
 
-      cout << "+++ F|_A [" << FsectA.size() << "]";
+      cout << "+++ F|_A [" << F.size() << "]";
       if (display >= ySECTION) {
 	cout << " = { " << endl;
-	cout << FsectA;
+	cout << F;
 	cout << "+++ }";
       }
       cout << endl;
@@ -710,26 +706,25 @@ void selected2all (const string &grp) {
     Formula formula;
     if (closure == clHORN || closure == clDHORN)
       formula =  strategy == sEXACT
-	? learnHornExact(nosection ? T : TsectA)
-	: learnHornLarge(nosection ? T : TsectA, nosection ? F : FsectA);
+	? learnHornExact(T)
+	: learnHornLarge(T, F);
     else if (closure == clBIJUNCTIVE) {
-      formula = learnBijunctive(nosection ? T : TsectA, nosection ? F : FsectA);
+      formula = learnBijunctive(T, F);
       if (formula.empty()) {
-	cout << "+++ 2SAT formula not possible for this configuration" << endl << endl;
+	cout << "+++ 2SAT formula not possible for this configuration"
+	     << endl << endl;
 	return;
       }
     } else if (closure == clCNF)
       formula = strategy == sLARGE
-	? learnCNFlarge(nosection ? F : FsectA)
-	: learnCNFexact(nosection ? T : TsectA);
+	? learnCNFlarge(F)
+	: learnCNFexact(T);
 
     vector<size_t> names(arity);
     if (nosection)
       for (size_t nms = 0; nms < arity; ++nms)
 	names[nms] = nms;
-    Formula schf = nosection
-      ? post_prod(names, F,      formula)
-      : post_prod(A,     FsectA, formula);
+    Formula schf = post_prod(nosection ? names : A, F, formula);
     if (! formula_output.empty())
       write_formula(grp, nosection ? names : A, schf);
   }

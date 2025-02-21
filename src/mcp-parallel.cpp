@@ -532,8 +532,8 @@ void one2one (ofstream &process_outfile, ofstream &latex_outfile, const int &i) 
 
     if (closure == clDHORN) {
       process_outfile << "+++ swapping polarity of vectors and treating swapped vectors as Horn" << endl;
-      T = polswap_matrix(T);
-      F = polswap_matrix(F);
+      polswap_matrix(T);
+      polswap_matrix(F);
     }
 
     Row sect = minsect(T, F);
@@ -548,8 +548,6 @@ void one2one (ofstream &process_outfile, ofstream &latex_outfile, const int &i) 
       process_outfile << "+++ Matrices <T> and F are not disjoint, therefore I cannot infer a formula"
 		      << endl << endl;
     } else {
-      Matrix TsectA;
-      Matrix FsectA;
       vector<size_t> A;
       if (!nosection) {
 	int hw = hamming_weight(sect);
@@ -569,21 +567,21 @@ void one2one (ofstream &process_outfile, ofstream &latex_outfile, const int &i) 
 	for (const size_t &coord : A)
 	  process_outfile << offset + coord << " ";
 	process_outfile << "}" << endl;
-	TsectA = restrict(sect, T);
-	FsectA = restrict(sect, F);
+	T = restrict(sect, T);
+	F = restrict(sect, F);
 
-	process_outfile << "+++ T|_A [" << TsectA.size() << "]";
+	process_outfile << "+++ T|_A [" << T.size() << "]";
 	if (display >= ySECTION) {
 	  process_outfile << " = { " << endl;
-	  process_outfile << TsectA;
+	  process_outfile << T;
 	  process_outfile << "+++ }";
 	}
 	process_outfile << endl;
 
-	process_outfile << "+++ F|_A [" << FsectA.size() << "]";
+	process_outfile << "+++ F|_A [" << F.size() << "]";
 	if (display >= ySECTION) {
 	  process_outfile << " = { " << endl;
-	  process_outfile << FsectA;
+	  process_outfile << F;
 	  process_outfile << "+++ }";
 	}
 	process_outfile << endl;
@@ -592,10 +590,10 @@ void one2one (ofstream &process_outfile, ofstream &latex_outfile, const int &i) 
       Formula formula;
       if (closure == clHORN || closure == clDHORN)
 	formula =  strategy == sEXACT
-	  ? learnHornExact(TsectA)
-	  : learnHornLarge(process_outfile, nosection ? T : TsectA, nosection ? F : FsectA);
+	  ? learnHornExact(T)
+	  : learnHornLarge(process_outfile, T, F);
       else if (closure == clBIJUNCTIVE) {
-	formula = learnBijunctive(process_outfile, nosection ? T : TsectA, nosection ? F : FsectA);
+	formula = learnBijunctive(process_outfile, T, F);
 	if (formula.empty()) {
 	  process_outfile << "+++ 2SAT formula not possible for this configuration" << endl << endl;
 	  continue;
@@ -603,16 +601,15 @@ void one2one (ofstream &process_outfile, ofstream &latex_outfile, const int &i) 
       }
       else if (closure == clCNF)
 	formula = strategy == sLARGE
-	  ? learnCNFlarge(nosection ? F : FsectA)
-	  : learnCNFexact(nosection ? T : TsectA);
+	  ? learnCNFlarge(F)
+	  : learnCNFexact(T);
 
       vector<size_t> names(arity);
       if (nosection)
 	for (size_t nms = 0; nms < arity; ++nms)
 	  names[nms] = nms;
-      Formula schf = nosection
-	? post_prod(process_outfile, latex_outfile, names, F,      formula)
-	: post_prod(process_outfile, latex_outfile, A,     FsectA, formula);
+      Formula schf = post_prod(process_outfile, latex_outfile,
+			       nosection ? names : A, F, formula);
       if (! formula_output.empty())
 	write_formula(grps[i], grps[j], nosection ? names : A, schf);
     }
@@ -637,8 +634,8 @@ void selected2all (ofstream &process_outfile, ofstream &latex_outfile, const int
 
   if (closure == clDHORN) {
     process_outfile << "+++ swapping polarity of vectors and treating swapped vectors as Horn" << endl;
-    T = polswap_matrix(T);
-    F = polswap_matrix(F);
+    polswap_matrix(T);
+    polswap_matrix(F);
   }
     
   Row sect= minsect(T, F);
@@ -655,8 +652,6 @@ void selected2all (ofstream &process_outfile, ofstream &latex_outfile, const int
     process_outfile << "+++ Matrices <T> and F are not disjoint, therefore I cannot infer a formula"
 		    << endl << endl;
   } else {
-    Matrix TsectA;
-    Matrix FsectA;
     vector<size_t> A;
     if (!nosection) {
       int hw = hamming_weight(sect);
@@ -676,21 +671,21 @@ void selected2all (ofstream &process_outfile, ofstream &latex_outfile, const int
       for (size_t var : A)
 	process_outfile << offset + var << " ";
       process_outfile << "}" << endl;
-      TsectA = restrict(sect, T);
-      FsectA = restrict(sect, F);
+      T = restrict(sect, T);
+      F = restrict(sect, F);
 
-      process_outfile << "+++ T|_A [" << TsectA.size() << "]";
+      process_outfile << "+++ T|_A [" << T.size() << "]";
       if (display >= ySECTION) {
 	process_outfile << " = { " << endl;
-	process_outfile << TsectA;
+	process_outfile << T;
 	process_outfile << "+++ }";
       }
       process_outfile << endl;
 
-      process_outfile << "+++ F|_A [" << FsectA.size() << "]";
+      process_outfile << "+++ F|_A [" << F.size() << "]";
       if (display >= ySECTION) {
 	process_outfile << " = { " << endl;
-	process_outfile << FsectA;
+	process_outfile << F;
 	process_outfile << "+++ }";
       }
       process_outfile << endl;
@@ -699,10 +694,10 @@ void selected2all (ofstream &process_outfile, ofstream &latex_outfile, const int
     Formula formula;
     if (closure == clHORN || closure == clDHORN)
       formula =  strategy == sEXACT
-	? learnHornExact(nosection ? T : TsectA)
-	: learnHornLarge(process_outfile, nosection ? T : TsectA, nosection ? F : FsectA);
+	? learnHornExact(T)
+	: learnHornLarge(process_outfile, T, F);
     else if (closure == clBIJUNCTIVE) {
-      formula = learnBijunctive(process_outfile, nosection ? T : TsectA, nosection ? F : FsectA);
+      formula = learnBijunctive(process_outfile, T, F);
       if (formula.empty()) {
 	process_outfile << "+++ 2SAT formula not possible for this configuration" << endl << endl;
 	disjoint = true;
@@ -710,16 +705,15 @@ void selected2all (ofstream &process_outfile, ofstream &latex_outfile, const int
       }
     } else if (closure == clCNF)
       formula = strategy == sLARGE
-	? learnCNFlarge(nosection ? F : FsectA)
-	: learnCNFexact(nosection ? T : TsectA);
+	? learnCNFlarge(F)
+	: learnCNFexact(T);
 
     vector<size_t> names(arity);
     if (nosection)
       for (size_t nms = 0; nms < arity; ++nms)
 	names[nms] = nms;
-    Formula schf = nosection
-      ? post_prod(process_outfile, latex_outfile, names, F,      formula)
-      : post_prod(process_outfile, latex_outfile, A,     FsectA, formula);
+    Formula schf = post_prod(process_outfile, latex_outfile,
+			     nosection ? names : A, F, formula);
     if (! formula_output.empty())
       write_formula(grps[i], nosection ? names : A, schf);
   }
@@ -746,11 +740,21 @@ void split_action (ofstream &popr, ofstream &latpr, const int &process_id) {
 }
 
 // terminal handler: we erase the temporary files in case of a crash
-void crash(int signal) {
+void crash (int signal) {
   const string temp_prefix = tpath + "mcp-tmp-";
   const string erase = "rm -f " + temp_prefix + "*.txt";
   int syserr = system(erase.c_str());
 
-  cerr << "Segmentation fault" << endl;
+  cerr << endl << "\t*** Segmentation fault ***" << endl << endl;
+  exit(signal);
+}
+
+// terminal handler: we erase the temporary files in case of an interrupt
+void interrupt (int signal) {
+  const string temp_prefix = tpath + "mcp-tmp-";
+  const string erase = "rm -f " + temp_prefix + "*.txt";
+  int syserr = system(erase.c_str());
+
+  cerr << endl << "\t*** Interrupt ***" << endl << endl;
   exit(signal);
 }

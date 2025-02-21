@@ -40,5 +40,6 @@ Formula learnHornLarge (ofstream &process_outfile,
 Formula learnBijunctive (ofstream &process_outfile, const Matrix &T, const Matrix &F);
 void split_action (ofstream &popr, ofstream &latpr, const int &process_id);
 void crash(int signal);
+void interrupt (int signal);
 
 //==================================================================================================

@@ -59,6 +59,8 @@ int main(int argc, char **argv)
   version += arch_strg[arch];
   // set_terminate(crash);
   signal(SIGSEGV, crash);
+  if (!debug)
+    signal(SIGINT, interrupt);
 
   read_arg(argc, argv);
   adjust();

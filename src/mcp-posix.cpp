@@ -1,7 +1,7 @@
 /**************************************************************************
  *                                                                        *
  *                                                                        *
- *	       Multiple Classification   Problem (MCP)                    *
+ *	         Multiple Classification Project (MCP)                    *
  *                                                                        *
  *	Author:   Miki Hermann                                            *
  *	e-mail:   hermann@lix.polytechnique.fr                            *
@@ -35,10 +35,10 @@ using namespace std;
 
 void OGchunk (const Row &a, const Matrix &M,
 	      unique_ptr<Row> &result,
-	      int left, int right) {
+	      size_t left, size_t right) {
   // selects tuples (rows) in M[left..right-1] above the tuple a
   // usefull for distribution among threads
-  for (int i = left; i < right; ++i)
+  for (size_t i = left; i < right; ++i)
     if (M[i] >= a)
       result = make_unique<Row>(result == nullptr ? M[i] : Min(*result, M[i]));
 }
@@ -46,12 +46,12 @@ void OGchunk (const Row &a, const Matrix &M,
 unique_ptr<Row> ObsGeq (const Row &a, const Matrix &M) {
   // selects tuples (rows) above the tuple a
   unique_ptr<Row> P;
-  const unsigned msize = M.size();
+  const size_t msize = M.size();
   if (msize > chunkLIMIT) {
-    int nchunks = (msize / chunkLIMIT) + (msize % chunkLIMIT > 0);
+    size_t nchunks = (msize / chunkLIMIT) + (msize % chunkLIMIT > 0);
     unique_ptr<Row> chunk[nchunks];
     vector<thread> chunk_threads;
-    for (unsigned i = 0; i < nchunks; ++i)
+    for (size_t i = 0; i < nchunks; ++i)
       chunk_threads.push_back(std::thread(OGchunk,
 					  ref(a), ref(M), ref(chunk[i]),
 					  i*chunkLIMIT,
@@ -60,11 +60,11 @@ unique_ptr<Row> ObsGeq (const Row &a, const Matrix &M) {
 			      );
     for (auto &ct : chunk_threads)
       ct.join();
-    for (int i = 0; i < nchunks; ++i)
+    for (size_t i = 0; i < nchunks; ++i)
       if (chunk[i] != nullptr)
 	P = make_unique<Row>(P == nullptr ? *chunk[i] : Min(*P, *chunk[i]));
   } else
-    for (Row row : M)
+    for (const Row &row : M)
       if (row >= a)
 	P = make_unique<Row>(P == nullptr ? row : Min(*P, row));
   return P;

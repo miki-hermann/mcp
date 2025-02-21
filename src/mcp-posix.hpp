@@ -1,7 +1,7 @@
 /**************************************************************************
  *                                                                        *
  *                                                                        *
- *	       Multiple Classification   Problem (MCP)                    *
+ *	         Multiple Classification Project (MCP)                    *
  *                                                                        *
  *	Author:   Miki Hermann                                            *
  *	e-mail:   hermann@lix.polytechnique.fr                            *
@@ -29,6 +29,6 @@
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OGchunk (const Row &a, const Matrix &M, unique_ptr<Row> &result, int left, int right);
+void OGchunk (const Row &a, const Matrix &M, unique_ptr<Row> &result, size_t left, size_t right);
 
 //==================================================================================================

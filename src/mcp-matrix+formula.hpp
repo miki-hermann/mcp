@@ -46,9 +46,9 @@ typedef map<string, Matrix> Group_of_Matrix;
 extern Group_of_Matrix group_of_matrix;
 extern vector<string> grps;
 
-enum Action    {aONE    = 0, aALL    = 1, aSELECTED  = 2};
-enum Print     {pVOID   = 0, pCLAUSE = 1, pIMPL      = 2, pMIX       = 3, pDIMACS   = 4};
-enum Display   {yUNDEF  = 0, yHIDE   = 1, yPEEK      = 2, ySECTION   = 3, ySHOW     = 4};
+enum Action : char   {aONE    = 0, aALL    = 1, aSELECTED  = 2};
+enum Print  : char   {pVOID   = 0, pCLAUSE = 1, pIMPL      = 2, pMIX       = 3, pDIMACS   = 4};
+enum Display: char   {yUNDEF  = 0, yHIDE   = 1, yPEEK      = 2, ySECTION   = 3, ySHOW     = 4};
 
 // enum Literal {lneg = -1, lnone = 0, lpos = 1};
 // typedef deque<Literal> Clause;
@@ -62,7 +62,7 @@ typedef deque<Clause> Formula;
 extern string varid;
 extern bool varswitch;
 extern vector<string> varnames;
-enum NAME {nOWN = 0, nPOSITIVE = 1, nNEGATIVE = 2};
+enum NAME : char {nOWN = 0, nPOSITIVE = 1, nNEGATIVE = 2};
 
 extern const int SENTINEL;
 extern const double RSNTNL;

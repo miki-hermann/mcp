@@ -73,7 +73,7 @@ bool sat_clause (const Row &tuple, const Clause &clause) {
 
 bool sat_formula (const Row &tuple, const Formula &formula) {
   // does the tuple satisfy the formula?
-  for (Clause cl : formula)
+  for (const Clause &cl : formula)
     if (!sat_clause(tuple, cl))
       return false;
   return true;
@@ -147,7 +147,7 @@ string formula2dimacs (const vector<size_t> &names, const Formula &formula) {
     return " ";
 
   string output;
-  for (Clause clause : formula)
+  for (const Clause &clause : formula)
     output += clause2dimacs(names, clause) + "\n";
   return output;
 }
@@ -174,7 +174,7 @@ string literal2string (const int &litname, const Literal lit) {
 string rlcl2string (const vector<size_t> &names, const Clause &clause) {
   string output;
   bool plus = false;
-  for (int lit = 0; lit < clause.size(); ++lit) {
+  for (size_t lit = 0; lit < clause.size(); ++lit) {
     if (clause[lit] != lnone) {
       if (plus == true)
 	output += " + ";
@@ -188,11 +188,11 @@ string rlcl2string (const vector<size_t> &names, const Clause &clause) {
 
 string impl2string (const vector<size_t> &names, const Clause &clause) {
   string output;
-  for (int lit = 0; lit < clause.size(); ++lit)
+  for (size_t lit = 0; lit < clause.size(); ++lit)
     if (clause[lit] == lneg)
       output += literal2string(names[lit], lpos) + " ";
   output += "->";
-  for (int lit = 0; lit < clause.size(); ++lit)
+  for (size_t lit = 0; lit < clause.size(); ++lit)
     if (clause[lit] == lpos)
       output += " " + literal2string(names[lit], lpos);
   return output;
@@ -205,9 +205,9 @@ string clause2string (const vector<size_t> &names, const Clause &clause) {
   } else if (print == pIMPL) {
     output += impl2string(names, clause);
   } else if (print == pMIX) {
-    int pneg = 0;
-    int ppos = 0;
-    for (int lit = 0; lit < clause.size(); ++lit)
+    size_t pneg = 0;
+    size_t ppos = 0;
+    for (size_t lit = 0; lit < clause.size(); ++lit)
       if (clause[lit] == lneg)
 	pneg++;
       else if (clause[lit] == lpos)
@@ -231,7 +231,7 @@ string formula2string (const vector<size_t> &names, const Formula &formula) {
   string output;
   bool times = false;
   for (Clause clause : formula) {
-    output += (times == true) ? "\n\t* " : "\t  ";
+    output += times ? "\n\t* " : "\t  ";
     times = true;
     output += clause2string(names, clause);
   }
@@ -262,7 +262,7 @@ string literal2latex (const int &litname, const Literal lit) {
 string rlcl2latex (const vector<size_t> &names, const Clause &clause) {
   string output;
   bool lor = false;
-  for (int lit = 0; lit < clause.size(); ++lit) {
+  for (size_t lit = 0; lit < clause.size(); ++lit) {
     if (clause[lit] != lnone) {
       if (lor == true)
 	output += " \\lor ";
@@ -276,11 +276,11 @@ string rlcl2latex (const vector<size_t> &names, const Clause &clause) {
 
 string impl2latex (const vector<size_t> &names, const Clause &clause) {
   string output;
-  for (int lit = 0; lit < clause.size(); ++lit)
+  for (size_t lit = 0; lit < clause.size(); ++lit)
     if (clause[lit] == lneg)
       output += literal2latex(names[lit], lpos) + " ";
   output += "\\to";
-  for (int lit = 0; lit < clause.size(); ++lit)
+  for (size_t lit = 0; lit < clause.size(); ++lit)
     if (clause[lit] == lpos)
       output += " " + literal2latex(names[lit], lpos);
   return output;
@@ -293,9 +293,9 @@ string clause2latex (const vector<size_t> &names, const Clause &clause) {
   } else if (print == pIMPL) {
     output += impl2latex(names, clause);
   } else if (print == pMIX) {
-    int pneg = 0;
-    int ppos = 0;
-    for (int lit = 0; lit < clause.size(); ++lit)
+    size_t pneg = 0;
+    size_t ppos = 0;
+    for (size_t lit = 0; lit < clause.size(); ++lit)
       if (clause[lit] == lneg)
 	pneg++;
       else if (clause[lit] == lpos)
@@ -342,7 +342,7 @@ void read_formula (vector<size_t> &names, Formula &formula) {
     validID.push_back(dummy);
   }
 
-  for (int i = 0; i < arity; ++i)
+  for (size_t i = 0; i < arity; ++i)
     names.push_back(i);
 
   int lit;
@@ -363,7 +363,7 @@ ostream& operator<< (ostream &output, const Row &row) {
   // overloading ostream to print a row
   // transforms a tuple (row) to a printable form
   // for (bool bit : row)
-  for (int i = 0; i < row.size(); ++i)
+  for (size_t i = 0; i < row.size(); ++i)
     // output << to_string(bit); // bit == true ? 1 : 0;
     // output << to_string(row[i]);
     output << row[i];
@@ -374,7 +374,7 @@ ostream& operator<< (ostream &output, const Matrix &M) {
   // overloading ostream to print a matrix
   // transforms a matrix to a printable form
   for (Row row : M)
-    output << "\t" << row << "\n";
+    output << "\t" << row << endl;
   return output;
 }
 

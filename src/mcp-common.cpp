@@ -47,12 +47,6 @@ map<Row, int> pred;		// predecessor function for Zanuttini's algorithm
 map<Row, int> succ;		// successor function for Zanuttini's algorithm
 map<Row, vector<int>> sim;	// sim table for Zanuttini's algorithm
 
-// const int SENTINEL     = -1;
-const string STDIN     = "STDIN";
-const string STDOUT    = "STDOUT";
-// const int MTXLIMIT     = 4000;
-const int CLUSTERLIMIT = 15;
-
 map<size_t, int> idx2w;		// coordinate index to weight for precedence dir
 struct cmp_prec { 
   bool operator() (const size_t &idx1, const size_t &idx2) {
@@ -60,6 +54,12 @@ struct cmp_prec {
     // return idx2w[idx1] < idx2w[idx2];
   }
 };
+
+// const int SENTINEL     = -1;
+const string STDIN     = "STDIN";
+const string STDOUT    = "STDOUT";
+// const int MTXLIMIT     = 4000;
+const int CLUSTERLIMIT = 15;
 
 // Action action       = aALL;
 Closure closure     = clHORN;
@@ -117,13 +117,6 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
       } else if (act == "all"
 		 || act == "a") {
 	action =aALL;
-      // } else if (act == "nosection"
-      // 		 || act == "nosect"
-      // 		 || act == "nos"
-      // 		 || act == "no"
-      // 		 || act == "ns"
-      // 		 || act == "n" ) {
-      // 	action = aNOSECT;
       } else if (act == "selected"
 		 || act == "select"
 		 || act == "sel"
@@ -362,9 +355,10 @@ Matrix transpose (const Matrix &batch) {
   Matrix tr_batch;
 
   for (size_t column = 0; column < batch[0].size(); ++column) {
-    Row temp;
+    Row temp(batch.size());
     for (size_t line = 0; line < batch.size(); ++line)
-      temp.push_back(batch[line][column]);
+      // temp.push_back(batch[line][column]);
+      temp[line] = batch[line][column];
     tr_batch.push_back(temp);
   }
   return tr_batch;
@@ -381,7 +375,7 @@ int hamming_distance (const Row &u, const Row &v) {
   return sum;
 }
 
-// This overloading is necessay because deque implements >= differently
+// This overloading is necessary because deque implements >= differently
 bool operator>= (const Row &a, const Row &b) {
   // overloading >=
   // is row a >= row b?
@@ -396,9 +390,10 @@ bool operator>= (const Row &a, const Row &b) {
 
 Row Min (const Row &a, const Row &b) {
   // computes the minimum (intersection) of two tuples by coordinates
-  Row c;
+  Row c(a.size());
   for (size_t i = 0; i < a.size(); ++i)
-    c.push_back(min(a[i],b[i]));
+    // c.push_back(min(a[i],b[i]));
+    c[i] = min(a[i],b[i]);
   return  c;
 }
 
@@ -424,7 +419,8 @@ bool SHCPsolvable (const Matrix &T, const Matrix &F) {
   // is the intersection of F and of the Horn closure of T empty?
   // T = MinimizeObs(T);	// Optional, may not be worth the effort
   for (const Row &f : F) 
-    if (InHornClosure (f, T)) return false;
+    if (InHornClosure (f, T))
+      return false;
   return true;
 }
 
@@ -432,7 +428,7 @@ bool SHCPsolvable (const Matrix &T, const Matrix &F) {
 
 bool majority (const bool &a, const bool &b, const bool &c) {
   // majority of 3 boolean values
-  int cnt[] = {0, 0};
+  size_t cnt[] = {0, 0};
   cnt[a]++;
   cnt[b]++;
   cnt[c]++;
@@ -441,9 +437,10 @@ bool majority (const bool &a, const bool &b, const bool &c) {
 
 Row Majority (const Row &a, const Row &b, const Row &c) {
   // majority of 3 tuples coordinate wise
-  Row maj;
+  Row maj(a.size());
   for (size_t i = 0; i < a.size(); ++i)
-    maj.push_back(majority(a[i], b[i], c[i]));
+    // maj.push_back(majority(a[i], b[i], c[i]));
+    maj[i] = majority(a[i], b[i], c[i]);
   return maj;
 }
 
@@ -480,9 +477,9 @@ Matrix section (const Row &alpha, const Matrix &A) {
   return B;
 }
 
-int hamming_weight (const Row &row) {	// Hamming weight of a tuple
-  // int sum = accumulate(cbegin(row), cend(row), 0);
-  // int sum = row.count();
+size_t hamming_weight (const Row &row) {	// Hamming weight of a tuple
+  // size_t sum = accumulate(cbegin(row), cend(row), 0);
+  // size_t sum = row.count();
   return row.count();
 }
 
@@ -505,11 +502,73 @@ Matrix join (const Matrix &head, const Matrix &tail) {
   return join;
 }
 
-Row minsect (const Matrix &T, const Matrix &F) {
-  // computes the minimal section
+static inline Row eliminate (const Matrix &T, const Matrix &F,
+			     const vector<size_t> &coords) {
   const size_t lngt  = T[0].size();
   const size_t Tsize = T.size();
   const size_t Fsize = F.size();
+
+  Row A(lngt, true);
+  Matrix Thead, Fhead, Ttail, Ftail;
+  
+  for (const Row &t : T) {
+    Row row(lngt);
+    for (size_t j = 0; j < lngt; ++j)
+      // row.push_back(t[coords[j]]);
+      row[j] = t[coords[j]];
+    Ttail.push_back(row);
+  }
+  for (const Row &f : F) {
+    Row row(lngt);
+    for (size_t j = 0; j < lngt; ++j)
+      // row.push_back(f[coords[j]]);
+      row[j] = f[coords[j]];
+    Ftail.push_back(row);
+  }
+  
+  for (size_t i = 0; i < lngt; ++i) {
+    A[coords[i]] = false;
+    Row Tcolumn, Fcolumn;
+    // if (!Ttail.empty())
+    for (size_t j = 0; j < Tsize; ++j) {
+      Tcolumn.push_back(front(Ttail[j]));
+      pop_front(Ttail[j]);
+    }
+    // if (!Ftail.empty())
+    for (size_t j = 0; j < Fsize; ++j) {
+      Fcolumn.push_back(front(Ftail[j]));
+      pop_front(Ftail[j]);
+    }
+    Matrix Ta = join(Thead, Ttail);
+    Matrix Fa = join(Fhead, Ftail);
+    if (inadmissible(Ta,Fa)) {
+      A[coords[i]] = true;
+      if (Thead.empty())
+	for (size_t j = 0; j < Tsize; ++j) {
+	  Row row(1, Tcolumn[j]);
+	  // row.push_back(Tcolumn[j]);
+	  Thead.push_back(row);
+	}
+      else
+	for (size_t j = 0; j < Tsize; ++j)
+	  Thead[j].push_back(Tcolumn[j]);
+      if (Fhead.empty())
+	for (size_t j = 0; j < Fsize; ++j) {
+	  Row row(1, Fcolumn[j]);
+	  // row.push_back(Fcolumn[j]);
+	  Fhead.push_back(row);
+	}
+      else
+	for (size_t j = 0; j < Fsize; ++j)
+	  Fhead[j].push_back(Fcolumn[j]);
+    }
+  }
+  return A;
+}
+
+Row minsect (const Matrix &T, const Matrix &F) {
+  // computes the minimal section
+  const size_t lngt  = T[0].size();
 
   if (inadmissible(T,F)) {
     disjoint = false;
@@ -520,175 +579,39 @@ Row minsect (const Matrix &T, const Matrix &F) {
     return fullrow;
   }
 
-  Row A(lngt, true);
-  if (direction == dBEGIN) {
-    // from right to left; favors variables on the left
-    Matrix Thead = T, Fhead = F, Ttail, Ftail;
-    for (int i = lngt-1; i >= 0; --i) {
-      A[i] = false;
-      Row Tcolumn, Fcolumn;
-      // if (!Thead.empty())
-      for (size_t j = 0; j < Tsize; ++j) {
-	// Tcolumn.push_back(Thead[j].back());
-	Tcolumn.push_back(back(Thead[j]));
-	Thead[j].pop_back();
-      }
-      // if (!Fhead.empty())
-      for (size_t j = 0; j < Fsize; ++j) {
-	Fcolumn.push_back(back(Fhead[j]));
-	Fhead[j].pop_back();
-      }
-      Matrix Ta = join(Thead, Ttail);
-      Matrix Fa = join(Fhead, Ftail);
-      if (inadmissible(Ta,Fa)) {
-	A[i] = true;
-	if (Ttail.empty())
-	  for (size_t j = 0; j < Tsize; ++j) {
-	    Row row(1, Tcolumn[j]);
-	    Ttail.push_back(row);
-	  }
-	else
-	  for (size_t j = 0; j < Tsize; ++j)
-	    // Ttail[j].push_front(Tcolumn[j]);
-	    push_front(Ttail[j], Tcolumn[j]);
-	if (Ftail.empty())
-	  for (size_t j = 0; j < Fsize; ++j) {
-	    Row row(1, Fcolumn[j]);
-	    // row.push_back(Fcolumn[j]);
-	    Ftail.push_back(row);
-	  }
-	else
-	  for (size_t j = 0; j < Fsize; ++j)
-	    // Ftail[j].push_front(Fcolumn[j]);
-	    push_front(Ftail[j], Fcolumn[j]);
-      }
-      // for (size_t i = lngt-1; i >= 0; --i) {
-      //   A[i] = false;
-      //   Matrix Ta = section(A, T);
-      //   Matrix Fa = section(A, F);
-      //   if (inadmissible(Ta,Fa)) A[i] = true;
-    }
-  } else if (direction == dEND) {
-    // from left to right; favors variables on the right
-    Matrix Thead, Fhead, Ttail = T, Ftail = F;
-    for (size_t i = 0; i < lngt; ++i) {
-      A[i] = false;
-      Row Tcolumn, Fcolumn;
-      // if (!Ttail.empty())
-      for (size_t j = 0; j < Tsize; ++j) {
-	// Tcolumn.push_back(Ttail[j].front());
-	Tcolumn.push_back(front(Ttail[j]));
-	pop_front(Ttail[j]);
-      }
-      // if (!Ftail.empty())
-      for (size_t j = 0; j < Fsize; ++j) {
-	// Fcolumn.push_back(front(Ftail[j]));
-	Fcolumn.push_back(front(Ftail[j]));
-	pop_front(Ftail[j]);
-      }
-      Matrix Ta = join(Thead, Ttail);
-      Matrix Fa = join(Fhead, Ftail);
-      if (inadmissible(Ta,Fa)) {
-	A[i] = true;
-	if (Thead.empty())
-	  for (size_t j = 0; j < Tsize; ++j) {
-	    Row row(1, Tcolumn[j]);
-	    // row.push_back(Tcolumn[j]);
-	    Thead.push_back(row);
-	  }
-	else
-	  for (size_t j = 0; j < Tsize; ++j)
-	    Thead[j].push_back(Tcolumn[j]);
-	if (Fhead.empty())
-	  for (size_t j = 0; j < Fsize; ++j) {
-	    Row row(1, Fcolumn[j]);
-	    // row.push_back(Fcolumn[j]);
-	    Fhead.push_back(row);
-	  }
-	else
-	  for (size_t j = 0; j < Fsize; ++j)
-	    Fhead[j].push_back(Fcolumn[j]);
-      }
-      // for (size_t i = 0; i < lngt; ++i) {
-      //   A[i] = false;
-      //   Matrix Ta = section(A,T);
-      //   Matrix Fa = section(A,F);
-      //   if (inadmissible(Ta,Fa)) A[i] = true;
-    }
-  } else if (direction == dRAND) {	// random order
-    random_device rd;
-    static uniform_int_distribution<int> uni_dist(0,lngt-1);
-    static default_random_engine dre(rd());
+  vector<size_t> coord(lngt);	// sequence of coordinates to inspect
+  size_t idx;			// coordinate index
+  int w;			// weight
 
-    vector<int> coord;
+  // for dLOWCARD and dHIGHCARD
+  int card[lngt] = {};
+  vector<size_t> indicator(lngt, 0);
+
+  // for dRAND
+  random_device rd;
+  static uniform_int_distribution<int> uni_dist(0,lngt-1);
+  static default_random_engine dre(rd());
+
+  switch (direction) {
+  case dBEGIN:
     for (size_t i = 0; i < lngt; ++i)
-      coord.push_back(i);
+      coord[i] = lngt - 1 - i;
+    break;
+  case dEND:
+    for (size_t i = 0; i < lngt; ++i)
+      coord[i] = i;
+    break;
+  case dRAND:
+    for (size_t i = 0; i < lngt; ++i)
+      coord[i] = i;
     shuffle(coord.begin(), coord.end(), dre);
     cout << "+++ precedence of coordinates:";
     for (size_t i = 0; i < coord.size(); ++i)
       cout << " " << coord[i];
     cout << endl;
-    
-    Matrix Thead, Fhead, Ttail, Ftail;
-    for (const Row &t : T) {
-      Row row;
-      for (size_t j = 0; j < lngt; ++j)
-	row.push_back(t[coord[j]]);
-      Ttail.push_back(row);
-    }
-    for (const Row &f : F) {
-      Row row;
-      for (size_t j = 0; j < lngt; ++j)
-	row.push_back(f[coord[j]]);
-      Ftail.push_back(row);
-    }
-    for (size_t i = 0; i < lngt; ++i) {
-      A[coord[i]] = false;
-      Row Tcolumn, Fcolumn;
-      // if (!Ttail.empty())
-      for (size_t j = 0; j < Tsize; ++j) {
-	Tcolumn.push_back(front(Ttail[j]));
-	pop_front(Ttail[j]);
-      }
-      // if (!Ftail.empty())
-      for (size_t j = 0; j < Fsize; ++j) {
-	Fcolumn.push_back(front(Ftail[j]));
-	pop_front(Ftail[j]);
-      }
-      Matrix Ta = join(Thead, Ttail);
-      Matrix Fa = join(Fhead, Ftail);
-      if (inadmissible(Ta,Fa)) {
-	A[coord[i]] = true;
-	if (Thead.empty())
-	  for (size_t j = 0; j < Tsize; ++j) {
-	    Row row(1, Tcolumn[j]);
-	    // row.push_back(Tcolumn[j]);
-	    Thead.push_back(row);
-	  }
-	else
-	  for (size_t j = 0; j < Tsize; ++j)
-	    Thead[j].push_back(Tcolumn[j]);
-	if (Fhead.empty())
-	  for (size_t j = 0; j < Fsize; ++j) {
-	    Row row(1, Fcolumn[j]);
-	    // row.push_back(Fcolumn[j]);
-	    Fhead.push_back(row);
-	  }
-	else
-	  for (size_t j = 0; j < Fsize; ++j)
-	    Fhead[j].push_back(Fcolumn[j]);
-      }
-    }
-    // for (size_t i = 0; i < A.size(); ++i) {
-    //   A[coord[i]] = false;
-    //   Matrix Ta = section(A,T);
-    //   Matrix Fa = section(A,F);
-    //   if (inadmissible(Ta,Fa)) A[coord[i]] = true;
-    // }
-  } else if (direction == dLOWCARD || direction == dHIGHCARD) {
-    // cardinality preference
-    int card[lngt] = {};
-    vector<int> indicator(lngt, 0);
+    break;
+  case dLOWCARD:
+  case dHIGHCARD:
     for (const Row &t : T)
       for (size_t i = 0; i < t.size(); ++i) {
 	card[i] += t[i];
@@ -706,14 +629,14 @@ Row minsect (const Matrix &T, const Matrix &F) {
     //   }
 
     if (direction == dLOWCARD)
-      stable_sort(indicator.begin(), indicator.end(), greater<int>());
+      stable_sort(indicator.begin(), indicator.end(), greater<size_t>());
     else if (direction == dHIGHCARD)
       stable_sort(indicator.begin(), indicator.end());
 
-    int coord[lngt];
     for (size_t i = 0; i < lngt; ++i) {
-      int j = 0;
-      while (card[j] != indicator[i]) ++j;
+      size_t j = 0;
+      while (card[j] != indicator[i])
+	++j;
       coord[i] = j;
       card[j] = SENTINEL;
     }
@@ -721,69 +644,11 @@ Row minsect (const Matrix &T, const Matrix &F) {
     for (size_t i = 0; i < lngt; ++i)
       cout << " " << coord[i];
     cout << endl;
-
-    Matrix Thead, Fhead, Ttail, Ftail;
-    for (const Row &t : T) {
-      Row row;
-      for (size_t j = 0; j < lngt; ++j)
-    	row.push_back(t[coord[j]]);
-      Ttail.push_back(row);
-    }
-    for (const Row &f : F) {
-      Row row;
-      for (size_t j = 0; j < lngt; ++j)
-    	row.push_back(f[coord[j]]);
-      Ftail.push_back(row);
-    }
+    break;
+  case dPREC:
     for (size_t i = 0; i < lngt; ++i) {
-      A[coord[i]] = false;
-      Row Tcolumn, Fcolumn;
-      // if (!Ttail.empty())
-      for (size_t j = 0; j < Tsize; ++j) {
-    	Tcolumn.push_back(front(Ttail[j]));
-    	pop_front(Ttail[j]);
-      }
-      // if (!Ftail.empty())
-      for (size_t j = 0; j < Fsize; ++j) {
-    	Fcolumn.push_back(front(Ftail[j]));
-    	pop_front(Ftail[j]);
-      }
-      Matrix Ta = join(Thead, Ttail);
-      Matrix Fa = join(Fhead, Ftail);
-      if (inadmissible(Ta,Fa)) {
-    	A[coord[i]] = true;
-    	if (Thead.empty())
-    	  for (size_t j = 0; j < Tsize; ++j) {
-    	    Row row(1, Tcolumn[j]);
-    	    // row.push_back(Tcolumn[j]);
-    	    Thead.push_back(row);
-    	  }
-    	else
-    	  for (size_t j = 0; j < Tsize; ++j)
-    	    Thead[j].push_back(Tcolumn[j]);
-    	if (Fhead.empty())
-    	  for (size_t j = 0; j < Fsize; ++j) {
-    	    Row row(1, Fcolumn[j]);
-    	    // row.push_back(Fcolumn[j]);
-    	    Fhead.push_back(row);
-    	  }
-    	else
-    	  for (size_t j = 0; j < Fsize; ++j)
-    	    Fhead[j].push_back(Fcolumn[j]);
-      }
-    }
-    // for (size_t i = 0; i < A.size(); ++i) {
-    //   A[coord[i]] = false;
-    //   Matrix Ta = section(A,T);
-    //   Matrix Fa = section(A,F);
-    //   if (inadmissible(Ta,Fa)) A[coord[i]] = true;
-    // }
-  } else if (direction == dPREC) {	// precedence
-    vector<int> coord;			// coordinates
-
-    for (size_t i = 0; i < lngt; ++i) {
-      coord.push_back(i);		// each coordinate has its place
-      idx2w[i] = 50;			// 50 is the default value
+      coord[i] = i;
+      idx2w[i] = 50;		// 50 is the default value
     }
 
     if (input != STDIN && weights.empty()) {
@@ -799,8 +664,6 @@ Row minsect (const Matrix &T, const Matrix &F) {
       direction = dBEGIN;
       return minsect(T, F);
     } else {
-      size_t idx;	// coordinate index
-      int w;		// weight
       while (weightstream >> idx >> w)
 	if (idx >= lngt)
 	  cerr << "+++ coordinate " << idx << " out of bounds ignored" << endl;
@@ -813,59 +676,9 @@ Row minsect (const Matrix &T, const Matrix &F) {
     for (size_t i = 0; i < coord.size(); ++i)
       cout << " " << coord[i];
     cout << endl;
-        
-    Matrix Thead, Fhead, Ttail, Ftail;
-    for (const Row &t : T) {
-      Row row;
-      for (size_t j = 0; j < lngt; ++j)
-	row.push_back(t[coord[j]]);
-      Ttail.push_back(row);
-    }
-    for (const Row &f : F) {
-      Row row;
-      for (size_t j = 0; j < lngt; ++j)
-	row.push_back(f[coord[j]]);
-      Ftail.push_back(row);
-    }
-    for (size_t i = 0; i < lngt; ++i) {
-      A[coord[i]] = false;
-      Row Tcolumn, Fcolumn;
-      // if (!Ttail.empty())
-      for (size_t j = 0; j < Tsize; ++j) {
-	Tcolumn.push_back(front(Ttail[j]));
-	pop_front(Ttail[j]);
-      }
-      // if (!Ftail.empty())
-      for (size_t j = 0; j < Fsize; ++j) {
-	Fcolumn.push_back(front(Ftail[j]));
-	pop_front(Ftail[j]);
-      }
-      Matrix Ta = join(Thead, Ttail);
-      Matrix Fa = join(Fhead, Ftail);
-      if (inadmissible(Ta,Fa)) {
-	A[coord[i]] = true;
-	if (Thead.empty())
-	  for (size_t j = 0; j < Tsize; ++j) {
-	    Row row(1, Tcolumn[j]);
-	    // row.push_back(Tcolumn[j]);
-	    Thead.push_back(row);
-	  }
-	else
-	  for (size_t j = 0; j < Tsize; ++j)
-	    Thead[j].push_back(Tcolumn[j]);
-	if (Fhead.empty())
-	  for (size_t j = 0; j < Fsize; ++j) {
-	    Row row(1, Fcolumn[j]);
-	    // row.push_back(Fcolumn[j]);
-	    Fhead.push_back(row);
-	  }
-	else
-	  for (size_t j = 0; j < Fsize; ++j)
-	    Fhead[j].push_back(Fcolumn[j]);
-      }
-    }
+    break;
   }
-  return A;
+  return eliminate(T, F, coord);
 }
 
 void w_f (const string &filename, const string suffix,
@@ -926,18 +739,20 @@ bool satisfied_by (const Clause &clause, const Matrix &T) {
   return true;
 }
 
-int numlit (const Clause &clause) {
+size_t numlit (const Clause &clause) {
   // number of literals in a clause
-  int i=0;
+  size_t i = 0;
   for (const Literal lit : clause)
-    if (lit != lnone) ++i;
+    if (lit != lnone)
+      i++;
   return i;
 }
 
-int firstlit (const Clause &clause) {
+size_t firstlit (const Clause &clause) {
   // coordinate of first literal
-  int i=0;
-  while (i < clause.size() && clause[i] == lnone) i++;
+  size_t i = 0;
+  while (i < clause.size() && clause[i] == lnone)
+    i++;
   return i;
 }
 
@@ -1073,7 +888,7 @@ Formula unitres (const Formula &formula) {
   Formula units;
   Formula clauses;
 
-  for (Clause cl : formula)
+  for (const Clause &cl : formula)
     if (numlit(cl) == 1)
       units.push_back(cl);
     else
@@ -1083,8 +898,9 @@ Formula unitres (const Formula &formula) {
   while (!units.empty() && !clauses.empty()) {
     Clause unit = units.front();
     units.pop_front();
-    int index = 0;
-    while (unit[index] == lnone) index++;
+    size_t index = 0;
+    while (unit[index] == lnone)
+      index++;
     for (size_t j = 0; j < clauses.size(); j++) {
       Clause clause = clauses[j];
       if (unit[index] == lpos && clause[index] == lneg
@@ -1112,7 +928,7 @@ Formula unitres (const Formula &formula) {
   int ru_bound = resUnits.size();
   for (int i = 0; i < ru_bound-1; ++i) {	// must remain int
     Clause unit_i = resUnits[i];
-    int index = 0;
+    size_t index = 0;
     while (index < unit_i.size() && unit_i[index] == lnone)
       index++;
     if (index < ru_bound) {
@@ -1143,7 +959,7 @@ Formula binres (const Formula &formula) {
   Formula bins;
   Formula clauses;
 
-  for (Clause cl : formula)
+  for (const Clause &cl : formula)
     if (numlit(cl) == 2)
       bins.push_back(cl);
     else
@@ -1153,10 +969,12 @@ Formula binres (const Formula &formula) {
   while (!bins.empty() && !clauses.empty()) {
     Clause bincl = bins.front();
     bins.pop_front();
-    int index1 = 0;
-    while (bincl[index1] == lnone) index1++;
-    int index2 = index1 + 1;
-    while (bincl[index2] == lnone) index2++;
+    size_t index1 = 0;
+    while (bincl[index1] == lnone)
+      index1++;
+    size_t index2 = index1 + 1;
+    while (bincl[index2] == lnone)
+      index2++;
     for (size_t j = 0; j < clauses.size(); j++) {
       Clause clause = clauses[j];
       if (clause[index1] == bincl[index1]
@@ -1191,7 +1009,7 @@ Formula binres (const Formula &formula) {
 bool subsumes (const Clause &cla, const Clause &clb) {
   // does clause cla subsume clause clb ?
   // cla must be smaller than clb
-  for (size_t i=0; i < cla.size(); ++i)
+  for (size_t i = 0; i < cla.size(); ++i)
     if (cla[i] != lnone && cla[i] != clb[i])
       return false;
   return true;
@@ -1227,7 +1045,7 @@ bool empty_clause (const Clause &clause) {
 }
 
 // eliminating redundant clauses
-// clauses must be sorted by length --- IS UARANTEED
+// clauses must be sorted by length --- IS GUARANTEED
 Formula redundant (const Formula &formula) {	
   const int lngt = formula[0].size();
 
@@ -1238,7 +1056,7 @@ Formula redundant (const Formula &formula) {
   // sort(prefix.begin(), prefix.end(), cmp_numlit);
   // sort_mf(prefix, 0, prefix.size()-1);
 
-  int left = 0;
+  size_t left = 0;
   while (left < prefix.size() && numlit(prefix[left]) == 1)
     left++;
 
@@ -1261,7 +1079,7 @@ Formula redundant (const Formula &formula) {
     newUnits.erase(last3, newUnits.end());
     Formula bogus = unitres(newUnits);
     bool keep = true;
-    for (Clause bgcl : bogus)
+    for (const Clause &bgcl : bogus)
       if (empty_clause(bgcl)) {
 	keep = false;
 	break;
@@ -1293,29 +1111,33 @@ Formula SetCover (const Matrix &Universe, const Formula &SubSets) {
 
   // perform set cover
   while (!R.empty()) {
-    map<Clause, int> intersect;	// How many tuples does the clause falsify (intersect)?
-    for (Clause clause : SubSets)
+    // How many tuples does the clause falsify (intersect)?
+    map<Clause, size_t> intersect;
+    for (const Clause &clause : SubSets)
       intersect[clause] = 0;
+#pragma omp parallel for
     for (const Row &tuple : R)
-      for (Clause clause : SubSets)
+#pragma omp parallel for
+      for (const Clause &clause : SubSets)
 	if (incidence[make_pair(tuple, clause)] == PRESENT)
 	  ++intersect[clause];
 
-    int maxw = 0;
+    size_t maxw = 0;
     Clause maxset;
-    for (Clause clause : SubSets)
+    for (const Clause &clause : SubSets)
       if (intersect[clause] > maxw) {
 	maxw = intersect[clause];
 	maxset = clause;
       }
 
-    if (maxw == 0) break;
+    if (maxw == 0)
+      break;
     selected.push_back(maxset);
     
     auto it = R.begin();
     while (it != R.end())
       if (incidence[make_pair(*it, maxset)] == PRESENT) {
-	for (Clause clause : SubSets)
+	for (const Clause &clause : SubSets)
 	  incidence[make_pair(*it, clause)] = ABSENT;
 	it = R.erase(it);
       } else
@@ -1611,7 +1433,7 @@ Clause polswap_clause (const Clause &clause) {
 // swap polarity of every clause of a formula
 Formula polswap_formula (const Formula &formula) {
   Formula swapped;
-  for (Clause clause : formula)
+  for (const Clause &clause : formula)
     swapped.push_back(polswap_clause(clause));
   return swapped;
 }

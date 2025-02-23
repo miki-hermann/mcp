@@ -42,15 +42,15 @@ void adjust () {				// adjust input parameters
   if (!tpath.empty() && tpath[tpath.size()-1] != '/')
     tpath += '/';
 
-  // if (input != STDIN) {
-  //   infile.open(input);
-  //   if (infile.is_open())
-  //     cin.rdbuf(infile.rdbuf());
-  //   else {
-  //     cerr << "+++ Cannot open input file " << input << endl;
-  //     exit(2);
-  //   }
-  // }
+  if (input != STDIN) {
+    infile.open(input);
+    if (infile.is_open())
+      cin.rdbuf(infile.rdbuf());
+    else {
+      cerr << "+++ Cannot open input file " << input << endl;
+      exit(2);
+    }
+  }
 
   if (input != STDIN && headerput.empty()) {
     string::size_type pos = input.rfind('.');
@@ -109,9 +109,9 @@ void print_arg () {
   outfile << "@@@ latex output  = "
 	  << (latex.length() > 0 ? latex : "no")
 	  << endl;
-  outfile << "@@@ clustering    = "
-	  << (cluster == SENTINEL ? "no" : "yes, epsilon = " + to_string(cluster))
-	  << endl;
+  // outfile << "@@@ clustering    = "
+  // 	  << (cluster == SENTINEL ? "no" : "yes, epsilon = " + to_string(cluster))
+  // 	  << endl;
   outfile << "@@@ action        = " << action_strg[action] << endl;
   outfile << "@@@ closure       = " << closure_strg[closure] << endl;
   outfile << "@@@ direction     = " << direction_strg[direction] << endl;
@@ -271,32 +271,28 @@ void read_header () {
   }
 }
 
+// reads the input matrices
 void read_matrix (Group_of_Matrix &matrix) {
-  // reads the input matrices
   string line;
 
-  if (input != STDIN) {
-    infile.open(input);
-    if (infile.is_open())
-      cin.rdbuf(infile.rdbuf());
-    else {
-      cerr << "+++ Cannot open input file " << input << endl;
-      exit(2);
-    }
-  }
-
-  vector<string> gqueue;	// queue of group leading indicators
-  Matrix batch;		// stored tuples which will be clustered
+  // vector<string> gqueue;	// queue of group leading indicators
+  // Matrix batch;		// stored tuples which will be clustered
 
   string group;
   int numline = 0;
   while (getline(cin, line)) {
     numline++;
-    istringstream nums(line);
-    nums >> group;
+    // istringstream nums(line);
+    // nums >> group;
+    // Row temp;
+    // int number;
+    // while (nums >> number) {
+    //   temp.push_back(number);
+    const vector<string> nums = split(line, " \t,");
+    group = nums.at(0);
     Row temp;
-    int number;
-    while (nums >> number) {
+    for (size_t i = 1; i < nums.size(); ++i) {
+      int number = stoi(nums.at(i));
       temp.push_back(number);
     }
     if (arity == 0)
@@ -304,23 +300,23 @@ void read_matrix (Group_of_Matrix &matrix) {
     else if (arity != temp.size())
       outfile << "*** arity discrepancy on line " << numline << endl;
 
-    if (cluster <= SENTINEL)
+    // if (cluster <= SENTINEL)
       matrix[group].push_back(temp);
-    else {
-      gqueue.push_back(group);
-      batch.push_back(temp);
-    }
+    // else {
+    //   gqueue.push_back(group);
+    //   batch.push_back(temp);
+    // }
   }
 
   if (input != STDIN)
     infile.close();
 
-  if (cluster > SENTINEL) {
-    clustering(batch);
-    numline = batch.size();
-    for (int i = 0; i < gqueue.size(); ++i)
-      matrix[gqueue[i]].push_back(batch[i]);
-  }
+  // if (cluster > SENTINEL) {
+  //   clustering(batch);
+  //   numline = batch.size();
+  //   for (int i = 0; i < gqueue.size(); ++i)
+  //     matrix[gqueue[i]].push_back(batch[i]);
+  // }
 
   if (display == yUNDEF) {
     display = (numline * arity > MTXLIMIT) ? yHIDE : yPEEK;
@@ -550,7 +546,7 @@ void one2one (ofstream &process_outfile, ofstream &latex_outfile, const int &i) 
     } else {
       vector<size_t> A;
       if (!nosection) {
-	int hw = hamming_weight(sect);
+	size_t hw = hamming_weight(sect);
 	process_outfile << "+++ Relevant variables [" << hw << "]: ";
 	for (size_t k = 0; k < sect.size(); ++k)
 	  if (sect[k] == true) {
@@ -654,7 +650,7 @@ void selected2all (ofstream &process_outfile, ofstream &latex_outfile, const int
   } else {
     vector<size_t> A;
     if (!nosection) {
-      int hw = hamming_weight(sect);
+      size_t hw = hamming_weight(sect);
       process_outfile << "+++ Relevant variables [" << hw << "]: ";
       for (size_t k = 0; k < sect.size(); ++k)
 	if (sect[k]) {

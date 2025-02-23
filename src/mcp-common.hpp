@@ -116,7 +116,7 @@ bool operator>= (const Row &a, const Row &b);
 // Matrix ObsGeq (const Row &a, const Matrix &M);
 unique_ptr<Row> ObsGeq (const Row &a, const Matrix &M);
 bool inadmissible (const Matrix &T, const Matrix &F);
-int hamming_weight (const Row &row);
+size_t hamming_weight (const Row &row);
 Row minsect (const Matrix &T, const Matrix &F);
 bool satisfied_by (const Clause &clause, const Matrix &T);
 Matrix restrict (const Row &sect, const Matrix &A);

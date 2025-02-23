@@ -105,9 +105,9 @@ void print_arg () {
   cout << "@@@ latex output  = "
        << (latex.length() > 0 ? latex : "no")
        << endl;
-  cout << "@@@ clustering    = "
-       << (cluster == SENTINEL ? "no" : "yes, epsilon = " + to_string(cluster))
-       << endl;
+  // cout << "@@@ clustering    = "
+  //      << (cluster == SENTINEL ? "no" : "yes, epsilon = " + to_string(cluster))
+  //      << endl;
   cout << "@@@ action        = " << action_strg[action] << endl;
   cout << "@@@ closure       = " << closure_strg[closure] << endl;
   cout << "@@@ direction     = " << direction_strg[direction] << endl;
@@ -262,11 +262,11 @@ void read_header () {
   }
 }
 
+// reads the input matrices
 void read_matrix (Group_of_Matrix &matrix) {
-  // reads the input matrices
 
-  vector<string> gqueue;	// queue of group leading indicators
-  Matrix batch;			// stored tuples which will be clustered
+  // vector<string> gqueue;	// queue of group leading indicators
+  // Matrix batch;			// stored tuples which will be clustered
 
   string group;
   int numline = 0;
@@ -274,34 +274,42 @@ void read_matrix (Group_of_Matrix &matrix) {
   
   while (getline(cin, line)) {
     numline++;
-    istringstream nums(line);
-    nums >> group;
+    // istringstream nums(line);
+    // nums >> group;
+    // Row temp;
+    // int number;
+    // while (nums >> number)
+    //   temp.push_back(number);
+    const vector<string> nums = split(line, " \t,");
+    group = nums.at(0);
     Row temp;
-    int number;
-    while (nums >> number)
+    for (size_t i = 1; i < nums.size(); ++i) {
+      int number = stoi(nums.at(i));
       temp.push_back(number);
+    }
+  
     if (arity == 0)
       arity = temp.size();
     else if (arity != temp.size())
       cout << "*** arity discrepancy on line " << numline << endl;
 
-    if (cluster <= SENTINEL)
+    // if (cluster <= SENTINEL)
       matrix[group].push_back(temp);
-    else {
-      gqueue.push_back(group);
-      batch.push_back(temp);
-    }
+    // else {
+    //   gqueue.push_back(group);
+    //   batch.push_back(temp);
+    // }
   }
 
   if (input != STDIN)
     infile.close();
 
-  if (cluster > SENTINEL) {
-    clustering(batch);
-    numline = batch.size();
-    for (int i = 0; i < gqueue.size(); ++i)
-      matrix[gqueue[i]].push_back(batch[i]);
-  }
+  // if (cluster > SENTINEL) {
+  //   clustering(batch);
+  //   numline = batch.size();
+  //   for (int i = 0; i < gqueue.size(); ++i)
+  //     matrix[gqueue[i]].push_back(batch[i]);
+  // }
 
   if (display == yUNDEF) {
     display = (numline * arity > MTXLIMIT) ? yHIDE : yPEEK;
@@ -559,8 +567,7 @@ void one2one () {
       } else {
 	vector<size_t> A;
 	if (!nosection) {
-	  int hw = hamming_weight(sect);
-	  // int hw = std::accumulate(sect.cbegin(), sect.cend(), 0);
+	  size_t hw = hamming_weight(sect);
 	  cout << "+++ Relevant variables [" << hw << "]: ";
 	  for (size_t k = 0; k < sect.size(); ++k)
 	    if (sect[k]) {
@@ -666,7 +673,7 @@ void selected2all (const string &grp) {
   else {
     vector<size_t> A;
     if (!nosection) {
-      int hw = hamming_weight(sect);
+      size_t hw = hamming_weight(sect);
       cout << "+++ Relevant variables [" << hw << "]: ";
       for (size_t k = 0; k < sect.size(); ++k)
 	if (sect[k]) {

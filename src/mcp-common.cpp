@@ -161,11 +161,11 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
 		 || dir == "prec"
 		 || dir == "p") {
 	direction = dPREC;
-      // } else if (dir == "optimum"
-      // 		 || dir == "optimal"
-      // 		 || dir == "opt"
-      // 		 || dir ==  "x") {
-      // 	direction = dOPT;
+	// } else if (dir == "optimum"
+	// 		 || dir == "optimal"
+	// 		 || dir == "opt"
+	// 		 || dir ==  "x") {
+	// 	direction = dOPT;
       } else 
 	cerr << "+++ unknown direction option " << dir << endl;
     } else if (arg == "--closure"
@@ -580,17 +580,6 @@ Row minsect (const Matrix &T, const Matrix &F) {
   }
 
   vector<size_t> coord(lngt);	// sequence of coordinates to inspect
-  size_t idx;			// coordinate index
-  int w;			// weight
-
-  // for dLOWCARD and dHIGHCARD
-  int card[lngt] = {};
-  vector<size_t> indicator(lngt, 0);
-
-  // for dRAND
-  random_device rd;
-  static uniform_int_distribution<int> uni_dist(0,lngt-1);
-  static default_random_engine dre(rd());
 
   switch (direction) {
   case dBEGIN:
@@ -601,7 +590,11 @@ Row minsect (const Matrix &T, const Matrix &F) {
     for (size_t i = 0; i < lngt; ++i)
       coord[i] = i;
     break;
-  case dRAND:
+  case dRAND: {
+    random_device rd;
+    static uniform_int_distribution<int> uni_dist(0,lngt-1);
+    static default_random_engine dre(rd());
+
     for (size_t i = 0; i < lngt; ++i)
       coord[i] = i;
     shuffle(coord.begin(), coord.end(), dre);
@@ -609,9 +602,12 @@ Row minsect (const Matrix &T, const Matrix &F) {
     for (size_t i = 0; i < coord.size(); ++i)
       cout << " " << coord[i];
     cout << endl;
-    break;
+  } break;
   case dLOWCARD:
-  case dHIGHCARD:
+  case dHIGHCARD: {
+    int card[lngt] = {};
+    vector<size_t> indicator(lngt, 0);
+
     for (const Row &t : T)
       for (size_t i = 0; i < t.size(); ++i) {
 	card[i] += t[i];
@@ -644,8 +640,10 @@ Row minsect (const Matrix &T, const Matrix &F) {
     for (size_t i = 0; i < lngt; ++i)
       cout << " " << coord[i];
     cout << endl;
-    break;
-  case dPREC:
+  } break;
+  case dPREC: {
+    size_t idx;			// coordinate index
+    int w;			// weight
     for (size_t i = 0; i < lngt; ++i) {
       coord[i] = i;
       idx2w[i] = 50;		// 50 is the default value
@@ -676,7 +674,7 @@ Row minsect (const Matrix &T, const Matrix &F) {
     for (size_t i = 0; i < coord.size(); ++i)
       cout << " " << coord[i];
     cout << endl;
-    break;
+  } break;
   }
   return eliminate(T, F, coord);
 }
@@ -982,8 +980,8 @@ Formula binres (const Formula &formula) {
 	  clause[index2] == -1 * bincl[index2])
 	clauses[j][index2] = lnone;
       else if (clause[index1] == -1 * bincl[index1]
-	  &&
-	  clause[index2] == bincl[index2])
+	       &&
+	       clause[index2] == bincl[index2])
 	clauses[j][index1] = lnone;
     }
 
@@ -1152,9 +1150,9 @@ Formula SetCover (const Matrix &Universe, const Formula &SubSets) {
 void cook (Formula &formula) {
   if (! formula.empty()) {
     if (cooking == ckRAW)      sort_mf(formula, 0, formula.size()-1);
-      // sort(formula.begin(), formula.end(), cmp_numlit);
+    // sort(formula.begin(), formula.end(), cmp_numlit);
     if (cooking >= ckBLEU)     {formula = unitres(formula);
-				formula = binres(formula);}
+      formula = binres(formula);}
     if (cooking >= ckMEDIUM)   formula = subsumption(formula);
     if (cooking == ckWELLDONE) formula = redundant(formula);
   }
@@ -1343,8 +1341,8 @@ Formula learnCNFlarge (const Matrix &F) {
 
 int fork (const Row &m1, const Row &m2) {
   int i = 0;
-    // we can guarantee that always m1 != m2, therefore
-    // we can drop i < m1.size()
+  // we can guarantee that always m1 != m2, therefore
+  // we can drop i < m1.size()
   while (m1[i] == m2[i])
     ++i;
   return i;

@@ -151,7 +151,7 @@ void clustering(Matrix &batch) {
   outfile << "+++ Correspondence table with centers and their distance from average" << endl;
   
   for (int i = 0; i < cl_flag.size(); ++i)
-    if (cl_flag[i] == false) {
+    if (! cl_flag[i]) {
       cl_q.push(i);
       cl_flag[i] = true;
       vector<int> cl_bag;
@@ -167,7 +167,7 @@ void clustering(Matrix &batch) {
 	cl_q.pop();
 
 	for (int j = i+1; j < cl_flag.size(); ++j)
-	  if (cl_flag[j] == false
+	  if (!cl_flag[j]
 	      &&
 	      (hamming_distance(tr_batch[j], tr_batch[index]) <= cluster)) {
 	    cl_q.push(j);
@@ -356,20 +356,17 @@ Formula learnHornLarge (ofstream &process_outfile,
   // with the large strategy
   Formula H;
 
-  for (Row f : F) {
+  for (const Row &f : F) {
     Clause clause;
     bool eliminated = false;
-    for (int i = 0; i < f.size(); ++i)
-      if (f[i] == true)
-	clause.push_back(lneg);
-      else
-	clause.push_back(lnone);
+    for (size_t i = 0; i < f.size(); ++i)
+      clause += f[i] ? lneg : lnone;
     if (satisfied_by(clause, T)) {
       H.push_back(clause);
       eliminated = true;
     } else
-      for (int i = 0; i < f.size(); ++i)
-	if (f[i] == false) {
+      for (size_t i = 0; i < f.size(); ++i)
+	if (! f[i]) {
 	  clause[i] = lpos;
 	  if (satisfied_by(clause, T)) {
 	    H.push_back(clause);
@@ -378,7 +375,7 @@ Formula learnHornLarge (ofstream &process_outfile,
 	  }
 	  clause[i] = lnone;
 	}
-    if (eliminated == false)
+    if (! eliminated)
       process_outfile << "+++ WARNING: vector " << f << " not elminated" << endl;
   }
 
@@ -389,8 +386,8 @@ Formula learnHornLarge (ofstream &process_outfile,
 Formula learn2sat (ofstream &process_outfile, const Matrix &T, const Matrix &F) {
   // learn a bijunctive clause from positive examples T and negative examples F
   Formula B;
-  const int lngt = T[0].size();
-  Literal literals[] = {lpos, lneg};
+  const size_t lngt = T[0].size();
+  const Literal literals[] = {lpos, lneg};
 
   // Put here the production of a bijunctive formula
   // Is it necessary to generate the majority closure?
@@ -400,15 +397,15 @@ Formula learn2sat (ofstream &process_outfile, const Matrix &T, const Matrix &F) 
 
     if (T.size() == 1) {
       Row t = T[0];
-      for (int i = 0; i < lngt; ++i) {
+      for (size_t i = 0; i < lngt; ++i) {
 	Clause clause(lngt, lnone);
-	clause[i] = t[i] == true ? lpos : lneg;
+	clause[i] = t[i] ? lpos : lneg;
 	B.push_back(clause);
       }
       return B;
     }
 
-    for (int j = 0; j < lngt; ++j) {
+    for (size_t j = 0; j < lngt; ++j) {
       Clause clause(lngt, lnone);
       clause[j] = lpos;
       if (satisfied_by(clause, T))
@@ -420,17 +417,17 @@ Formula learn2sat (ofstream &process_outfile, const Matrix &T, const Matrix &F) 
 
     for (int j1 = 0; j1 < lngt-1; ++j1)
       for (int j2 = j1+1; j2 < lngt; ++j2)
-	for (Literal lit1 : literals) {
+	for (const Literal lit1 : literals) {
 	  Clause clause(lngt, lnone);
 	  clause[j1] = lit1;
-	  for (Literal lit2 : literals) {
+	  for (const Literal lit2 : literals) {
 	    clause[j2] = lit2;
 	    if (satisfied_by(clause, T))
 	      B.push_back(clause);
 	  }
 	}
 
-    for (Row f : F)
+    for (const Row &f : F)
       if (sat_formula(f, B))
     	process_outfile << "WARNING: vector " << f
 			<< " not elminated from F" << endl;
@@ -438,7 +435,7 @@ Formula learn2sat (ofstream &process_outfile, const Matrix &T, const Matrix &F) 
     B = primality(B, T);
   } else if (strategy == sLARGE) {
     
-    for (int j = 0; j < lngt; ++j) {
+    for (size_t j = 0; j < lngt; ++j) {
       Clause clause(lngt, lnone);
 
       clause[j] = lpos;
@@ -454,10 +451,10 @@ Formula learn2sat (ofstream &process_outfile, const Matrix &T, const Matrix &F) 
 
     for (int j1 = 0; j1 < lngt-1; ++j1)
       for (int j2 = j1+1; j2 < lngt; ++j2)
-	for (Literal lit1 : literals) {
+	for (const Literal lit1 : literals) {
 	  Clause clause(lngt, lnone);
 	  clause[j1] = lit1;
-	  for (Literal lit2 : literals) {
+	  for (const Literal lit2 : literals) {
 	    clause[j2] = lit2;
 	    if (! satisfied_by(clause, F)
 		&& satisfied_by(clause, T))
@@ -465,7 +462,7 @@ Formula learn2sat (ofstream &process_outfile, const Matrix &T, const Matrix &F) 
 	  }
 	}
     
-    for (Row t : T)
+    for (const Row &t : T)
       if (! sat_formula(t, B))
     	process_outfile << "WARNING: vector " << t
 			<< " does not satisfy the formula" << endl;
@@ -481,7 +478,7 @@ Formula learn2sat (ofstream &process_outfile, const Matrix &T, const Matrix &F) 
 Formula post_prod(ofstream &process_outfile, ofstream &latex_outfile,
 	       const vector<size_t> &A, const Matrix &F, const Formula &formula) {
   Formula schf;
-  if (setcover == true) {
+  if (setcover) {
     process_outfile << "+++ " << pcl_strg[closure]
 	 << " formula before set cover [" << formula.size() << "] =" << endl;
     process_outfile << formula2string(A, formula) << endl;
@@ -522,7 +519,7 @@ void one2one (ofstream &process_outfile, ofstream &latex_outfile, const int &i) 
   // one group as positive agains one group of negative examples
 
   Matrix T = group_of_matrix[grps[i]];
-  for (int j = 0; j < grps.size(); ++j) {
+  for (size_t j = 0; j < grps.size(); ++j) {
     if (j == i) continue;
     Matrix F = group_of_matrix[grps[j]];
 
@@ -549,7 +546,7 @@ void one2one (ofstream &process_outfile, ofstream &latex_outfile, const int &i) 
 	size_t hw = hamming_weight(sect);
 	process_outfile << "+++ Relevant variables [" << hw << "]: ";
 	for (size_t k = 0; k < sect.size(); ++k)
-	  if (sect[k] == true) {
+	  if (sect[k]) {
 	    A.push_back(k);
 	    if (varswitch) {
 	      vector<string> new_names = split(varnames[k], ":");
@@ -634,7 +631,7 @@ void selected2all (ofstream &process_outfile, ofstream &latex_outfile, const int
     polswap_matrix(F);
   }
     
-  Row sect= minsect(T, F);
+  const Row sect = minsect(T, F);
   if (nosection)
     process_outfile << "+++ Groups ";
   else
@@ -708,7 +705,7 @@ void selected2all (ofstream &process_outfile, ofstream &latex_outfile, const int
     if (nosection)
       for (size_t nms = 0; nms < arity; ++nms)
 	names[nms] = nms;
-    Formula schf = post_prod(process_outfile, latex_outfile,
+    const Formula schf = post_prod(process_outfile, latex_outfile,
 			     nosection ? names : A, F, formula);
     if (! formula_output.empty())
       write_formula(grps[i], nosection ? names : A, schf);

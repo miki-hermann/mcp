@@ -141,15 +141,15 @@ void clustering(Matrix &batch) {
     cout << "+++ Own variable names canceled by clustering" << endl;
   cout << "+++ Correspondence table with centers and their distance from average" << endl;
   
-  for (int i = 0; i < cl_flag.size(); ++i)
-    if (cl_flag[i] == false) {
+  for (size_t i = 0; i < cl_flag.size(); ++i)
+    if (! cl_flag[i]) {
       cl_q.push(i);
       cl_flag[i] = true;
       vector<int> cl_bag;
       cl_bag.push_back(i);
 
       vector<int> center;
-      for (int j = 0; j < tr_batch[i].size(); ++j)
+      for (size_t j = 0; j < tr_batch[i].size(); ++j)
 	center.push_back(tr_batch[i][j]);
       int cl_card = 1;
 
@@ -157,8 +157,8 @@ void clustering(Matrix &batch) {
 	int index = cl_q.front();
 	cl_q.pop();
 
-	for (int j = i+1; j < cl_flag.size(); ++j)
-	  if (cl_flag[j] == false
+	for (size_t j = i+1; j < cl_flag.size(); ++j)
+	  if (! cl_flag[j]
 	      &&
 	      (hamming_distance(tr_batch[j], tr_batch[index]) <= cluster)) {
 	    cl_q.push(j);
@@ -360,19 +360,16 @@ Formula learnHornLarge (const Matrix &T, const Matrix &F) {
   Formula H;
 
   for (const Row &f : F) {
-    Clause clause;
+    Clause clause;			// Clause type is a string
     bool eliminated = false;
-    for (int i = 0; i < f.size(); ++i)
-      if (f[i] == true)
-	clause.push_back(lneg);
-      else
-	clause.push_back(lnone);
+    for (size_t i = 0; i < f.size(); ++i)
+      clause += f[i] ? lneg : lnone;
     if (satisfied_by(clause, T)) {
       H.push_back(clause);
       eliminated = true;
     } else
-      for (int i = 0; i < f.size(); ++i)
-	if (f[i] == false) {
+      for (size_t i = 0; i < f.size(); ++i)
+	if (! f[i]) {
 	  clause[i] = lpos;
 	  if (satisfied_by(clause, T)) {
 	    H.push_back(clause);
@@ -381,7 +378,7 @@ Formula learnHornLarge (const Matrix &T, const Matrix &F) {
 	  }
 	  clause[i] = lnone;
 	}
-    if (eliminated == false)
+    if (! eliminated)
       cout << "+++ WARNING: vector " << f << " not elminated" << endl;
   }
 
@@ -396,8 +393,8 @@ Formula learnHornLarge (const Matrix &T, const Matrix &F) {
 Formula learn2sat (const Matrix &T, const Matrix &F) {
   // learn a bijunctive clause from positive examples T and negative examples F
   Formula B;
-  const int lngt = T[0].size();
-  Literal literals[] = {lpos, lneg};
+  const size_t lngt = T[0].size();
+  const Literal literals[] = {lpos, lneg};
 
   // Put here the production of a bijunctive formula
   // Is it necessary to generate the majority closure?
@@ -406,10 +403,10 @@ Formula learn2sat (const Matrix &T, const Matrix &F) {
   if (strategy == sEXACT) {
 
     if (T.size() == 1) {
-      Row t = T[0];
+      const Row t = T[0];
       for (size_t i = 0; i < lngt; ++i) {
 	Clause clause(lngt, lnone);
-	clause[i] = t[i] == true ? lpos : lneg;
+	clause[i] = t[i] ? lpos : lneg;
 	B.push_back(clause);
       }
       return B;
@@ -427,10 +424,10 @@ Formula learn2sat (const Matrix &T, const Matrix &F) {
 
     for (int j1 = 0; j1 < lngt-1; ++j1)
       for (int j2 = j1+1; j2 < lngt; ++j2)
-	for (Literal lit1 : literals) {
+	for (const Literal lit1 : literals) {
 	  Clause clause(lngt, lnone);
 	  clause[j1] = lit1;
-	  for (Literal lit2 : literals) {
+	  for (const Literal lit2 : literals) {
 	    clause[j2] = lit2;
 	    if (satisfied_by(clause, T))
 	      B.push_back(clause);
@@ -461,10 +458,10 @@ Formula learn2sat (const Matrix &T, const Matrix &F) {
 
     for (int j1 = 0; j1 < lngt-1; ++j1)
       for (int j2 = j1+1; j2 < lngt; ++j2)
-	for (Literal lit1 : literals) {
+	for (const Literal lit1 : literals) {
 	  Clause clause(lngt, lnone);
 	  clause[j1] = lit1;
-	  for (Literal lit2 : literals) {
+	  for (const Literal lit2 : literals) {
 	    clause[j2] = lit2;
 	    if (! satisfied_by(clause, F)
 		&& satisfied_by(clause, T))
@@ -554,7 +551,7 @@ void one2one () {
 	polswap_matrix(F);
       }
 
-      Row sect = minsect(T, F);
+      const Row sect = minsect(T, F);
       if (nosection)
 	cout << "+++ Groups ";
       else
@@ -626,7 +623,7 @@ void one2one () {
 	if (nosection)
 	  for (size_t nms = 0; nms < arity; ++nms)
 	    names[nms] = nms;
-	Formula schf = post_prod(nosection ? names : A, F, formula);
+	const Formula schf = post_prod(nosection ? names : A, F, formula);
 	if (! formula_output.empty())
 	  write_formula(grps[i], grps[j], nosection ? names : A, schf);
       }
@@ -657,7 +654,7 @@ void selected2all (const string &grp) {
     polswap_matrix(F);
   }
     
-  Row sect= minsect(T, F);
+  const Row sect= minsect(T, F);
   if (nosection)
     cout << "+++ Groups ";
   else
@@ -731,7 +728,7 @@ void selected2all (const string &grp) {
     if (nosection)
       for (size_t nms = 0; nms < arity; ++nms)
 	names[nms] = nms;
-    Formula schf = post_prod(nosection ? names : A, F, formula);
+    const Formula schf = post_prod(nosection ? names : A, F, formula);
     if (! formula_output.empty())
       write_formula(grp, nosection ? names : A, schf);
   }

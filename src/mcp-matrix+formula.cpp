@@ -64,9 +64,9 @@ bool nosection  = false;
 bool sat_clause (const Row &tuple, const Clause &clause) {
   // does the tuple satisfy the clause?
   for (int i = 0; i < tuple.size(); ++i)
-    if (clause[i] == lpos && tuple[i] == true
+    if (clause[i] == lpos && tuple[i]
 	||
-	clause[i] == lneg && tuple[i] == false)
+	clause[i] == lneg && ! tuple[i])
       return true;
   return false;
 }
@@ -128,7 +128,7 @@ string clause2dimacs (const vector<size_t> &names, const Clause &clause) {
   bool plus = false;
   for (int lit = 0; lit < clause.size(); ++lit) {
       if (clause[lit] != lnone) {
-	if (plus == true)
+	if (plus)
 	  output += " ";
 	else
 	  plus = true;
@@ -176,7 +176,7 @@ string rlcl2string (const vector<size_t> &names, const Clause &clause) {
   bool plus = false;
   for (size_t lit = 0; lit < clause.size(); ++lit) {
     if (clause[lit] != lnone) {
-      if (plus == true)
+      if (plus)
 	output += " + ";
       else
 	plus = true;
@@ -264,7 +264,7 @@ string rlcl2latex (const vector<size_t> &names, const Clause &clause) {
   bool lor = false;
   for (size_t lit = 0; lit < clause.size(); ++lit) {
     if (clause[lit] != lnone) {
-      if (lor == true)
+      if (lor)
 	output += " \\lor ";
       else
 	lor = true;
@@ -316,7 +316,7 @@ string formula2latex (const vector<size_t> &names, const Formula &formula) {
   string output;
   bool land = false;
   for (Clause clause : formula) {
-    output += (land == true) ? "\n\t\\land " : "\t  ";
+    output += (land) ? "\n\t\\land " : "\t  ";
     land = true;
     output += clause2latex(names, clause);
   }
@@ -364,7 +364,7 @@ ostream& operator<< (ostream &output, const Row &row) {
   // transforms a tuple (row) to a printable form
   // for (bool bit : row)
   for (size_t i = 0; i < row.size(); ++i)
-    // output << to_string(bit); // bit == true ? 1 : 0;
+    // output << to_string(bit); // bit ? 1 : 0;
     // output << to_string(row[i]);
     output << row[i];
   return output;

@@ -37,7 +37,7 @@ void read_header ();
 void print_arg ();
 Formula learnHornLarge (ofstream &process_outfile,
 			const Matrix &T, const Matrix &F);
-Formula learnBijunctive (ofstream &process_outfile, const Matrix &T, const Matrix &F);
+Formula learn2sat (ofstream &process_outfile, const Matrix &T, const Matrix &F);
 void split_action (ofstream &popr, ofstream &latpr, const int &process_id);
 void crash(int signal);
 void interrupt (int signal);

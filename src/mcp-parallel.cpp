@@ -386,7 +386,7 @@ Formula learnHornLarge (ofstream &process_outfile,
   return H;
 }
 
-Formula learnBijunctive (ofstream &process_outfile, const Matrix &T, const Matrix &F) {
+Formula learn2sat (ofstream &process_outfile, const Matrix &T, const Matrix &F) {
   // learn a bijunctive clause from positive examples T and negative examples F
   Formula B;
   const int lngt = T[0].size();
@@ -589,7 +589,7 @@ void one2one (ofstream &process_outfile, ofstream &latex_outfile, const int &i) 
 	  ? learnHornExact(T)
 	  : learnHornLarge(process_outfile, T, F);
       else if (closure == clBIJUNCTIVE) {
-	formula = learnBijunctive(process_outfile, T, F);
+	formula = learn2sat(process_outfile, T, F);
 	if (formula.empty()) {
 	  process_outfile << "+++ 2SAT formula not possible for this configuration" << endl << endl;
 	  continue;
@@ -693,7 +693,7 @@ void selected2all (ofstream &process_outfile, ofstream &latex_outfile, const int
 	? learnHornExact(T)
 	: learnHornLarge(process_outfile, T, F);
     else if (closure == clBIJUNCTIVE) {
-      formula = learnBijunctive(process_outfile, T, F);
+      formula = learn2sat(process_outfile, T, F);
       if (formula.empty()) {
 	process_outfile << "+++ 2SAT formula not possible for this configuration" << endl << endl;
 	disjoint = true;

@@ -346,7 +346,7 @@ void print_matrix (const Group_of_Matrix &matrix) {
 unique_ptr<Row> ObsGeq (const Row &a, const Matrix &M) {
   // selects tuples (rows) above the tuple a
   unique_ptr<Row> P;
-  for (Row row : M)
+  for (const Row &row : M)
     if (row >= a)
       P = make_unique<Row>(P == nullptr ? row : Min(*P, row));
   return P;
@@ -359,7 +359,7 @@ Formula learnHornLarge (const Matrix &T, const Matrix &F) {
   // with the large strategy
   Formula H;
 
-  for (Row f : F) {
+  for (const Row &f : F) {
     Clause clause;
     bool eliminated = false;
     for (int i = 0; i < f.size(); ++i)
@@ -393,7 +393,7 @@ Formula learnHornLarge (const Matrix &T, const Matrix &F) {
   return H;
 }
 
-Formula learnBijunctive (const Matrix &T, const Matrix &F) {
+Formula learn2sat (const Matrix &T, const Matrix &F) {
   // learn a bijunctive clause from positive examples T and negative examples F
   Formula B;
   const int lngt = T[0].size();
@@ -407,7 +407,7 @@ Formula learnBijunctive (const Matrix &T, const Matrix &F) {
 
     if (T.size() == 1) {
       Row t = T[0];
-      for (int i = 0; i < lngt; ++i) {
+      for (size_t i = 0; i < lngt; ++i) {
 	Clause clause(lngt, lnone);
 	clause[i] = t[i] == true ? lpos : lneg;
 	B.push_back(clause);
@@ -415,7 +415,7 @@ Formula learnBijunctive (const Matrix &T, const Matrix &F) {
       return B;
     }
 
-    for (int j = 0; j < lngt; ++j) {
+    for (size_t j = 0; j < lngt; ++j) {
       Clause clause(lngt, lnone);
       clause[j] = lpos;
       if (satisfied_by(clause, T))
@@ -437,7 +437,7 @@ Formula learnBijunctive (const Matrix &T, const Matrix &F) {
 	  }
 	}
 
-    for (Row f : F)
+    for (const Row &f : F)
       if (sat_formula(f, B))
     	cout << "WARNING: vector " << f
 	     << " not elminated from F" << endl;
@@ -445,7 +445,7 @@ Formula learnBijunctive (const Matrix &T, const Matrix &F) {
     B = primality(B, T);
   } else if (strategy == sLARGE) {
     
-    for (int j = 0; j < lngt; ++j) {
+    for (size_t j = 0; j < lngt; ++j) {
       Clause clause(lngt, lnone);
 
       clause[j] = lpos;
@@ -472,7 +472,7 @@ Formula learnBijunctive (const Matrix &T, const Matrix &F) {
 	  }
 	}
     
-    for (Row t : T)
+    for (const Row &t : T)
       if (! sat_formula(t, B))
     	cout << "WARNING: vector " << t
 	     << " does not satisfy the formula" << endl;
@@ -487,7 +487,7 @@ Formula learnBijunctive (const Matrix &T, const Matrix &F) {
 
 Formula post_prod (const vector<size_t> &A, const Matrix &F, const Formula &formula) {
   Formula schf;
-  if (setcover == true) {
+  if (setcover) {
     cout << "+++ " << pcl_strg[closure]
 	 << " formula before set cover [" << formula.size() << "] =" << endl;
     cout << formula2string(A, formula) << endl;
@@ -542,9 +542,9 @@ Formula post_prod (const vector<size_t> &A, const Matrix &F, const Formula &form
 void one2one () {
   // one group as positive agains one group of negative examples
 
-  for (int i = 0; i < grps.size(); ++i) {
+  for (size_t i = 0; i < grps.size(); ++i) {
     Matrix T = group_of_matrix[grps[i]];
-    for (int j = 0; j < grps.size(); ++j) {
+    for (size_t j = 0; j < grps.size(); ++j) {
       if (j == i) continue;
       Matrix F = group_of_matrix[grps[j]];
 
@@ -610,7 +610,7 @@ void one2one () {
 	    ? learnHornExact(T)
 	    : learnHornLarge(T, F);
 	else if (closure == clBIJUNCTIVE) {
-	  formula = learnBijunctive(T, F);
+	  formula = learn2sat(T, F);
 	  if (formula.empty()) {
 	    cout << "+++ 2SAT formula not possible for this configuration"
 		 << endl
@@ -716,7 +716,7 @@ void selected2all (const string &grp) {
 	? learnHornExact(T)
 	: learnHornLarge(T, F);
     else if (closure == clBIJUNCTIVE) {
-      formula = learnBijunctive(T, F);
+      formula = learn2sat(T, F);
       if (formula.empty()) {
 	cout << "+++ 2SAT formula not possible for this configuration"
 	     << endl << endl;

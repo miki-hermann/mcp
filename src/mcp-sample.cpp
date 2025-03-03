@@ -1,7 +1,7 @@
 /**************************************************************************
  *                                                                        *
  *                                                                        *
- *	       Multiple Classification   Problem (MCP)                    *
+ *	         Multiple Classification Project (MCP)                    *
  *                                                                        *
  *	Author:   Miki Hermann                                            *
  *	e-mail:   hermann@lix.polytechnique.fr                            *
@@ -235,7 +235,8 @@ void adjust_and_open () {
     exit(2);
   }
 
-  if ((conf < 0.001 || conf > 0.2) && sample_size == 0) {
+  // if ((conf < 0.001 || conf > 0.2) && sample_size == 0) {
+  if (conf < 0.001 || conf > 0.2) {
     cerr << "+++ Confidence interval reset to 2.5%" << endl;
     conf = 0.025;
   }
@@ -380,6 +381,10 @@ int main(int argc, char **argv)
       // size_t section = (0.01 * val.second + 0.005 / percentage.size()) * sample_size;
       size_t section = (0.01 * val.second) * sample_size;
       cerr << "+++ section for " << val.first << " = " << section << endl;
+      if (section == 0) {
+	cerr << "+++ " + val.first + " section skipped" << endl;
+	continue;
+      }
       real_size += section;
       string metacmd = concept_column + " : string = " + val.first + ";";
 

@@ -1,7 +1,7 @@
 /**************************************************************************
  *                                                                        *
  *                                                                        *
- *	       Multiple Classification   Problem (MCP)                    *
+ *	         Multiple Classification Project (MCP)                    *
  *                                                                        *
  *	Author:   Miki Hermann                                            *
  *	e-mail:   hermann@lix.polytechnique.fr                            *
@@ -80,7 +80,7 @@ void IO_open () {
     if (infile.is_open())
       cin.rdbuf(infile.rdbuf());
     else {
-      cerr << "+++ Cannot open input file " << output << endl;
+      cerr << "+++ Cannot open input file " << input << endl;
       exit(2);
     }
   }

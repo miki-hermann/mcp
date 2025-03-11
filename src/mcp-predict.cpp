@@ -223,7 +223,7 @@ void get_formulas () {
   streambuf *backup;
   backup = cin.rdbuf();
   ifstream form_in;
-  for (string gp : grps) {
+  for (const string &gp : grps) {
     form_in.open(formula_file[gp]);
     if (form_in.is_open())
       cin.rdbuf(form_in.rdbuf());
@@ -245,7 +245,7 @@ void get_formulas () {
   cin.rdbuf(backup);
 
   cout << "+++ Groups [" << grps.size() << "]:";
-  for (string gp : grps)
+  for (const string &gp : grps)
     cout << " " << gp;
   cout << endl;
 }
@@ -266,8 +266,10 @@ void read_header () {
     varswitch = true;
 
     string line;
-    while(getline(headerfile, line))
-      varnames.push_back(line);
+    while(getline(headerfile, line)) {
+      const vector<string> &hdl = split(line, ":");
+      varnames.push_back(hdl);
+    }
     // arity = varnames.size();
 
     headerfile.close();
@@ -318,7 +320,7 @@ void read_matrix (Group_of_Matrix &matrix) {
   if (display == yUNDEF) {
     display = (numline * arity > MTXLIMIT) ? yHIDE : yPEEK;
     cout << "@@@ print matrix  = " << display_strg[display]
-       << " (redefined)" << endl;
+	 << " (redefined)" << endl;
   }
 }
 
@@ -339,12 +341,15 @@ void print_formula (const vector<size_t> &names,
 }
 
 void sat_test (Group_of_Matrix &matrix) {
-  Matrix gmtx = matrix[test_group];
+  const Matrix gmtx = matrix[test_group];
   bool no_id = pivot_file.empty();
   long ctr = SENTINEL;
 
-  int it_pivot = 0;
-  cout << endl << "+++ Result: " << gmtx.size() << " row(s) in " << predict << endl;
+  size_t it_pivot = 0;
+  cout << endl
+       << "+++ Result: " << gmtx.size() << " row(s) in "
+       << predict
+       << endl;
   if (output != STDOUT)
     cerr << "+++ " << gmtx.size() << " row(s) in " << predict << endl;
   cout << "+++ end of run +++" << endl;
@@ -352,28 +357,28 @@ void sat_test (Group_of_Matrix &matrix) {
     outfile.close();
 
   if (!predict.empty()) {
-      pdxfile.open(predict);
-      if (! pdxfile.is_open()) {
-	cerr << "+++ Cannot open predict file " << predict << endl;
-	exit(2);
-      }
+    pdxfile.open(predict);
+    if (! pdxfile.is_open()) {
+      cerr << "+++ Cannot open predict file " << predict << endl;
+      exit(2);
+    }
       
-      ctr = SENTINEL;
-      it_pivot = 0;
-      for (Row row : gmtx) {
-	if (pivot_file.empty())
-	  pdxfile << "row_" << ++ctr;
-	else
-	  pdxfile << pivot[it_pivot++];
-	string separator = ",";
-	for (string gp : grps)
-	  if (sat_formula(row, formula[gp])) {
-	    pdxfile << separator << gp;
-	    separator = "+";
-	  }
-	pdxfile << endl;
-      }
-      pdxfile.close();
+    ctr = SENTINEL;
+    it_pivot = 0;
+    for (const Row &row : gmtx) {
+      if (pivot_file.empty())
+	pdxfile << "row_" << ++ctr;
+      else
+	pdxfile << pivot[it_pivot++];
+      string separator = ",";
+      for (const string &gp : grps)
+	if (sat_formula(row, formula[gp])) {
+	  pdxfile << separator << gp;
+	  separator = "+";
+	}
+      pdxfile << endl;
+    }
+    pdxfile.close();
   }
 }
 
@@ -391,7 +396,6 @@ void get_pivot (const Matrix &matrix) {
   string pivot_string;
   while (pivot_in >> pivot_string)
     pivot.push_back(pivot_string);
-
   pivot_in.close();
 
   if (pivot.size() != matrix.size()) {
@@ -416,7 +420,7 @@ int main(int argc, char **argv)
   read_matrix(group_of_matrix);
   print_matrix(group_of_matrix[test_group]);
   get_pivot(group_of_matrix[test_group]);
-  for (string gp : grps)
+  for (const string &gp : grps)
     print_formula(names, formula[gp], gp);
   sat_test(group_of_matrix);
 }

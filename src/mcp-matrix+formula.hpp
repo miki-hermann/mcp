@@ -61,7 +61,8 @@ typedef deque<Clause> Formula;
 
 extern string varid;
 extern bool varswitch;
-extern vector<string> varnames;
+// extern vector<string> varnames;
+extern vector<vector<string>> varnames;
 enum NAME : char {nOWN = 0, nPOSITIVE = 1, nNEGATIVE = 2};
 
 extern const int SENTINEL;

@@ -42,7 +42,7 @@ extern bool debug;
 
 // extern string varid;
 // extern bool varswitch;
-// extern vector<string> varnames;
+// extern vector<vector<string>> varnames;
 // enum NAME {nOWN = 0, nPOSITIVE = 1, nNEGATIVE = 2};
 
 extern map<Row, int> pred;		// predecessor function for Zanuttini's algorithm

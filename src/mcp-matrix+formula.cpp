@@ -48,7 +48,8 @@ vector<string> grps;
 
 string varid = "x";
 bool varswitch = false;
-vector<string> varnames;
+// vector<string> varnames;
+vector<vector<string>> varnames;
 
 Action action   = aALL;
 string selected = "";
@@ -155,7 +156,8 @@ string formula2dimacs (const vector<size_t> &names, const Formula &formula) {
 string literal2string (const int &litname, const Literal lit) {
   string output;
   if (varswitch) {
-    vector<string> new_names = split(varnames[litname], ":");
+    // vector<string> new_names = split(varnames[litname], ":");
+    const vector<string> &new_names = varnames[litname];
     if (new_names.size() > 1)		// positive or negative
       output += (lit == lneg)
 	? new_names[nNEGATIVE]
@@ -241,7 +243,8 @@ string formula2string (const vector<size_t> &names, const Formula &formula) {
 string literal2latex (const int &litname, const Literal lit) {
   string output;
   if (varswitch) {
-    vector<string> new_names = split(varnames[litname], ":");
+    // vector<string> new_names = split(varnames[litname], ":");
+    const vector<string> &new_names = varnames[litname];
     
     if (new_names.size() > 1)		// positive or negative
       output +=

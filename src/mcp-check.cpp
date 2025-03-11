@@ -199,8 +199,10 @@ void read_header () {
     varswitch = true;
 
     string line;
-    while(getline(headerfile, line))
-      varnames.push_back(line);
+    while(getline(headerfile, line)) {
+      const vector<string> &hdl = split(line, ":");
+      varnames.push_back(hdl);
+    }
     // arity = varnames.size();
 
     headerfile.close();

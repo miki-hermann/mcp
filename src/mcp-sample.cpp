@@ -57,8 +57,14 @@ bool big = false;
 size_t number_of_lines = 0;
 size_t sample_size = 0;
 
-enum Population {proportional = 0, absolute = 1};
+enum Population : char {proportional = 0, absolute = 1};
 Population population = proportional;
+enum Style : char {NOTHING = 0,
+		   CONFIDENCE = 1,
+		   BOUND = 2,
+		   CARDINALITY = 3,
+		   PROPORTION = 4};
+Style style = NOTHING;
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -99,18 +105,22 @@ void read_arg (int argc, char *argv[]) {
 	       || arg == "-W"
 	       || arg == "-w") {
       confidence = argv[++argument];
+      style = CONFIDENCE;
     } else if (arg == "--bound"
 	       || arg == "--error"
 	       || arg == "-B"
 	       || arg == "-b") {
       error_bound = argv[++argument];
+      style = BOUND;
     } else if (arg == "--cardinality"
 	       || arg == "--card"
 	       || arg == "-#") {
       sample_card = argv[++argument];
+      style = CARDINALITY;
     } else if (arg == "--proportion"
 	       || arg == "--prop") {
       proportion = argv[++argument];
+      style = PROPORTION;
     } else if (arg == "--concept"
 	       || arg == "-c") {
       concept_column = argv[++argument];
@@ -148,6 +158,7 @@ inline void try_sample_size (const string &what) {
   if (!quiet)
     cerr << "+++ Sample cardinality " << sample_size
 	 << " overrides " << what << endl;
+  style = CARDINALITY;
 }
 
 // adjusts input parameters and open files
@@ -233,7 +244,9 @@ void adjust_and_open () {
     exit(2);
   }
 
-  if ((conf < 0.001 || conf > 0.2) && population == proportional) {
+  if ((conf < 0.001 || conf > 0.2)
+      && population == proportional
+      && style != CARDINALITY) {
     cerr << "+++ Confidence interval reset to 2.5%" << endl;
     conf = 0.025;
   }

@@ -1,7 +1,7 @@
 /**************************************************************************
  *                                                                        *
  *                                                                        *
- *	       Multiple Classification   Problem (MCP)                    *
+ *	         Multiple Classification Project (MCP)                    *
  *                                                                        *
  *	Author:   Miki Hermann                                            *
  *	e-mail:   hermann@lix.polytechnique.fr                            *
@@ -12,7 +12,7 @@
  *	Address: Technische Universitaet Wien, Vienna, Austria            *
  *                                                                        *
  *	Version: all                                                      *
- *      File:    mcp-overview.cpp                                         *
+ *      File:    mcp-tally.cpp                                            *
  *                                                                        *
  *      Copyright (c) 2019 - 2025                                         *
  *                                                                        *
@@ -29,6 +29,7 @@ using namespace std;
 extern map<string, size_t> accountant;
 extern map<string, double> percentage;
 
-size_t tally (const long);
+size_t tally (const size_t);
+bool clear_line (const size_t, string &);
 
 //////////////////////////////////////////////////////////////////////////////

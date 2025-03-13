@@ -39,6 +39,8 @@ string input  = STDIN;
 string output = STDOUT;
 ifstream infile;
 ofstream outfile;
+ofstream routfile;
+string tpath = "/tmp/mcp-tmp-";
 
 string confidence = "2.5%";
 double conf;
@@ -51,7 +53,7 @@ size_t ccol;		// concept column value
 bool quiet = false;
 bool big = false;
 
-size_t n_of_lines = 0;
+size_t number_of_lines = 0;
 size_t sample_size = 0;
 
 enum Population {proportional = 0, absolute = 1};
@@ -132,6 +134,21 @@ size_t sample_cardinality (const double &prop, const double &conf) {
   return sz;
 }
 
+// test if sample size is correct and print out override information
+inline void try_sample_size (const string &what) {
+  try {
+    sample_size = stoul(sample_card);
+  } catch (invalid_argument err) {
+    cerr << "+++ " << sample_card
+	 << " is not a valid sample size"
+	 << endl;
+    exit(2);
+  }
+  if (!quiet)
+    cerr << "+++ Sample cardinality " << sample_size
+	 << " overrides " << what << endl;
+}
+
 // adjusts input parameters and open files
 void adjust_and_open () {
   // input and output
@@ -180,30 +197,32 @@ void adjust_and_open () {
     cerr << "+++ Both confidence interval and error bound specified" << endl;
     exit(2);
   } else if (! confidence.empty() && ! sample_card.empty()) {
-    try {
-      sample_size = stoul(sample_card);
-    } catch (invalid_argument err) {
-      cerr << "+++ " << sample_card
-	     << " is not a valid sample size"
-	     << endl;
-	exit(2);
-    }
-    if (!quiet)
-      cerr << "+++ Sample cardinality " << sample_size
-	   << " overrides confidence interval" << endl;
+    try_sample_size("confidence interval");
+    // try {
+    //   sample_size = stoul(sample_card);
+    // } catch (invalid_argument err) {
+    //   cerr << "+++ " << sample_card
+    // 	     << " is not a valid sample size"
+    // 	     << endl;
+    // 	exit(2);
+    // }
+    // if (!quiet)
+    //   cerr << "+++ Sample cardinality " << sample_size
+    // 	   << " overrides confidence interval" << endl;
   } else if (! error_bound.empty() && ! sample_card.empty()) {
-    try {    
-      sample_size = stoul(sample_card);
-    } catch (invalid_argument err) {
-      cerr << "+++ " << sample_card
-	     << " is not a valid sample size"
-	     << endl;
-      exit(2);
-    }
-    if (!quiet)
-      cerr << "+++ Sample cardinality " << sample_size
-	   << " overrides error bound" << endl;
-  } else if (!error_bound.empty()) {
+    try_sample_size("error bound");
+    // try {
+    //   sample_size = stoul(sample_card);
+    // } catch (invalid_argument err) {
+    //   cerr << "+++ " << sample_card
+    // 	     << " is not a valid sample size"
+    // 	     << endl;
+    //   exit(2);
+    // }
+    // if (!quiet)
+    //   cerr << "+++ Sample cardinality " << sample_size
+    // 	   << " overrides error bound" << endl;
+  } else if (! error_bound.empty()) {
     try {
       conf = 2.0 * string2double(error_bound);
     } catch (invalid_argument err) {
@@ -212,7 +231,7 @@ void adjust_and_open () {
 	     << endl;
       exit(2);
     }
-  } else if (!confidence.empty()) {
+  } else if (! confidence.empty()) {
     try {
       conf = string2double(confidence);
     } catch (invalid_argument err) {
@@ -231,12 +250,11 @@ void adjust_and_open () {
       exit(2);
     }
   } else {
-    cerr << "+++ No confidence interval and no error bound and no cardinality specified" << endl;
+    cerr << "+++ Neither confidence interval, nor error bound, nore cardinality specified" << endl;
     exit(2);
   }
 
-  // if ((conf < 0.001 || conf > 0.2) && sample_size == 0) {
-  if (conf < 0.001 || conf > 0.2) {
+  if ((conf < 0.001 || conf > 0.2) && population == proportional) {
     cerr << "+++ Confidence interval reset to 2.5%" << endl;
     conf = 0.025;
   }
@@ -277,7 +295,15 @@ void cleanup () {
     infile.close();
 }
 
-void fst_pass () {
+// clear eof flags and seek to the beginning of input file
+inline void reset_input () {
+  cin.clear();
+  infile.clear();
+  cin.seekg(0);
+  infile.seekg(0);
+}
+
+void first_pass () {
   string line;
   size_t lineno = 0;
   bool warning = false;
@@ -286,11 +312,13 @@ void fst_pass () {
     lineno++;
     if (line.empty())
       continue;
-    n_of_lines++;
-    if (!concept_column.empty()) {
+    number_of_lines++;
+    if (! concept_column.empty()) {
       vector<string> chunks = split(line, ", \t");
       if (ccol >= chunks.size()) {
-	cerr << "++ concept column beyond item size on input line "
+	cerr << "++ concept column (" << ccol
+	     << ") beyond item size (" << chunks.size()
+	     << ") on input line "
 	     << lineno
 	     << endl;
 	warning = true;
@@ -301,18 +329,13 @@ void fst_pass () {
     cerr << "+++ STOP because of input errors" << endl;
     exit(2);
   }
-
-  // clear eof flags and seek to the beginning of input file
-  cin.clear();
-  infile.clear();
-  cin.seekg(0);
-  infile.seekg(0);
 }
 
-void snd_pass () {
+void second_pass () {
   string line;
   vector<string> data_lines, sample_lines;
 
+  reset_input();
   while (getline(cin, line))
     data_lines.push_back(line);
   sample(data_lines.cbegin(), data_lines.cend(), back_inserter(sample_lines),
@@ -326,7 +349,7 @@ void snd_pass () {
 void big_pass () {
   // install the random device
   random_device rd;
-  static uniform_int_distribution<int> uni_dist(1, n_of_lines);
+  static uniform_int_distribution<int> uni_dist(1, number_of_lines);
   static default_random_engine dre(rd());
 
   // generate the random numbers of chosen input lines and sort them
@@ -334,7 +357,7 @@ void big_pass () {
   while (rand_nums.size() < sample_size) {
     size_t rnd = uni_dist(dre);
     auto it = find(rand_nums.cbegin(), rand_nums.cend(), rnd);
-    if (it == cend(rand_nums))
+    if (it == rand_nums.cend())
       rand_nums.push_back(rnd);
   }
   sort(rand_nums.begin(), rand_nums.end());
@@ -343,6 +366,7 @@ void big_pass () {
   string line;
   size_t linenum = 0;
   size_t pointer = 0;
+  reset_input();
   while (getline(cin, line)) {
     if (line.empty())
       continue;
@@ -354,6 +378,29 @@ void big_pass () {
   }
 }
 
+void erase_tmp () {
+  const string temp_prefix = tpath + "mcp-tmp-";
+  const string basename = "rm -f " + temp_prefix;
+  const string erase_meta = basename + "*.meta";
+  const string erase_out  = basename + "*.out";
+  system(erase_meta.c_str());
+  system(erase_out.c_str());
+}
+
+// terminal handler: we erase the temporary files in case of a crash
+void crash (int signal) {
+  erase_tmp();
+  cerr << endl << "\t*** Segmentation fault ***" << endl << endl;
+  exit(signal);
+}
+
+// terminal handler: we erase the temporary files in case of an interrupt
+void interrupt (int signal) {
+  erase_tmp();
+  cerr << endl << "\t*** Interrupt ***" << endl << endl;
+  exit(signal);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char **argv)
@@ -363,21 +410,20 @@ int main(int argc, char **argv)
   // if (sample_size == 0)
   //   sample_size = sample_cardinality(prop, conf);
   if (population == absolute) {
-    if (big || !concept_column.empty())
-      fst_pass();
+    if (big || ! concept_column.empty())
+      first_pass();
     if (big)
       big_pass();
     else
-      snd_pass();
+      second_pass();
   } else if (population == proportional) {
     tally(ccol);
     const time_t start_time = time(nullptr);
-    const string basename = "/tmp/mcp-tmp-"+ to_string(start_time);
-    const string metaname = basename + ".meta";
+    const string basename = tpath + to_string(start_time);
     const string routname = basename + ".out";
 
     size_t real_size = 0;
-    for (const auto &val:percentage) {
+    for (const auto &val : percentage) {
       // size_t section = (0.01 * val.second + 0.005 / percentage.size()) * sample_size;
       size_t section = (0.01 * val.second) * sample_size;
       cerr << "+++ section for " << val.first << " = " << section << endl;
@@ -386,30 +432,42 @@ int main(int argc, char **argv)
 	continue;
       }
       real_size += section;
-      string metacmd = concept_column + " : string = " + val.first + ";";
 
-      ofstream metafile;
-      metafile.open(metaname);
-      metafile << metacmd << endl;
-      metafile.close();
+      reset_input();
+      routfile.open(routname);
+      if (! routfile.is_open()) {
+	cerr << "+++ Cannot open rout file " << routname << endl;
+	exit(2);
+      }
 
-      cerr << "+++ call to mcp-clean for " << val.first << endl;
-      string clean_cmd
-	= "mcp-clean -i " + input
-	+ " -m " + metaname
-	+ " -o " + routname;
-      system(clean_cmd.c_str());
+      string line;
+      size_t lineno = 0;
+      while (getline(cin, line)) {
+	if (line.empty())
+	  continue;
+	clear_line(++lineno, line);
+	const vector<string> chunks = split(line, " \t");
+	if (ccol >= chunks.size()) {
+	  cerr << "+++ concept column out of range on line "
+	       << lineno
+	       << endl;
+	  exit(2);
+	}
+	if (chunks[ccol] == val.first)
+	  routfile << line << endl;
+      }
+      routfile.close();
 
-      cerr << "+++ recursive call to mcp-sample for " << val.first << endl;
+      // cerr << "+++ recursive call to mcp-sample for " << val.first << endl;
       string rec_sample
 	= "mcp-sample -i " + routname
-	+ (big ? " --big" : "")
+	// + (big ? " --big" : "")
+	+ " --big"
 	+ " -pp abs -q -# " + to_string(section)
 	+ " -o " + output;
       system(rec_sample.c_str());
+      remove(routname.c_str());
     }
-    remove(metaname.c_str());
-    remove(routname.c_str());
     sample_size = real_size;
   }
   cleanup();

@@ -27,6 +27,7 @@
 #include <vector>
 #include <algorithm>
 #include <random>
+#include <csignal>
 #include "mcp-matrix+formula.hpp"	// for split
 #include "mcp-tally.hpp"
 
@@ -198,30 +199,8 @@ void adjust_and_open () {
     exit(2);
   } else if (! confidence.empty() && ! sample_card.empty()) {
     try_sample_size("confidence interval");
-    // try {
-    //   sample_size = stoul(sample_card);
-    // } catch (invalid_argument err) {
-    //   cerr << "+++ " << sample_card
-    // 	     << " is not a valid sample size"
-    // 	     << endl;
-    // 	exit(2);
-    // }
-    // if (!quiet)
-    //   cerr << "+++ Sample cardinality " << sample_size
-    // 	   << " overrides confidence interval" << endl;
   } else if (! error_bound.empty() && ! sample_card.empty()) {
     try_sample_size("error bound");
-    // try {
-    //   sample_size = stoul(sample_card);
-    // } catch (invalid_argument err) {
-    //   cerr << "+++ " << sample_card
-    // 	     << " is not a valid sample size"
-    // 	     << endl;
-    //   exit(2);
-    // }
-    // if (!quiet)
-    //   cerr << "+++ Sample cardinality " << sample_size
-    // 	   << " overrides error bound" << endl;
   } else if (! error_bound.empty()) {
     try {
       conf = 2.0 * string2double(error_bound);
@@ -381,10 +360,10 @@ void big_pass () {
 void erase_tmp () {
   const string temp_prefix = tpath + "mcp-tmp-";
   const string basename = "rm -f " + temp_prefix;
-  const string erase_meta = basename + "*.meta";
   const string erase_out  = basename + "*.out";
-  system(erase_meta.c_str());
+  const string erase_txt  = basename + "*.txt";
   system(erase_out.c_str());
+  system(erase_txt.c_str());
 }
 
 // terminal handler: we erase the temporary files in case of a crash
@@ -409,6 +388,9 @@ int main(int argc, char **argv)
   adjust_and_open();
   // if (sample_size == 0)
   //   sample_size = sample_cardinality(prop, conf);
+  signal(SIGSEGV, crash);
+  signal(SIGINT, interrupt);
+
   if (population == absolute) {
     if (big || ! concept_column.empty())
       first_pass();

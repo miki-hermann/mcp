@@ -50,9 +50,22 @@ extern map<Row, int> succ;		// successor function for Zanuttini's algorithm
 extern map<Row, vector<int>> sim;	// sim table for Zanuttini's algorithm
 
 // enum Action    {aONE    = 0, aALL    = 1, aNOSECT      = 2};
-enum Closure   {clHORN  = 0, clDHORN = 1, clBIJUNCTIVE = 2, clAFFINE   = 3, clCNF = 4};
-enum Cooking   {ckRAW   = 0, ckBLEU  = 1, ckMEDIUM     = 2, ckWELLDONE = 3};
-enum Direction {dBEGIN  = 0, dEND    = 1, dOPT         = 2, dRAND      = 3, dLOWCARD  = 4, dHIGHCARD = 5, dPREC = 6};
+enum Closure : char  {clHORN  = 0,
+		      clDHORN = 1,
+		      clBIJUNCTIVE = 2,
+		      clAFFINE   = 3,
+		      clCNF = 4};
+enum Cooking : char  {ckRAW   = 0,
+		      ckBLEU  = 1,
+		      ckMEDIUM     = 2,
+		      ckWELLDONE = 3};
+enum Direction : char {dBEGIN  = 0,
+		       dEND    = 1,
+		       dOPT         = 2,
+		       dRAND      = 3,
+		       dLOWSCORE  = 4,
+		       dHIGHSCORE = 5,
+		       dPREC = 6};
 // enum Print     {pVOID   = 0, pCLAUSE = 1, pIMPL        = 2, pMIX       = 3, pDIMACS   = 4};
 enum Strategy  {sLARGE  = 0, sEXACT  = 1};
 // enum Display   {yUNDEF  = 0, yHIDE   = 1, yPEEK        = 2, ySECTION   = 3, ySHOW     = 4};

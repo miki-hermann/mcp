@@ -47,7 +47,7 @@ Output file containing the result of the run of the MCP core.
 Default: STDOUT
 
 .TP
-\fB\-a\fR, \fB\-\-action \fRone | all | nosection | selected\fI STRING\fR
+\fB\-a\fR, \fB\-\-action \fRone | all | selected\fI STRING\fR
 .IP
 one:
 .br
@@ -63,16 +63,17 @@ groups together as negative instances F. For a total of n groups, this
 will result in n formulas, each characterising one group in relation
 to the union of all other groups.
 .IP
-nosection:
-.br
-Like "all", but no columns are removed.
-.IP
 selected \fI STRING\fR:
 .br
 Like "all", but performed only for the selected group\fI STRING\fR as
 positive instances.
 .IP
 Default: all.
+.
+.TP
+\fB-ns\fR, \fB\-\-nosection\fR
+.IP
+No columns/attributes are removed.
 .
 .TP
 \fB\-c\fR, \fB\-\-closure \fRHorn | dualHorn | 2sat | cnf
@@ -82,7 +83,7 @@ respectively.
 Default: Horn.
 .
 .TP
-\fB-d\fR, \fB\-\-direction\fR begin | end | lowcard | highcard | random | precedence
+\fB-d\fR, \fB\-\-direction\fR begin | end | lowscore | highscore | random | precedence
 .IP
 begin:
 .br
@@ -96,12 +97,12 @@ Prefer columns to the right (at the end) of the matrix.  Columns are
 removed from the left, skipping columns whose removal would render the
 problem unsolvable.
 .IP
-lowcard:
+lowscore:
 .br
 Prefer columns with a lower Hamming weight (more zeros) in the positive part,
 by starting to remove columns with high Hamming weight (many ones).
 .IP
-highcard:
+highscore:
 .br
 Prefer columns with a higher Hamming weight (more ones) in the positive part,
 by starting to remove columns with small Hamming weight (many zeros).

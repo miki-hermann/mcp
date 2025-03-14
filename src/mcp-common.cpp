@@ -145,14 +145,14 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
       } else if (dir == "end"
 		 || dir == "e") {
 	direction = dEND;
-      } else if (dir == "lowcard"
-		 || dir == "lcard"
-		 || dir ==  "lc") {
-	direction = dLOWCARD;
-      } else if (dir == "highcard"
-		 || dir == "hcard"
-		 || dir ==  "hc") {
-	direction = dHIGHCARD;
+      } else if (dir == "lowscore"
+		 || dir == "lscore"
+		 || dir ==  "lsc") {
+	direction = dLOWSCORE;
+      } else if (dir == "highscore"
+		 || dir == "hscore"
+		 || dir ==  "hsc") {
+	direction = dHIGHSCORE;
       } else if (dir == "random"
 		 || dir == "rand"
 		 || dir ==  "r") {
@@ -603,8 +603,8 @@ Row minsect (const Matrix &T, const Matrix &F) {
       cout << " " << coord[i];
     cout << endl;
   } break;
-  case dLOWCARD:
-  case dHIGHCARD: {
+  case dLOWSCORE:
+  case dHIGHSCORE: {
     int card[lngt] = {};
     vector<size_t> indicator(lngt, 0);
 
@@ -624,9 +624,9 @@ Row minsect (const Matrix &T, const Matrix &F) {
     // 	indicator[i] -= f[i];
     //   }
 
-    if (direction == dLOWCARD)
+    if (direction == dLOWSCORE)
       stable_sort(indicator.begin(), indicator.end(), greater<size_t>());
-    else if (direction == dHIGHCARD)
+    else if (direction == dHIGHSCORE)
       stable_sort(indicator.begin(), indicator.end());
 
     for (size_t i = 0; i < lngt; ++i) {

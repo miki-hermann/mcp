@@ -456,8 +456,8 @@ int main(int argc, char **argv)
       // cerr << "+++ recursive call to mcp-sample for " << val.first << endl;
       string rec_sample
 	= "mcp-sample -i " + routname
-	// + (big ? " --big" : "")
-	+ " --big"
+	+ (big ? " --big" : "")
+	// + " --big"
 	+ " -pp abs -q -# " + to_string(section)
 	+ " -o " + output;
       system(rec_sample.c_str());

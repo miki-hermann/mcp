@@ -29,6 +29,7 @@
 #include <vector>
 #include <unordered_map>
 #include <climits>
+#include <filesystem>
 #include "mcp-matrix+formula.hpp"
 
 using namespace std;
@@ -431,16 +432,22 @@ void read_meta () {
     string::size_type comidx = line.find('#');
     if (comidx != string::npos)
       line.erase(comidx);
-    size_t len = 0;
-    while (isspace(line[len]))
-      len++;
-    if (len > 0)
-      line.erase(0, len);
-    len = line.size()-1;
-    while (isspace(line[len]))
-      len--;
-    if (len < line.size()-1)
-      line.erase(len+1);
+    // size_t len = 0;
+    // while (isspace(line[len]))
+    //   len++;
+    // if (len > 0)
+    //   line.erase(0, len);
+    string::size_type nospace = line.find_first_not_of(" \t");
+    line.erase(0, nospace);
+    // len = line.size()-1;
+    // while (isspace(line[len]))
+    //   len--;
+    // if (len < line.size()-1)
+    //   line.erase(len+1);
+    nospace = line.find_last_not_of(" \t");
+    line.erase(nospace+1);
+    if (line.empty())
+      continue;
 
     bool space = false;
     string line1;
@@ -1047,24 +1054,9 @@ void IO_open () {
       exit(1);
     }
   }
-  
-  // if (output != STDOUT) {
-  //   outfile.open(output);
-  //   if (outfile.is_open()) {
-  //     // backup = cout.rdbuf();
-  //     cout.rdbuf(outfile.rdbuf());
-  //   } else {
-  //     cerr << "+++ Cannot open output file " << output << endl;
-  //     exit(1);
-  //   }
-  // }
 
   if (! headerput.empty()) {
     headerfile.open(headerput);
-    // if (headerfile.is_open()) {
-    //   backup = cout.rdbuf();
-    //   cout.rdbuf(headerfile.rdbuf());
-    // } else {
     if (! headerfile.is_open()) {
       cerr << "+++ Cannot open header file " << headerput << endl;
       exit(1);
@@ -1072,10 +1064,16 @@ void IO_open () {
   }
 
   if (! precput.empty()) {
-    precfile.open(precput);
-    if (! precfile.is_open()) {
-      cerr << "+++ Cannot open precedence file " << precput << endl;
-      exit(1);
+    if (filesystem::exists(precput)) {
+      cerr << "+++ precedence file " << precput << " exists" << endl
+	   << "... no new precedence file generated" << endl;
+      precput.clear();
+    } else {
+      precfile.open(precput);
+      if (! precfile.is_open()) {
+	cerr << "+++ Cannot open precedence file " << precput << endl;
+	exit(1);
+      }
     }
   }
 
@@ -1166,11 +1164,12 @@ void header () {
 	       ? item_length - i : i - 1)
 	      + varnum + offset;
       
-      precfile << precount++ << " "
-	       << (precedence.count(ocl) > 0
-		   ? precedence.at(ocl)
-		   : 50)
-	       << endl;
+      if (! precput.empty())
+	precfile << precount++ << " "
+		 << (precedence.count(ocl) > 0
+		     ? precedence.at(ocl)
+		     : 50)
+		 << endl;
 
       long double min, max, ilngt;
       long double over = 0.0;

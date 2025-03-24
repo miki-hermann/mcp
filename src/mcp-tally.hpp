@@ -30,6 +30,5 @@ extern map<string, size_t> accountant;
 extern map<string, double> percentage;
 
 size_t tally (const size_t);
-bool clear_line (const size_t, string &);
 
 //////////////////////////////////////////////////////////////////////////////

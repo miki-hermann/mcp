@@ -432,19 +432,9 @@ void read_meta () {
     string::size_type comidx = line.find('#');
     if (comidx != string::npos)
       line.erase(comidx);
-    // size_t len = 0;
-    // while (isspace(line[len]))
-    //   len++;
-    // if (len > 0)
-    //   line.erase(0, len);
     string::size_type nospace = line.find_first_not_of(" \t");
     line.erase(0, nospace);
-    // len = line.size()-1;
-    // while (isspace(line[len]))
-    //   len--;
-    // if (len < line.size()-1)
-    //   line.erase(len+1);
-    nospace = line.find_last_not_of(" \t");
+    nospace = line.find_last_not_of(" \t\n\v\f\r");
     line.erase(nospace+1);
     if (line.empty())
       continue;
@@ -1117,9 +1107,6 @@ void IO_close () {
 }
 
 void header () {
-  // we abandon the first line indication
-  // create two files instead: *.hdr for header and *.mat for matrix
-  // cout << "1 0" << endl;
   size_t item_length;
   size_t varnum = 0;
   size_t precount = 0;
@@ -1712,7 +1699,8 @@ void matrix () {
   if (qmarkcount > 0 && robust) {
     // robust extensions must be generated here
 
-    for (unordered_set<string> rs : robust_set) {	// convert robust_set to robust_vect
+    // convert robust_set to robust_vect
+    for (unordered_set<string> rs : robust_set) {
       vector<string> tmp(rs.begin(), rs.end());
       robust_vect.push_back(tmp);
     }

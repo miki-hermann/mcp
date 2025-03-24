@@ -80,11 +80,65 @@ bool sat_formula (const Row &tuple, const Formula &formula) {
   return true;
 }
 
-vector<string> split (string strg, string delimiters) {
-  // splits a string into chunks separated by delimiters (split in perl)
+// true if line has been cleared and is nonempty
+bool clear_line (const size_t lineno, string &line) {
+  // erase leading and trailing whitespace
+  auto nospace = line.find_first_not_of(" \t");
+  line.erase(0, nospace);
+  nospace = line.find_last_not_of(" \t\n\v\f\r");
+  line.erase(nospace+1);
+  if (line.empty())
+    return false;
+
+  // treat back slashed characters and strings
+  string line1;
+  bool is_string = false;
+  size_t i = 0;
+  // for (size_t i = 0; i < line.length(); ++i) {
+  while (i < line.length()) {
+    const char chr = line[i];
+    if (chr == '\\' && i == line.length()-1) {
+      cerr << "+++ line " << lineno
+	   << " cannot terminate with a backslash"
+	   << endl;
+      return false;
+    } else if (chr == '\\')
+      line1 += chr + line[++i];
+    else if (chr == '"')
+      is_string = ! is_string;
+    else if (is_string && chr == ' ')
+      line1 += "_";
+    else if (is_string && (chr == ',' || chr == ';'))
+      line1 += ":";
+    else
+      line1 += chr;
+    i++;
+  }
+  // line.clear();
+  line = move(line1);
+  return true;
+}
+
+// commas (,) and semicolons (;) are replaced with spaces
+// outside strings
+void uncomma_line (string &line) {
+  bool is_string = false;
+  // replace commas and semicolons by a space
+  for (size_t i = 0; i < line.length(); ++i) {
+    char chr = line[i];
+    if (chr == '"')
+      is_string = ! is_string;
+    else if (! is_string && (line[i] == ',' || line[i] == ';'))
+      line[i] = ' ';
+  }
+}
+
+// splits a string into chunks separated by delimiters (split in perl)
+vector<string> split (string strg, const string &delimiters) {
   vector<string> chunks;
 
-  // get rid of non-printable characters at the end of the string without warning
+  // get rid of non-printable characters at the end of the string
+  // without warning
   // because Linux, Windows, and MacOS all terminate the string differently
   // doing it the hard way
   if (! strg.empty()) {
@@ -96,10 +150,6 @@ vector<string> split (string strg, string delimiters) {
     else
       strg = strg.substr(0, i+1);
   }
-  // the following code does not work 
-  // while (! strg.empty() && ! isprint(strg.back()))
-  // // while (! strg.empty() && strg.back() == '\r')
-  //   strg.pop_back();
   for (size_t i = 0; i < strg.length(); ++i)
     if (! isprint(strg[i])) {
       cerr << "+++ string on input has a non-printable character on position "
@@ -110,9 +160,10 @@ vector<string> split (string strg, string delimiters) {
       exit(2);
     }
 
+  // proper split
   size_t pointer = 0;
   while (pointer < strg.length()) {
-    size_t found = strg.find_first_of(delimiters, pointer);
+    const size_t found = strg.find_first_of(delimiters, pointer);
     if (found == string::npos) {
       chunks.push_back(strg.substr(pointer));
       break;
@@ -123,8 +174,8 @@ vector<string> split (string strg, string delimiters) {
   return chunks;
 }
 
+// transforms clause into readable clausal form in DIMACS format to print
 string clause2dimacs (const vector<size_t> &names, const Clause &clause) {
-  // transforms clause into readable clausal form in DIMACS format to print
   string output = "\t";
   bool plus = false;
   for (int lit = 0; lit < clause.size(); ++lit) {
@@ -142,8 +193,8 @@ string clause2dimacs (const vector<size_t> &names, const Clause &clause) {
   return output;
 }
 
+// transforms formula into readable clausal form in DIMACS format to print
 string formula2dimacs (const vector<size_t> &names, const Formula &formula) {
-  // transforms formula into readable clausal form in DIMACS format to print
   if (formula.empty())
     return " ";
 
@@ -222,8 +273,9 @@ string clause2string (const vector<size_t> &names, const Clause &clause) {
   return output;
 }
 
+// transforms formula into readable clausal, implication or mixed form
+// to print
 string formula2string (const vector<size_t> &names, const Formula &formula) {
-  // transforms formula into readable clausal, implication or mixed form to print
   if (formula.empty())
     return " ";
 
@@ -243,7 +295,6 @@ string formula2string (const vector<size_t> &names, const Formula &formula) {
 string literal2latex (const int &litname, const Literal lit) {
   string output;
   if (varswitch) {
-    // vector<string> new_names = split(varnames[litname], ":");
     const vector<string> &new_names = varnames[litname];
     
     if (new_names.size() > 1)		// positive or negative
@@ -311,8 +362,8 @@ string clause2latex (const vector<size_t> &names, const Clause &clause) {
   return output;
 }
 
+// transforms formula into readable clausal form in LaTeX format to print
 string formula2latex (const vector<size_t> &names, const Formula &formula) {
-  // transforms formula into readable clausal form in LaTeX format to print
   if (formula.empty())
     return " ";
 
@@ -326,8 +377,8 @@ string formula2latex (const vector<size_t> &names, const Formula &formula) {
   return output;
 }
 
+// formula read instructions
 void read_formula (vector<size_t> &names, Formula &formula) {
-  // formula read instructions
 
   int nvars;
   cin >> suffix >> arity >> nvars >> offset;
@@ -355,16 +406,17 @@ void read_formula (vector<size_t> &names, Formula &formula) {
       formula.push_back(clause);
       for (int i = 0; i < arity; ++i)
 	clause[i] = lnone;
-    } else if (find(cbegin(validID), cend(validID), abs(lit)) == cend(validID)) {
+    } else if (find(cbegin(validID), cend(validID),
+		    abs(lit)) == cend(validID)) {
       cerr << "+++ " << abs(lit) << " outside allowed variable names" << endl;
       exit(2);
     } else
       clause[abs(lit)-1-offset] = lit < 0 ? lneg : lpos;
 }
 
+// overloading ostream to print a row
+// transforms a tuple (row) to a printable form
 ostream& operator<< (ostream &output, const Row &row) {
-  // overloading ostream to print a row
-  // transforms a tuple (row) to a printable form
   // for (bool bit : row)
   for (size_t i = 0; i < row.size(); ++i)
     // output << to_string(bit); // bit ? 1 : 0;
@@ -373,9 +425,9 @@ ostream& operator<< (ostream &output, const Row &row) {
   return output;
 }
 
+// overloading ostream to print a matrix
+// transforms a matrix to a printable form
 ostream& operator<< (ostream &output, const Matrix &M) {
-  // overloading ostream to print a matrix
-  // transforms a matrix to a printable form
   for (Row row : M)
     output << "\t" << row << endl;
   return output;

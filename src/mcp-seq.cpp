@@ -152,7 +152,7 @@ void read_header () {
 void read_matrix (Group_of_Matrix &matrix) {
 
   // vector<string> gqueue;	// queue of group leading indicators
-  // Matrix batch;			// stored tuples which will be clustered
+  // Matrix batch;		// stored tuples which will be clustered
 
   string group;
   int numline = 0;
@@ -160,12 +160,6 @@ void read_matrix (Group_of_Matrix &matrix) {
   
   while (getline(cin, line)) {
     numline++;
-    // istringstream nums(line);
-    // nums >> group;
-    // Row temp;
-    // int number;
-    // while (nums >> number)
-    //   temp.push_back(number);
     const vector<string> nums = split(line, " \t,");
     group = nums.at(0);
     Row temp;
@@ -180,7 +174,7 @@ void read_matrix (Group_of_Matrix &matrix) {
       cout << "*** arity discrepancy on line " << numline << endl;
 
     // if (cluster <= SENTINEL)
-      matrix[group].push_back(temp);
+    matrix[group].push_back(temp);
     // else {
     //   gqueue.push_back(group);
     //   batch.push_back(temp);
@@ -368,7 +362,8 @@ Formula learn2sat (const Matrix &T, const Matrix &F) {
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Formula post_prod (const vector<size_t> &A, const Matrix &F, const Formula &formula) {
+Formula post_prod (const vector<size_t> &A,
+		   const Matrix &F, const Formula &formula) {
   Formula schf;
   if (setcover) {
     cout << "+++ " << pcl_strg[closure]
@@ -387,7 +382,9 @@ Formula post_prod (const vector<size_t> &A, const Matrix &F, const Formula &form
     cout << formula2string(A, schf) << endl;
     if (latex.length() > 0) {
       latexfile << "% " << pcl_strg[closure]
-		<< " formula after set cover [" << schf.size() << "] ="  << endl;
+		<< " formula after set cover ["
+		<< schf.size()
+		<< "] ="  << endl;
       latexfile << "\\varphi = " << endl;
       latexfile << formula2latex(A, schf) << endl << endl;
     }
@@ -412,7 +409,9 @@ Formula post_prod (const vector<size_t> &A, const Matrix &F, const Formula &form
     cout << formula2string(A, schf) << endl;
     if (latex.length() > 0) {
       latexfile << "% swapping the formula back to dual Horn" << endl;
-      latexfile << "% final dual Horn formula [" << schf.size() << "] =" << endl;
+      latexfile << "% final dual Horn formula ["
+		<< schf.size()
+		<< "] =" << endl;
       latexfile << "\\varphi = " << endl;
       latexfile << formula2latex(A, schf) << endl << endl;
     }
@@ -519,8 +518,9 @@ void one2one () {
   }
 }
 
+// selected group of positive exaples against all other groups
+// together as negative examples
 void selected2all (const string &grp) {
-  // selected group of positive exaples against all other groups together as negative examples
 
   Matrix T = group_of_matrix[grp];
   Matrix F;
@@ -622,8 +622,9 @@ void selected2all (const string &grp) {
   cout << endl;
 }
 
+// one group of positive exaples against all other groups together as
+// negative examples
 void one2all () {
-  // one group of positive exaples against all other groups together as negative examples
   
   for (const auto &grp : grps)
     selected2all(grp);

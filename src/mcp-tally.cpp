@@ -36,49 +36,6 @@ map<string, double> percentage;
 
 //------------------------------------------------------------------------------
 
-// true if line has been cleared and is nonempty
-bool clear_line (const size_t lineno, string &line) {
-  // erase leading and trailing whitespace
-  auto nospace = line.find_first_not_of(" \t");
-  line.erase(0, nospace);
-  nospace = line.find_last_not_of(" \t");
-  line.erase(nospace+1);
-  if (line.empty())
-    return false;
-
-  // treat back slashed characters and strings
-  string line1;
-  bool is_string = false;
-  size_t i = 0;
-  // for (size_t i = 0; i < line.length(); ++i) {
-  while (i < line.length()) {
-    const char chr = line[i];
-    if (chr == '\\' && i == line.length()-1) {
-      cerr << "+++ line " << lineno
-	   << " cannot terminate with a backslash"
-	   << endl;
-      return false;
-    } else if (chr == '\\')
-      line1 += chr + line[++i];
-    else if (chr == '"')
-      is_string = ! is_string;
-    else if (is_string && chr == ' ')
-      line1 += "_";
-    else if (is_string && (chr == ',' || chr == ';'))
-      line1 += ".";
-    else
-      line1 += chr;
-    i++;
-  }
-
-  // replace commas and semicolons by a space
-  line.clear();
-  for (size_t i = 0; i < line1.length(); ++i)
-    line += (line1[i] == ',' || line1[i] == ';' ? ' ' : line1[i]);
-
-  return true;
-}
-
 void read_input (const size_t concept_column) {
   string line;
   size_t lineno = 0;
@@ -88,6 +45,9 @@ void read_input (const size_t concept_column) {
       continue;
 
     total += clear_line(lineno, line);
+    if (line.empty())
+      continue;
+    uncomma_line(line);
     const vector<string> chunks = split(line, " \t");
     if (concept_column >= chunks.size()) {
       cerr << "+++ concept column out of range on line "

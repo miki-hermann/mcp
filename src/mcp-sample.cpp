@@ -438,9 +438,10 @@ int main(int argc, char **argv)
       string line;
       size_t lineno = 0;
       while (getline(cin, line)) {
+	clear_line(++lineno, line);
 	if (line.empty())
 	  continue;
-	clear_line(++lineno, line);
+	uncomma_line(line);
 	const vector<string> chunks = split(line, " \t");
 	if (ccol >= chunks.size()) {
 	  cerr << "+++ concept column out of range on line "

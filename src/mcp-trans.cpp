@@ -432,6 +432,8 @@ void read_meta () {
     string::size_type comidx = line.find('#');
     if (comidx != string::npos)
       line.erase(comidx);
+    if (line.empty())
+      continue;    
     string::size_type nospace = line.find_first_not_of(" \t");
     line.erase(0, nospace);
     nospace = line.find_last_not_of(" \t\n\v\f\r");

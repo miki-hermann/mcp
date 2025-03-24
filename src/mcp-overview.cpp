@@ -19,7 +19,6 @@
  * Given the position of the concept, this software gives the overview    *
  * of the values and their percentual representation in the dataset.      *
  *                                                                        *
- *                                                                        *
  **************************************************************************/
 
 #include <iostream>
@@ -122,12 +121,29 @@ void adjust_and_open () {
   }
 }
 
+template <typename T>
+void defect_print (const account<T> &defect) {
+  cout << "... coordinate"
+       << setw(11) << "number"
+       << " percentage" << endl;
+
+  for (const auto &val : defect.number) {
+    double pc = defect.percent.at(val.first);
+    cout << "    "
+	 << setw(10) << val.first
+	 << " " << setw(10) << val.second
+	 << setw(10)
+	 << setprecision(2) << fixed << showpoint << pc  << "%"
+	 << endl;
+  }
+}
+
 void write_output (const size_t &total) {
   cerr << "+++ read " << total << " nonempty lines" << endl;
 
   size_t maxval = 0;
   size_t maxnum = 0;
-  for (const auto &val : accountant) {
+  for (const auto &val : concept_items.number) {
     maxval = max(maxval, val.first.length());
     maxnum = max(maxnum, val.second);
   }
@@ -135,6 +151,8 @@ void write_output (const size_t &total) {
   maxnum = max(maxnum, 999999);
   size_t numlen = to_string(maxnum).length();
 
+  cout << "+++ CONCEPT VALUES +++" << endl
+       << "    ==============" << endl << endl;
   cout << "+++ value";
   const string val0buf(maxval-5, ' ');
   cout << val0buf;
@@ -143,20 +161,37 @@ void write_output (const size_t &total) {
   cout << " number";
   cout << " percentage" << endl;
 
-  for (const auto &val : accountant) {
+  for (const auto &val : concept_items.number) {
     const string val1buf(maxval-val.first.length(), ' ');
     const string num1buf(numlen-to_string(val.second).length(), ' ');
-    const double pc = percentage.at(val.first);
+    const double pc = concept_items.percent.at(val.first);
     cout << "    " << val.first
 	 << val1buf
 	 << num1buf
 	 << " " << val.second
-	 << (pc < 10.0 ? "      " : "     ")
-	 << setprecision(2) << fixed << pc  << "%"
+	 << setw(10)
+	 << setprecision(2) << fixed << showpoint << pc  << "%"
 	 << endl;
   }
   const string val2buf(numlen - to_string(total).length(), ' ');
   cout << "... Total " << val0buf << val2buf << total << endl;
+
+  if (!empty_items.empty() || !qmark_items.empty()) {
+    cout << endl << endl
+	 << "+++ DEFECTS +++" << endl
+	 << "    =======" << endl << endl;
+    
+    if (!qmark_items.empty()) {
+      cout << "+++ question marks +++" << endl;
+      defect_print(qmark_items);
+    }
+    
+    if (!empty_items.empty()) {
+      cout << "+++ empty items +++" << endl;
+      defect_print(empty_items);
+    }
+  }
+
   cerr << "+++ overview written on " << output << endl;
 }
 

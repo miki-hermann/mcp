@@ -26,8 +26,19 @@
 
 using namespace std;
 
-extern map<string, size_t> accountant;
-extern map<string, double> percentage;
+template <typename T>
+struct account {
+  map<T, size_t> number;
+  map<T, double> percent;
+
+  inline bool empty() const {
+    return this->number.empty();
+  }
+};
+
+extern account<string> concept_items;
+extern account<size_t> empty_items;
+extern account<size_t> qmark_items;
 
 size_t tally (const size_t);
 

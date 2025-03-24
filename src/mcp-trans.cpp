@@ -1622,9 +1622,7 @@ void matrix () {
     if (! clear_line(lineno, line))
       continue;
 
-    string::size_type qindex = line.find('?');
-    bool has_qmark = qindex != string::npos
-      && find(target.cbegin(), target.cend(), qindex) != target.cend();
+    bool has_qmark = line.find('?') != string::npos;
     if (has_qmark) {
       qmarkcount++;
       if (!robust)

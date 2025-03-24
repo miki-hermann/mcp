@@ -36,8 +36,19 @@ const int SENTINEL   = -1;
 const double RSNTNL  = -1.0;
 const int MTXLIMIT   = 4000;
 
-const string print_strg[]     = {"void",       "clause",     "implication", "mixed",   "DIMACS"};
-const string display_strg[]   = {"undefined",  "hide",       "peek",        "section", "show"};
+#define SPACE " \t"
+#define ENDSPACE " \t\n\v\f\r"
+
+const string print_strg[]     = {"void",
+				 "clause",
+				 "implication",
+				 "mixed",
+				 "DIMACS"};
+const string display_strg[]   = {"undefined",
+				 "hide",
+				 "peek",
+				 "section",
+				 "show"};
 
 // const string neg[2]  = {"-", "\\neg "};
 // const string disj[2] = {" + ", " \\lor "};
@@ -83,9 +94,9 @@ bool sat_formula (const Row &tuple, const Formula &formula) {
 // true if line has been cleared and is nonempty
 bool clear_line (const size_t lineno, string &line) {
   // erase leading and trailing whitespace
-  auto nospace = line.find_first_not_of(" \t");
+  auto nospace = line.find_first_not_of(SPACE);
   line.erase(0, nospace);
-  nospace = line.find_last_not_of(" \t\n\v\f\r");
+  nospace = line.find_last_not_of(ENDSPACE);
   line.erase(nospace+1);
   if (line.empty())
     return false;

@@ -418,7 +418,7 @@ int main(int argc, char **argv)
     const string routname = basename + ".out";
 
     size_t real_size = 0;
-    for (const auto &val : percentage) {
+    for (const auto &val : concept_items.percent) {
       // size_t section = (0.01 * val.second + 0.005 / percentage.size()) * sample_size;
       size_t section = (0.01 * val.second) * sample_size;
       cerr << "+++ section for " << val.first << " = " << section << endl;

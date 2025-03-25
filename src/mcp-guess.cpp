@@ -43,9 +43,9 @@ const string item_name[] = {"undef", "int", "float", "string"};
 
 vector<vector<string>> trdata, mydata;
 vector<item> type;
-int row_length = 0;
-int row_count  = 0;
-vector<int> flength;
+size_t row_length = 0;
+size_t row_count  = 0;
+vector<size_t> flength;
 bool errorflag = false;
 bool qflag     = false;
 string id      = "id";
@@ -221,7 +221,7 @@ int main (int argc, char **argv)
 	if (regex_match(mydata[col][row], result, float_pattern)
 	    ||
 	    regex_match(mydata[col][row], result, efloat_pattern)) {
-	  flength[col] = max(flength[col], int(result.str(1).length()));
+	  flength[col] = max(flength[col], result.str(1).length());
 	  type[col] = FLOAT;
 	} else if (mydata[col][row] != QMARK
 		   &&
@@ -249,7 +249,7 @@ int main (int argc, char **argv)
 	else if (regex_match(mydata[col][row], result, float_pattern)
 		 ||
 		 regex_match(mydata[col][row], result, efloat_pattern)) {
-	  flength[col] = max(flength[col], int(result.str(1).length()));
+	  flength[col] = max(flength[col], result.str(1).length());
 	  type[col] = FLOAT;
 	} else if(mydata[col][row] != QMARK)
 	  type[col] = STRING;
@@ -260,27 +260,19 @@ int main (int argc, char **argv)
     }
   }
 
-  int id_length = 0;
+  size_t id_length = 0;
+  size_t name_count = 0;
   if (!name.empty())
     while (getline(namefile, line)) {
-      if (line.empty() || regex_match(line, empty_pattern))
+      clear_line(++name_count, line);
+      if (line.empty())
 	continue;
-      int lft = 0;
-      while (line[lft] == ' ' || line[lft] == '\t')
-	lft++;
-      int rgt = line.length()-1;
-      while (line[rgt] == ' ' || line[rgt] == '\t')
-	rgt--;
-      string line1 = line.substr(lft, rgt-lft+1);
-      for (size_t i = 0; i < line1.length(); ++i)
-	if (line1[i] == ' ' || line1[i] == '\t')
-	  line1[i] = '_';
-      id_names.push_back(line1);
-      id_length = max(id_length, int(line1.length()));
+      id_names.push_back(line);
+      id_length = max(id_length, line.length());
     }
   else
     id_length = to_string(mydata.size()).length();
-  int wide = to_string(mydata.size()).length();
+  size_t wide = to_string(mydata.size()).length();
 
   if (!name.empty() && id_names.size() != mydata.size()) {
     cerr << "*** names versus data discrepancy: data.size";
@@ -372,9 +364,9 @@ int main (int argc, char **argv)
       const double r0f   = stod(row[0]);
       const double rsz1f = stod(row[rsz1]);
       cout << showpoint;
-      cout << setprecision(flength[col] + to_string((int)r0f).length());
+      cout << setprecision(flength[col] + to_string(r0f).length());
       cout << r0f << " ";
-      cout << setprecision(flength[col] + to_string((int)rsz1f).length());
+      cout << setprecision(flength[col] + to_string(rsz1f).length());
       cout << rsz1f
 	   << noshowpoint;
     } else

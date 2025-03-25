@@ -1,7 +1,7 @@
 /**************************************************************************
  *                                                                        *
  *                                                                        *
- *	       Multiple Classification   Problem (MCP)                    *
+ *	         Multiple Classification Project (MCP)                    *
  *                                                                        *
  *	Author:   Miki Hermann                                            *
  *	e-mail:   hermann@lix.polytechnique.fr                            *
@@ -27,13 +27,14 @@
 #include <vector>
 #include <regex>
 #include <algorithm>
+#include "mcp-matrix+formula.hpp"
 
 #define STDIN    "STDIN"
 #define STDOUT   "STDOUT"
 
 using namespace std;
 
-// float  ENUM_RATIO = 0.01;
+// double  ENUM_RATIO = 0.01;
 int    ENUM_MAX   = 20;		// 50 80 200 20
 const string QMARK      = "?";
 
@@ -145,9 +146,9 @@ void IO_close () {
 
 vector<vector<string>> transpose (const vector<vector<string>> &trd) {
   vector<vector<string>> d;
-  for (int column = 0; column < trd[0].size(); ++column) {
+  for (size_t column = 0; column < trd[0].size(); ++column) {
     vector<string> temp;
-    for (int row = 0; row < trd.size(); ++row)
+    for (size_t row = 0; row < trd.size(); ++row)
       temp.push_back(trd[row][column]);
     d.push_back(temp);
   }
@@ -175,34 +176,15 @@ int main (int argc, char **argv)
 
   while (getline(cin, line)) {
     row_count++;
-    if (line.empty() || regex_match(line, empty_pattern))
-      continue;
 
     // elimination of quotes, replacements of spaces, commas, and semicolons
-    string line1;
-    bool in_string = false;
-    for (int i = 0; i < line.size(); ++i)
-      if (line[i] == '"') {
-	in_string = ! in_string;
-	line1 += " ";
-      } else if (in_string && (line[i] == ' ' || line[i] == '\t'))
-	line1 += "_";
-      else if (in_string && line[i] == '?')
-	line1 += "<>";
-      else if (in_string && (line[i] == ',' || line[i] == ';'))
-	line1 += ".";
-      else
-	line1 = line1 + line[i];
-
+    clear_line(row_count, line);
+    if (line.empty())
+      continue;
     // elimination of commas and semicolons outside quotes
-    string line2 = regex_replace(line1, comma_scolon, " ");
-
+    uncomma_line(line);
     // chop line into string pieces
-    istringstream instring(line2);
-    vector<string> row;
-    string strg;
-    while (instring >> strg)
-      row.push_back(strg);
+    vector<string> row = split(line, " \t");
     trdata.push_back(row);
 
     if (row_length == 0)
@@ -217,6 +199,11 @@ int main (int argc, char **argv)
 
   if (errorflag) {
     cerr << "+++ errors in data file" << endl;
+    IO_close();
+    if (output != STDOUT) {
+      cerr << "*** no output file generated" << endl;
+      remove(output.c_str());
+    }
     exit(1);
   }
 
@@ -225,10 +212,10 @@ int main (int argc, char **argv)
   regex float_pattern("^-?[0-9]*\\.([0-9]+)$", regex::egrep);
   regex efloat_pattern("^-?[0-9]+\\.([0-9]+)[e|E](\\-|\\+)[0-9]+$", regex::egrep);
   smatch result;
-  for (int col = 0; col < mydata.size(); ++col) {
+  for (size_t col = 0; col < mydata.size(); ++col) {
     type.push_back(UNDEF);
     flength.push_back(0);
-    for (int row = 0; row < mydata[col].size(); ++row) {
+    for (size_t row = 0; row < mydata[col].size(); ++row) {
       switch (type[col]) {
       case INT:
 	if (regex_match(mydata[col][row], result, float_pattern)
@@ -285,7 +272,7 @@ int main (int argc, char **argv)
       while (line[rgt] == ' ' || line[rgt] == '\t')
 	rgt--;
       string line1 = line.substr(lft, rgt-lft+1);
-      for (int i = 0; i < line1.length(); ++i)
+      for (size_t i = 0; i < line1.length(); ++i)
 	if (line1[i] == ' ' || line1[i] == '\t')
 	  line1[i] = '_';
       id_names.push_back(line1);
@@ -314,10 +301,8 @@ int main (int argc, char **argv)
        << "# It is NOT a valid transformation meta-file for mcp-trans" << endl
        << "# It must be edited following the meta-file syntax before use" << endl
        << endl;
-  for (int col = 0; col < mydata.size(); ++col) {
+  for (size_t col = 0; col < mydata.size(); ++col) {
     vector<string> row = mydata[col];
-    vector<int> irow;
-    vector<float> frow;
 
     if (!name.empty())
       cout << left << setw(id_length) << id_names[col] << right;
@@ -326,29 +311,38 @@ int main (int argc, char **argv)
     cout << " = " << setw(wide) << col << ": ";
     
     switch (type[col]) {
-    case INT:
-      for (auto r : row)
+    case INT: {
+      vector<int> irow;
+      for (const string &r : row)
 	if (r != QMARK)
 	  irow.push_back(stoi(r));
       sort(irow.begin(), irow.end());
       row.clear();
-      for (auto ir : irow)
+      for (const int &ir : irow)
 	row.push_back(to_string(ir));
-      irow.clear();
-      break;
-    case FLOAT:
-      for (auto r : row)
+      // irow.clear();
+    } break;
+    case FLOAT: {
+      vector<double> frow;
+      for (const string &r : row)
 	if (r != QMARK)
 	  frow.push_back(stof(r));
       sort(frow.begin(), frow.end());
       row.clear();
-      for (auto fr : frow)
+      for (const double &fr : frow)
 	row.push_back(to_string(fr));
-      frow.clear();
-      break;
-    case STRING:
+      // frow.clear();
+    } break;
+    case STRING: {
+      auto it = row.begin();
+      while (it != row.end())
+	if (*it == QMARK) {
+	  it = row.erase(it);
+	  qflag = true;
+	} else
+	  ++it;
       sort(row.begin(), row.end());
-      break;
+    } break;
     }
     auto ref = unique(row.begin(), row.end());
     row.resize(distance(row.begin(), ref));
@@ -375,8 +369,8 @@ int main (int argc, char **argv)
 	cout << (type[col] != FLOAT ? row[i] : notrail0(row[i])) << " ";
       cout << (type[col] != FLOAT ? row[rsz-1] : notrail0(row[rsz-1])) <<  "]";
     } else if (!is_enum && type[col] == FLOAT) {
-      const float r0f   = stof(row[0]);
-      const float rsz1f = stof(row[rsz1]);
+      const double r0f   = stod(row[0]);
+      const double rsz1f = stod(row[rsz1]);
       cout << showpoint;
       cout << setprecision(flength[col] + to_string((int)r0f).length());
       cout << r0f << " ";
@@ -388,7 +382,7 @@ int main (int argc, char **argv)
     cout << ";\t# card " << rsz;
     bool is_cons = type[col] == INT;
     if (is_cons)
-      for (int i = 1; i < rsz; ++i)
+      for (size_t i = 1; i < rsz; ++i)
 	if (stoi(row[i]) != stoi(row[i-1])+1) {
 	  is_cons = false;
 	  break;

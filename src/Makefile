@@ -12,7 +12,7 @@
 ##*	Address: Technische Universitaet Wien, Vienna, Austria             *
 ##*                                                                        *
 ##*	Version: all                                                       *
-##*     File:    src/Makefile                                              *
+##*     File:    src-danube/Makefile                                       *
 ##*                                                                        *
 ##*      Copyright (c) 2019 - 2024                                         *
 ##*                                                                        *
@@ -162,8 +162,14 @@ mcp-matrix+formula-trans.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
 
 guess: $(BIN)/mcp-guess
 
-$(BIN)/mcp-guess: mcp-guess.cpp
-	$(GXX) $(MINIMAL_FLAGS) -o $(BIN)/mcp-guess mcp-guess.cpp
+$(BIN)/mcp-guess: mcp-matrix+formula-guess.o mcp-guess.o
+	$(GXX) $(MINIMAL_FLAGS) -o $(BIN)/mcp-guess mcp-guess.o mcp-matrix+formula-guess.o
+
+mcp-guess.o: mcp-guess.cpp
+	$(GXX) $(MINIMAL_FLAGS) -c -o $@ mcp-guess.cpp
+
+mcp-matrix+formula-guess.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
+	$(GXX) $(MINIMAL_FLAGS) -c -o $@ mcp-matrix+formula.cpp
 
 #---------------------------------------------------------------------------------------------------
 

@@ -197,6 +197,12 @@ int main (int argc, char **argv)
     }
   }
 
+  if (row_count == 0) {
+    cerr << "+++ input file " << input << " is empty" << endl
+	 << "... is it correct?" << endl;
+    exit(2);
+  }
+
   if (errorflag) {
     cerr << "+++ errors in data file" << endl;
     IO_close();

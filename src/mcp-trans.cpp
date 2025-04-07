@@ -297,7 +297,7 @@ bool IDpresent = true;
 int pivot = SENTINEL;
 bool PVTpresent = false;
 unordered_map<size_t, Token> type;
-vector<int> target = {SENTINEL};
+vector<int> target;			// = {SENTINEL};
 vector<vector<string>> args;
 map<size_t, size_t> precedence;
 
@@ -394,6 +394,9 @@ void read_arg (int argc, char *argv[]) {	// reads the input parameters
     }
     ++argument;
   }
+
+  if (IDpresent)
+    target.push_back(SENTINEL);
 
   if (robust && !pivotput.empty()) {
     cerr << "+++ pivot incompatible with robust" << endl

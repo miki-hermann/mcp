@@ -21,8 +21,6 @@
 ##* or bijunctive formulas from positive and negative examples represented *
 ##* by these matrices.                                                     *
 ##*                                                                        *
-##* This software has been created within the ACCA Project.                *
-##*                                                                        *
 ##*                                                                        *
 ##**************************************************************************
 
@@ -39,10 +37,12 @@ CXX   := $(GXX) $(VANILLA_FLAGS)
 # CXX   := g++ $(RELEASE_FLAGS)
 # CXX   := g++ $(DEBUG_FLAGS)
 
-.PHONY: compile compile-no-mpi seq mpi pthread hybrid trans guess cnf csv split sample check sparse predict chk2tst uniq overview export clean scratch
+.PHONY: compile compile-main compile-no-mpi seq mpi pthread hybrid trans guess cnf csv split sample check sparse predict chk2tst uniq overview export clean scratch
 
 compile: seq mpi pthread hybrid \
 	trans guess cnf csv split sample check sparse predict chk2tst uniq overview clean
+
+compile-main: seq pthread trans check predict
 
 compile-no-mpi: seq pthread \
 	trans guess cnf csv split sample check sparse predict chk2tst uniq overview clean

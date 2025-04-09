@@ -136,18 +136,22 @@ void matrix () {
   map<string, set<int>> nohash_tab;
 
   while (getline(cin, line)) {
+    ++numline;
+    clear_line(numline, line);
+    if (line.empty())
+      continue;
     line_tab.push_back(line);
     vector<string> chunk = split(line, " \t");
     group_tab.push_back(chunk[0]);
 
     string blob = "";
     for (int i = 1; i < chunk.size(); ++i)
-      blob += chunk[i];
+      blob += "#" + chunk[i];
     if (use_hash) {
       size_t hash_blob = hash<string>{}(blob);
-      hash_tab[hash_blob].insert(++numline);
+      hash_tab[hash_blob].insert(numline);
     } else
-      nohash_tab[blob].insert(++numline);
+      nohash_tab[blob].insert(numline);
   }
 
   cerr << "+++ " << line_tab.size() << " rows read" << endl;

@@ -391,6 +391,7 @@ void print_result () {
 int main(int argc, char **argv)
 {
   version += "check";
+  cerr << "+++ version = " << version << endl;
 
   read_arg(argc, argv);
   adjust_and_open();

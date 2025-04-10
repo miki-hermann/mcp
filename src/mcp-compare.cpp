@@ -232,6 +232,7 @@ void statistics () {
 
 int main (int argc, char **argv) {
   version += "compare";
+  cerr << "+++ version = " << version << endl;
 
   read_args(argc, argv);
   adjust_and_open();

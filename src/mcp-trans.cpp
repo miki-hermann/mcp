@@ -1714,6 +1714,9 @@ void matrix () {
 
 int main(int argc, char **argv)
 {
+  version += "trans";
+  cerr << "+++ version = " << version << endl;
+
   read_arg(argc, argv);
   read_meta();
   program();

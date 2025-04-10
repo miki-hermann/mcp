@@ -37,7 +37,7 @@ using namespace std;
 
 //--------------------------------------------------------------------------------------------------
 
-extern string version;
+// extern string version;
 extern bool debug;
 
 // extern string varid;

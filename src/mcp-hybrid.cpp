@@ -46,6 +46,7 @@ int main(int argc, char **argv)
   int process_rank;
 
   version += arch_strg[arch];
+  cerr << "+++ version = " << version << endl;
   // set_terminate(crash);
   signal(SIGSEGV, crash);
   if (!debug)

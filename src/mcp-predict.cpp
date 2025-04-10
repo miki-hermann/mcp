@@ -411,6 +411,7 @@ void get_pivot (const Matrix &matrix) {
 int main(int argc, char **argv)
 {
   version += "predict";
+  cerr << "+++ version = " << version << endl;
 
   read_args(argc, argv);
   adjust_and_open();

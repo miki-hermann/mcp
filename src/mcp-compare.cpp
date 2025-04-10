@@ -83,7 +83,7 @@ void adjust_and_open () {
 
   if (output == STDOUT) {
     string::size_type pos = original.rfind('.');
-    output = (pos == string::npos ? original : original.substr(0, pos)) + "-compare.out";
+    output = (pos == string::npos ? original : original.substr(0, pos)) + "-compare.txt";
   }
 
   origfile.open(original);

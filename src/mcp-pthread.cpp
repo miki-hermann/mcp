@@ -81,8 +81,7 @@ void thread_split (ofstream thread_outfile[], ofstream thread_latexfile[],
   }
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
   version += arch_strg[arch];;
   cerr << "+++ version = " << version << endl;
   // set_terminate(crash);

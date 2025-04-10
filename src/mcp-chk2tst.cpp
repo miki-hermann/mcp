@@ -1,7 +1,7 @@
 /**************************************************************************
  *                                                                        *
  *                                                                        *
- *	       Multiple Classification   Problem (MCP)                    *
+ *	         Multiple Classification Project (MCP)                    *
  *                                                                        *
  *	Author:   Miki Hermann                                            *
  *	e-mail:   hermann@lix.polytechnique.fr                            *
@@ -123,8 +123,10 @@ void matrix2tst () {
 
 //////////////////////////////////////////////////////////////////////////////
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
+  version = NOARCH_VERSION "chk2tst";
+  cerr << "+++ version = " << version << endl;
+
   read_arg(argc, argv);
   adjust_and_open();
   matrix2tst();

@@ -408,8 +408,7 @@ void get_pivot (const Matrix &matrix) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
   version += "predict";
   cerr << "+++ version = " << version << endl;
 

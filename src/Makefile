@@ -37,15 +37,15 @@ CXX   := $(GXX) $(VANILLA_FLAGS)
 # CXX   := g++ $(RELEASE_FLAGS)
 # CXX   := g++ $(DEBUG_FLAGS)
 
-.PHONY: compile compile-main compile-no-mpi seq mpi pthread hybrid trans guess cnf csv split sample check sparse predict chk2tst uniq overview export clean scratch
+.PHONY: compile compile-main compile-no-mpi seq mpi pthread hybrid trans guess cnf csv split sample check sparse predict chk2tst uniq overview compare export clean scratch
 
 compile: seq mpi pthread hybrid \
-	trans guess cnf csv split sample check sparse predict chk2tst uniq overview clean
+	trans guess cnf csv split sample check sparse predict compare chk2tst uniq overview clean
 
 compile-main: seq pthread trans check predict
 
 compile-no-mpi: seq pthread \
-	trans guess cnf csv split sample check sparse predict chk2tst uniq overview clean
+	trans guess cnf csv split sample check sparse predict compare chk2tst uniq overview clean
 
 #---------------------------------------------------------------------------------------------------
 
@@ -196,8 +196,16 @@ $(BIN)/mcp-csv: mcp-mat2csv
 
 split: $(BIN)/mcp-split
 
-$(BIN)/mcp-split: mcp-split.cpp
-	$(CXX) -o $(BIN)/mcp-split mcp-split.cpp
+mcp-matrix+formula-split.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
+	$(CXX) -c -o $@ mcp-matrix+formula.cpp
+
+mcp-split.o: mcp-split.cpp mcp-matrix+formula.hpp
+	$(CXX) -c -o $@ mcp-split.cpp
+
+$(BIN)/mcp-split: mcp-split.o  mcp-matrix+formula-split.o
+	$(CXX) -o $(BIN)/mcp-split \
+		mcp-split.o \
+		mcp-matrix+formula-split.o
 
 #---------------------------------------------------------------------------------------------------
 
@@ -281,6 +289,21 @@ $(BIN)/mcp-predict: mcp-matrix+formula-predict.o mcp-predict.o
 	$(CXX) -o $(BIN)/mcp-predict \
 		mcp-predict.o \
 		mcp-matrix+formula-predict.o
+
+#---------------------------------------------------------------------------------------------------
+
+compare: $(BIN)/mcp-compare
+
+mcp-matrix+formula-compare.o: mcp-matrix+formula.cpp mcp-matrix+formula.hpp
+	$(CXX) -c -o $@ mcp-matrix+formula.cpp
+
+mcp-compare.o: mcp-compare.cpp mcp-matrix+formula.hpp
+	$(CXX) -c -o $@ mcp-compare.cpp
+
+$(BIN)/mcp-compare: mcp-matrix+formula-compare.o mcp-compare.o
+	$(CXX) -o $(BIN)/mcp-compare \
+		mcp-compare.o \
+		mcp-matrix+formula-compare.o
 
 #---------------------------------------------------------------------------------------------------
 

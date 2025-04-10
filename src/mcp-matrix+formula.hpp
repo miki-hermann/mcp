@@ -30,6 +30,7 @@
 #include <numeric>
 
 #define GLOBAL_VERSION "1.04f-danube-"
+#define NOARCH_VERSION "1.04f-noarch-"
 
 using namespace std;
 

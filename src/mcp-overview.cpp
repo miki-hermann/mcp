@@ -27,6 +27,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include "mcp-matrix+formula.hpp"
 #include "mcp-tally.hpp"
 
 using namespace std;
@@ -199,8 +200,10 @@ void write_output (const size_t &total) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
+  version = NOARCH_VERSION "overview";
+  cerr << "+++ version = " << version << endl;
+
   read_arg(argc, argv);
   adjust_and_open();
   size_t total = tally(concept_column);

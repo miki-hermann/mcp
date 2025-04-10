@@ -40,8 +40,7 @@ using namespace std;
 
 Arch arch = archHYBRID;
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
   int num_procs;
   int process_rank;
 

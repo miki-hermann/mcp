@@ -37,7 +37,6 @@
 
 using namespace std;
 
-// string version = GLOBAL_VERSION;
 bool debug = false;
 // string varid = "x";
 // bool varswitch = false;

@@ -164,8 +164,10 @@ string notrail0 (string fnum) {
   return fnum;
 }
 
-int main (int argc, char **argv)
-{
+int main (int argc, char **argv) {
+  version = NOARCH_VERSION "guess";
+  cerr << "+++ version = " << version << endl;
+
   regex empty_pattern("^[ \t]+$", regex::egrep);
   regex comma_scolon("[,;]", regex::egrep);
   string line;

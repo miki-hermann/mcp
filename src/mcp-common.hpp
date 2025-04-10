@@ -31,8 +31,6 @@
 #include <map>
 #include "mcp-matrix+formula.hpp"
 
-// #define GLOBAL_VERSION "1.04-c++-"
-
 using namespace std;
 
 //--------------------------------------------------------------------------------------------------

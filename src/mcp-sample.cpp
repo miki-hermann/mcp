@@ -395,8 +395,10 @@ void interrupt (int signal) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
+  version = NOARCH_VERSION "sample";
+  cerr << "+++ version = " << version << endl;
+
   read_arg(argc, argv);
   adjust_and_open();
   // if (sample_size == 0)

@@ -1,7 +1,7 @@
 /**************************************************************************
  *                                                                        *
  *                                                                        *
- *	       Multiple Classification   Problem (MCP)                    *
+ *	         Multiple Classification Project (MCP)                    *
  *                                                                        *
  *	Author:   Miki Hermann                                            *
  *	e-mail:   hermann@lix.polytechnique.fr                            *
@@ -155,6 +155,9 @@ int main(int argc, char **argv)
 {
   string line;
   vector<string> sparse_data;
+
+  version += "sparse";
+  cerr << "+++ version = " << version << endl;
 
   read_arg(argc, argv);
   IO_open();

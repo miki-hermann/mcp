@@ -205,8 +205,10 @@ void matrix () {
 
 //////////////////////////////////////////////////////////////////////////////
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
+  version = NOARCH_VERSION "uniq";
+  cerr << "+++ version = " << version << endl;
+
   read_args(argc, argv);
   IO_open();
   // header();

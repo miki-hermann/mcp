@@ -1,7 +1,7 @@
 /**************************************************************************
  *                                                                        *
  *                                                                        *
- *	       Multiple Classification   Problem (MCP)                    *
+ *	         Multiple Classification Project (MCP)                    *
  *                                                                        *
  *	Author:   Miki Hermann                                            *
  *	e-mail:   hermann@lix.polytechnique.fr                            *
@@ -28,6 +28,7 @@
 #include <vector>
 #include <algorithm>
 #include <random>
+#include "mcp-matrix+formula.hpp"
 
 using namespace std;
 
@@ -174,8 +175,10 @@ void cleanup (const size_t &matsize, const size_t &checksize) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
+  version = NOARCH_VERSION "split";
+  cerr << "+++ version = " << version << endl;
+
   read_arg(argc, argv);
   adjust_and_open();
   read_input(matlines);

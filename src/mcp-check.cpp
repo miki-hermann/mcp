@@ -316,69 +316,82 @@ void sat_test (const Group_of_Matrix &matrix, const Formula &formula) {
     f1score = (1.0 * tp) / (1.0*tp + 0.5*fp + 0.5*fn);
 }
 
+inline size_t max (const size_t a, const size_t b) {
+  return a >= b ? a : b;
+}
+
 void print_result () {
+  size_t maxnum = 0;
+  maxnum = max(maxnum, tp);
+  maxnum = max(maxnum, tn);
+  maxnum = max(maxnum, fp);
+  maxnum = max(maxnum, fn);
+
+  const size_t perclen = 6;
+  const size_t numlen = max(to_string(maxnum).length(), perclen)+1;
+
   cout << endl;
   cout << "+++ Statistics:" << endl;
   cout << "    ===========" << endl;
-  cout << "+++ true  positive (tp)  = " << tp << endl;
-  cout << "+++ true  negative (tn)  = " << tn << endl;
-  cout << "+++ false positive (fp)  = " << fp << endl;
-  cout << "+++ false negative (fn)  = " << fn << endl;
-  
+  cout << "+++ true  positive (tp)  = " << setw(numlen) << right << tp << endl;
+  cout << "+++ true  negative (tn)  = " << setw(numlen) << right << tn << endl;
+  cout << "+++ false positive (fp)  = " << setw(numlen) << right << fp << endl;
+  cout << "+++ false negative (fn)  = " << setw(numlen) << right << fn << endl;
+
   cout << "+++ sensitivity    (tpr) = ";
-  cout << left << setw(7);
   if (tpr < 0.0)
     cout << "---";
   else
-    cout << tpr * 100.0 << " %";
+    cout << right << setw(perclen+1) << setprecision(2) << fixed << showpoint
+	 << tpr * 100.0 << " %";
   cout << right << "\t [tp / (tp + fn)]" << endl;
-  
+
   cout << "+++ miss rate      (fnr) = ";
-  cout << left << setw(7);
   if (fnr < 0.0)
     cout << "---";
   else
-    cout << fnr * 100.0 << " %";
+    cout << right << setw(perclen+1) << setprecision(2) << fixed << showpoint
+	 << fnr * 100.0 << " %";
   cout << right << "\t [fn / (fn + tp)]" << endl;
 
   cout << "+++ fall-out       (fnr) = ";
-  cout << left << setw(7);
   if (fpr < 0.0)
     cout << "---";
   else
-    cout << fpr * 100.0 << " %";
+    cout << right << setw(perclen+1) << setprecision(2) << fixed << showpoint
+	 << fpr * 100.0 << " %";
   cout << right << "\t [fp / (fp + tn)]" << endl;
-    
+
   cout << "+++ specificity    (tnr) = ";
-  cout << left << setw(7);
   if (tnr < 0.0)
     cout << "---";
   else
-    cout << tnr * 100.0 << " %";
+    cout << right << setw(perclen+1) << setprecision(2) << fixed << showpoint
+	 << tnr * 100.0 << " %";
   cout << right << "\t [tn / (tn + fp)]" << endl;
-  
+
   cout << "+++ precision      (ppv) = ";
-  cout << left << setw(7);
   if (ppv < 0.0)
     cout << "---";
   else
-    cout << ppv * 100.0 << " %";
+    cout << right << setw(perclen+1) << setprecision(2) << fixed << showpoint
+	 << ppv * 100.0 << " %";
   cout << right << "\t [tp / (tp + fp)]" << endl;
-  
+
   cout << "+++ accuracy       (acc) = ";
-  cout << left << setw(7);
   if (acc < 0.0)
     cout << "---";
   else
-    cout << acc * 100.0 << " %";
-  cout << right << "\t [(tp + tn) / (tp + tn + fp +fn)]" << endl;
-  
+    cout << right << setw(perclen+1) << setprecision(2) << fixed << showpoint
+	 << acc * 100.0 << " %";
+  cout << right << "\t [(tp + tn) / (tp + tn + fp + fn)]" << endl;
+
   cout << "+++ F_1 score      (F_1) = ";
-  cout << left << setw(7);
   if (f1score < 0.0)
     cout << "---";
   else
-    cout << f1score * 100.0 << " %";
+    cout << right << setw(perclen+1) << setprecision(2) << fixed << showpoint
+	 << f1score * 100.0 << " %";
   cout << right << "\t [tp / (tp + 0.5 * (fp +fn))]" << endl;
 
   form_in.close();

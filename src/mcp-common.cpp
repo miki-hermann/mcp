@@ -563,7 +563,7 @@ static inline Row eliminate (const Matrix &T, const Matrix &F,
 	  Fhead[j].push_back(Fcolumn[j]);
     }
     // we must keep at least one coordinate
-    if (hamming_weight(A) == 0)
+    if (hamming_weight(A) == 0) {
       // we search for coordinate with unequal values in T and F
       // or both T and F have all Boolean values on that coordinate
       for (size_t j = 0; j < coords.size(); ++j) {
@@ -577,6 +577,8 @@ static inline Row eliminate (const Matrix &T, const Matrix &F,
 	  break;
 	}
       }
+      break;
+    }
   }
   return A;
 }

@@ -14,20 +14,18 @@
 ##*	Version: all                                                       *
 ##*     File:    man/Makefile                                              *
 ##*                                                                        *
-##*      Copyright (c) 2019 - 2024                                         *
+##*      Copyright (c) 2019 - 2025                                         *
 ##*                                                                        *
 ##* Publish MCP man pages.                                                 *
-##*                                                                        *
-##* This software has been created within the ACCA Project.                *
 ##*                                                                        *
 ##*                                                                        *
 ##**************************************************************************
 
 .PHONY: check guess seq mpi pthread hybrid split trans sparse chk2tst \
-	predict uniq sample clean over
+	predict uniq sample clean over compare
 
 all: check guess seq mpi pthread hybrid split trans sparse chk2tst \
-	predict uniq sample clean over
+	predict uniq sample clean over compare
 
 check: mcp-check.1
 	sudo mkdir -p /usr/local/share/man/man1/
@@ -84,6 +82,10 @@ chk2tst: mcp-chk2tst.1
 predict: mcp-predict.1
 	sudo mkdir -p /usr/local/share/man/man1/
 	sudo cp -f mcp-predict.1 /usr/local/share/man/man1/
+
+compare: mcp-compare.1
+	sudo mkdir -p /usr/local/share/man/man1/
+	sudo cp -f mcp-compare.1 /usr/local/share/man/man1/
 
 uniq: mcp-uniq.1
 	sudo mkdir -p /usr/local/share/man/man1/

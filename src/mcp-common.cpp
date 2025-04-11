@@ -561,20 +561,23 @@ static inline Row eliminate (const Matrix &T, const Matrix &F,
 	for (size_t j = 0; j < Fsize; ++j)
 	  Fhead[j].push_back(Fcolumn[j]);
     }
+    // we keep at least one coordinate
+    if (hamming_weight(A) == 1)
+      break;
   }
   return A;
 }
 
+// computes the minimal section
 Row minsect (const Matrix &T, const Matrix &F) {
-  // computes the minimal section
   const size_t lngt  = T[0].size();
 
   if (inadmissible(T,F)) {
     disjoint = false;
-    Row emptyrow(lngt, false);
+    const Row emptyrow(lngt, false);
     return emptyrow;
   } else if (nosection) {
-    Row fullrow(lngt, true);
+    const Row fullrow(lngt, true);
     return fullrow;
   }
 
@@ -1294,30 +1297,34 @@ Formula primality (const Formula &phi, const Matrix &M) {
 // uses Zanuttini's algorithm
 Formula learnHornExact (Matrix T) {
   Formula H;
-  const int lngt = T[0].size();
-  if (T.size() == 1) {		// T has only one row / tuple
-    Row t = T[0];
+  const size_t lngt = T[0].size();
+  if (T.size() == 1) {
+    // T has only one row / tuple
     for (size_t i = 0; i < lngt; ++i) {
       Clause clause(lngt, lnone);
-      clause[i] = t[i] ? lpos : lneg;
+      clause[i] = T[0][i] ? lpos : lneg;
       H.push_back(clause);
     }
-    return H;
+  } else if (T.size() > 1) {
+    // T has more than one row / tuple
+    // sort(T.begin(), T.end());
+    sort_mf(T, 0, T.size()-1);
+    successor(T);
+    predecessor(T);
+    simsim(T);
+    
+    for (const Row &m : T)
+      for (size_t j = 0; j < lngt; ++j)
+	if (j > pred[m] && m[j]
+	    || j > succ[m] && ! m[j])
+	  H.push_back(hext(m,j));
+    
+    H = primality(H, T);
+    cook(H);
+  } else {
+    cerr << "*** learnHornExact: matrix is empty" << endl;
+    exit(2);
   }
-  // sort(T.begin(), T.end());
-  sort_mf(T, 0, T.size()-1);
-  successor(T);
-  predecessor(T);
-  simsim(T);
-
-  for (const Row &m : T)
-    for (size_t j = 0; j < lngt; ++j)
-      if (j > pred[m] && m[j]
-	  || j > succ[m] && ! m[j])
-	H.push_back(hext(m,j));
-
-  H = primality(H, T);
-  cook(H);
   return H;
 }
 

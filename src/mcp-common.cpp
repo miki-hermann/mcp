@@ -476,7 +476,8 @@ Matrix section (const Row &alpha, const Matrix &A) {
   return B;
 }
 
-size_t hamming_weight (const Row &row) {	// Hamming weight of a tuple
+// Hamming weight of a tuple
+size_t hamming_weight (const Row &row) {
   // size_t sum = accumulate(cbegin(row), cend(row), 0);
   // size_t sum = row.count();
   return row.count();
@@ -561,9 +562,21 @@ static inline Row eliminate (const Matrix &T, const Matrix &F,
 	for (size_t j = 0; j < Fsize; ++j)
 	  Fhead[j].push_back(Fcolumn[j]);
     }
-    // we keep at least one coordinate
-    if (hamming_weight(A) == 1)
-      break;
+    // we must keep at least one coordinate
+    if (hamming_weight(A) == 0)
+      // we search for coordinate with unequal values in T and F
+      // or both T and F have all Boolean values on that coordinate
+      for (size_t j = 0; j < coords.size(); ++j) {
+	unordered_set<bool> Tval, Fval;
+	for (size_t k = 0; k < Tsize; ++k)
+	  Tval.insert(T[k][coords[j]]);
+	for (size_t k = 0; k < Fsize; ++k)
+	  Fval.insert(F[k][coords[j]]);
+	if (Fval != Tval || Fval.size() == 2 && Tval.size() == 2) {
+	  A[coords[j]] = true;
+	  break;
+	}
+      }
   }
   return A;
 }
@@ -1297,6 +1310,11 @@ Formula primality (const Formula &phi, const Matrix &M) {
 // uses Zanuttini's algorithm
 Formula learnHornExact (Matrix T) {
   Formula H;
+  if (T.empty()) {
+    cerr << "*** learnHornExact: matrix is empty" << endl;
+    exit(2);
+  }
+  
   const size_t lngt = T[0].size();
   if (T.size() == 1) {
     // T has only one row / tuple
@@ -1321,9 +1339,6 @@ Formula learnHornExact (Matrix T) {
     
     H = primality(H, T);
     cook(H);
-  } else {
-    cerr << "*** learnHornExact: matrix is empty" << endl;
-    exit(2);
   }
   return H;
 }

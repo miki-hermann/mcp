@@ -212,20 +212,23 @@ void statistics () {
   // cout << "===========================================" << endl;
   cout << dash << endl;
   for (const auto &t : aggregate)
-    cout << right << setw(ldlen) << t.first
-	 << right << setw(totallen) << tally.at(t.first)
-	 << right << setw(eqlen) << t.second[eql]
-	 << right << setw(percentlen) << setprecision(2) << fixed << showpoint
-	 << (100.0 * t.second[eql]) / tally.at(t.first) << "%"
-	 << right << setw(inlen) << t.second[in]
-	 << right << setw(percentlen) << setprecision(2) << fixed << showpoint
-	 << (100.0 * t.second[in]) / tally.at(t.first) << "%"
-	 << right << setw(outlen) << t.second[out]
-	 << right << setw(percentlen) << setprecision(2) << fixed << showpoint
-	 << (100.0 * t.second[out]) / tally.at(t.first) << "%"
-	 << endl;
+    if (tally.count(t.first) == 0)
+      continue;
+    else
+      cout << right << setw(ldlen) << t.first
+	   << right << setw(totallen) << tally.at(t.first)
+	   << right << setw(eqlen) << t.second[eql]
+	   << right << setw(percentlen) << setprecision(2) << fixed << showpoint
+	   << (100.0 * t.second[eql]) / tally.at(t.first) << "%"
+	   << right << setw(inlen) << t.second[in]
+	   << right << setw(percentlen) << setprecision(2) << fixed << showpoint
+	   << (100.0 * t.second[in]) / tally.at(t.first) << "%"
+	   << right << setw(outlen) << t.second[out]
+	   << right << setw(percentlen) << setprecision(2) << fixed << showpoint
+	   << (100.0 * t.second[out]) / tally.at(t.first) << "%"
+	   << endl;
 
-    cerr << "+++ output written on " << output << endl;
+  cerr << "+++ output written on " << output << endl;
 }
 
 //////////////////////////////////////////////////////////////////////////////

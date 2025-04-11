@@ -340,7 +340,7 @@ void print_result () {
 
   cout << "+++ sensitivity    (tpr) = ";
   if (tpr < 0.0)
-    cout << left << setw(perclen+1) << "---";
+    cout << " ---.--  ";
   else
     cout << right << setw(perclen+1) << setprecision(2) << fixed << showpoint
 	 << tpr * 100.0 << " %";
@@ -348,7 +348,7 @@ void print_result () {
 
   cout << "+++ miss rate      (fnr) = ";
   if (fnr < 0.0)
-    cout << left << setw(perclen+1) << "---";
+    cout << " ---.--  ";
   else
     cout << right << setw(perclen+1) << setprecision(2) << fixed << showpoint
 	 << fnr * 100.0 << " %";
@@ -356,7 +356,7 @@ void print_result () {
 
   cout << "+++ fall-out       (fnr) = ";
   if (fpr < 0.0)
-    cout << left << setw(perclen+1) << "---";
+    cout << " ---.--  ";
   else
     cout << right << setw(perclen+1) << setprecision(2) << fixed << showpoint
 	 << fpr * 100.0 << " %";
@@ -364,7 +364,7 @@ void print_result () {
 
   cout << "+++ specificity    (tnr) = ";
   if (tnr < 0.0)
-    cout << left << setw(perclen+1) << "---";
+    cout << " ---.--  ";
   else
     cout << right << setw(perclen+1) << setprecision(2) << fixed << showpoint
 	 << tnr * 100.0 << " %";
@@ -372,7 +372,7 @@ void print_result () {
 
   cout << "+++ precision      (ppv) = ";
   if (ppv < 0.0)
-    cout << left << setw(perclen+1) << "---";
+    cout << " ---.--  ";
   else
     cout << right << setw(perclen+1) << setprecision(2) << fixed << showpoint
 	 << ppv * 100.0 << " %";
@@ -380,7 +380,7 @@ void print_result () {
 
   cout << "+++ accuracy       (acc) = ";
   if (acc < 0.0)
-    cout << left << setw(perclen+1) << "---";
+    cout << " ---.--  ";
   else
     cout << right << setw(perclen+1) << setprecision(2) << fixed << showpoint
 	 << acc * 100.0 << " %";
@@ -388,7 +388,7 @@ void print_result () {
 
   cout << "+++ F_1 score      (F_1) = ";
   if (f1score < 0.0)
-    cout << left << setw(perclen+1) << "---";
+    cout << " ---.--  ";
   else
     cout << right << setw(perclen+1) << setprecision(2) << fixed << showpoint
 	 << f1score * 100.0 << " %";

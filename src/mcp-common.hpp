@@ -38,16 +38,6 @@ using namespace std;
 // extern string version;
 extern bool debug;
 
-// extern string varid;
-// extern bool varswitch;
-// extern vector<vector<string>> varnames;
-// enum NAME {nOWN = 0, nPOSITIVE = 1, nNEGATIVE = 2};
-
-extern map<Row, int> pred;		// predecessor function for Zanuttini's algorithm
-extern map<Row, int> succ;		// successor function for Zanuttini's algorithm
-extern map<Row, vector<int>> sim;	// sim table for Zanuttini's algorithm
-
-// enum Action    {aONE    = 0, aALL    = 1, aNOSECT      = 2};
 enum Closure : char  {clHORN  = 0,
 		      clDHORN = 1,
 		      clBIJUNCTIVE = 2,
@@ -64,15 +54,9 @@ enum Direction : char {dBEGIN  = 0,
 		       dLOWSCORE  = 4,
 		       dHIGHSCORE = 5,
 		       dPREC = 6};
-// enum Print     {pVOID   = 0, pCLAUSE = 1, pIMPL        = 2, pMIX       = 3, pDIMACS   = 4};
-enum Strategy  {sLARGE  = 0, sEXACT  = 1};
-// enum Display   {yUNDEF  = 0, yHIDE   = 1, yPEEK        = 2, ySECTION   = 3, ySHOW     = 4};
-enum Arch      {archSEQ = 0, archMPI = 1, archPTHREAD  = 2, archHYBRID = 3};
 
-// extern const int SENTINEL;
 extern const string STDIN;
 extern const string STDOUT;
-// extern const int MTXLIMIT;
 extern const int CLUSTERLIMIT;
 
 // extern Action action;
@@ -88,9 +72,7 @@ extern string output;
 extern string headerput;
 extern string weights;
 extern bool disjoint;
-// extern int arity;
 extern int cluster;
-// extern int offset;
 extern string tpath;		// directory where the temporary files will be stored
 extern bool np_fit;
 extern unsigned chunkLIMIT;	// heavily hardware dependent; must be optimized

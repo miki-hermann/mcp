@@ -47,9 +47,11 @@ typedef map<string, Matrix> Group_of_Matrix;
 extern Group_of_Matrix group_of_matrix;
 extern vector<string> grps;
 
-enum Action : char   {aONE    = 0, aALL    = 1, aSELECTED  = 2};
-enum Print  : char   {pVOID   = 0, pCLAUSE = 1, pIMPL      = 2, pMIX       = 3, pDIMACS   = 4};
-enum Display: char   {yUNDEF  = 0, yHIDE   = 1, yPEEK      = 2, ySECTION   = 3, ySHOW     = 4};
+enum Action   : char {aONE    = 0, aALL    = 1, aSELECTED  = 2};
+enum Print    : char {pVOID   = 0, pCLAUSE = 1, pIMPL      = 2, pMIX       = 3, pDIMACS   = 4};
+enum Strategy : char {sLARGE  = 0, sEXACT  = 1};
+enum Display  : char {yUNDEF  = 0, yHIDE   = 1, yPEEK      = 2, ySECTION   = 3, ySHOW     = 4};
+enum Arch     : char {archSEQ = 0, archMPI = 1, archPTHREAD  = 2, archHYBRID = 3};
 
 // enum Literal {lneg = -1, lnone = 0, lpos = 1};
 // typedef deque<Literal> Clause;
@@ -62,7 +64,6 @@ typedef deque<Clause> Formula;
 
 extern string varid;
 extern bool varswitch;
-// extern vector<string> varnames;
 extern vector<vector<string>> varnames;
 enum NAME : char {nOWN = 0, nPOSITIVE = 1, nNEGATIVE = 2};
 

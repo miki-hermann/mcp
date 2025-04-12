@@ -38,13 +38,6 @@
 using namespace std;
 
 bool debug = false;
-// string varid = "x";
-// bool varswitch = false;
-// vector<string> varnames;
-
-map<Row, int> pred;		// predecessor function for Zanuttini's algorithm
-map<Row, int> succ;		// successor function for Zanuttini's algorithm
-map<Row, vector<int>> sim;	// sim table for Zanuttini's algorithm
 
 map<size_t, int> idx2w;		// coordinate index to weight for precedence dir
 struct cmp_prec { 
@@ -54,28 +47,21 @@ struct cmp_prec {
   }
 };
 
-// const int SENTINEL     = -1;
 const string STDIN     = "STDIN";
 const string STDOUT    = "STDOUT";
-// const int MTXLIMIT     = 4000;
 const int CLUSTERLIMIT = 15;
 
-// Action action       = aALL;
 Closure closure     = clHORN;
 Cooking cooking     = ckWELLDONE;
 Direction direction = dBEGIN;
-// Print print         = pVOID;
 bool setcover       = true;
 Strategy strategy   = sLARGE;
-// Display display     = yUNDEF;
 string input        = STDIN;
 string output       = STDOUT;
 string headerput    = "";
 string weights      = "";
 bool disjoint       = true;
-// int arity           = 0;
 int cluster         = SENTINEL;
-// int offset          = 0;
 string tpath        = "/tmp/";		// directory where the temporary files will be stored
 bool np_fit	    = false;
 unsigned chunkLIMIT      = 4096;	// heavily hardware dependent; must be optimized
@@ -97,8 +83,6 @@ const string direction_strg[] = {"begin",      "end",        "optimum",    "rand
 				 "low cardinality", "high cardinality", "precedence"};
 const string pcl_strg[]       = {"Horn",       "Horn",       "bijunctive", "affine", "cnf"};
 const string strategy_strg[]  = {"large",      "exact"};
-// const string print_strg[]     = {"void",       "clause",     "implication", "mixed",   "DIMACS"};
-// const string display_strg[]   = {"undefined",  "hide",       "peek",        "section", "show"};
 const string arch_strg[]      = {"seq",        "mpi",        "pthread",    "hybrid"};
 
 //--------------------------------------------------------------------------------------------------
@@ -574,10 +558,9 @@ static inline Row eliminate (const Matrix &T, const Matrix &F,
 	  Fval.insert(F[k][coords[j]]);
 	if (Fval != Tval || Fval.size() == 2 && Tval.size() == 2) {
 	  A[coords[j]] = true;
-	  break;
+	  return A;
 	}
       }
-      break;
     }
   }
   return A;
@@ -1179,13 +1162,13 @@ void cook (Formula &formula) {
 
 // predecessor function of Zanuttini's algorithm
 // R must be lexicographically sorted
-void predecessor (const Matrix &R) {
-  pred.clear();
+map<Row, int> predecessor (const Matrix &R) {
+  map<Row, int> pred;
   pred[R[0]] = SENTINEL;
   Row p = R[0];
   for (size_t i = 1; i < R.size(); ++i) {
     Row m = R[i];
-    int j = 0;
+    size_t j = 0;
     for (size_t k = 0; k < m.size(); ++k)
       if (m[k] == p[k])
 	j++;
@@ -1194,16 +1177,17 @@ void predecessor (const Matrix &R) {
     pred[R[i]] = j;
     p = m;
   }
+  return pred;
 }
 
 // sucessor function of Zanuttini's algorithm
 // R must be lexicographically sorted
-void successor (const Matrix &R) {
-  succ.clear();
+map<Row, int> successor (const Matrix &R) {
+  map<Row, int> succ;
   Row m = R[0];
   for (size_t i = 1; i < R.size(); ++i) {
     Row s = R[i];
-    int j = 0;
+    size_t j = 0;
     for (size_t k = 0; k < m.size(); ++k)
       if (m[k] == s[k])
 	j++;
@@ -1213,41 +1197,47 @@ void successor (const Matrix &R) {
     m = s;
   }
   succ[R[R.size()-1]] = SENTINEL;
+  return succ;
 }
 
-void simsim (const Matrix &R) {	// sim array of Zanuttini's algorithm
-  sim.clear();
+// sim array of Zanuttini's algorithm
+map<Row, vector<int>> simsim (const Matrix &R, const map<Row, int> &succ) {
+  map<Row, vector<int>> sim;
   for (const Row &mm : R) {
     const vector<int> dummy(mm.size(), SENTINEL);
     sim[mm] = dummy;
     for (const Row &m1m : R) {
-      if (mm == m1m) continue;
+      if (mm == m1m)
+	continue;
       int j0 = 0;
-      while (mm[j0] == m1m[j0]) ++j0;
+      while (mm[j0] == m1m[j0])
+	++j0;
       int j = j0;
       while (j < m1m.size() && (m1m[j] || ! mm[j])) {
-	if (j > succ[mm] && ! mm[j] && m1m[j])
+	if (j > succ.at(mm) && ! mm[j] && m1m[j])
 	  sim[mm][j] = max(sim[mm][j], j0);
 	j++;
       }
     }
   }
+  return sim;
 }
 
 // generate clauses with Zanuttini's algorithm
-Clause hext (const Row &m, const int &j) {
+Clause hext (const Row &m, const int &j,
+	     const map<Row, int> &pred, const map<Row, int> &succ,
+	     const map<Row, vector<int>> &sim) {
   Clause clause(m.size(), lnone);
   for (size_t i = 0; i < j; ++i)
     if (m[i])
       clause[i] = lneg;
-  if (j > pred[m]
-      && m[j])
+  if (j > pred.at(m) && m[j])
     clause[j] = lpos;
-  else if (j > succ[m] && ! m[j] && sim[m][j] == SENTINEL)
+  else if (j > succ.at(m) && ! m[j] && sim.at(m)[j] == SENTINEL)
     clause[j] = lneg;
-  else if (j > succ[m] && ! m[j] && sim[m][j] != SENTINEL) {
+  else if (j > succ.at(m) && ! m[j] && sim.at(m)[j] != SENTINEL) {
     clause[j] = lneg;
-    clause[sim[m][j]] = lpos;
+    clause[sim.at(m)[j]] = lpos;
   }
   return clause;
 }
@@ -1255,8 +1245,8 @@ Clause hext (const Row &m, const int &j) {
 // phi is a CNF formula and M is a set of tuples, such that sol(phi) = M
 // constructs a reduced prime formula phiPrime, such that sol(phi) = sol(phiPrime)
 Formula primality (const Formula &phi, const Matrix &M) {
-  const int card = M.size();
-  const int lngt = M[0].size();
+  const size_t card = M.size();
+  const size_t lngt = M[0].size();
   Formula phiPrime;
 
   auto last = make_unique<int []>(card);	// smart pointer
@@ -1329,15 +1319,15 @@ Formula learnHornExact (Matrix T) {
     // T has more than one row / tuple
     // sort(T.begin(), T.end());
     sort_mf(T, 0, T.size()-1);
-    successor(T);
-    predecessor(T);
-    simsim(T);
+
+    map<Row, int> succ = successor(T);		// successor function for Zanuttini's algorithm
+    map<Row, int> pred = predecessor(T);	// predecessor function for Zanuttini's algorithm
+    map<Row, vector<int>> sim = simsim(T, succ);// sim table for Zanuttini's algorithm
     
     for (const Row &m : T)
       for (size_t j = 0; j < lngt; ++j)
-	if (j > pred[m] && m[j]
-	    || j > succ[m] && ! m[j])
-	  H.push_back(hext(m,j));
+	if (j > pred.at(m) && m[j] || j > succ.at(m) && ! m[j])
+	  H.push_back(hext(m,j, pred, succ, sim));
     
     H = primality(H, T);
     cook(H);

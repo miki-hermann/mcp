@@ -1,3 +1,0 @@
-#!/bin/bash
-
-mcp-seq --action nosection --strategy exact --closure cnf --cook medium --setcover no $@

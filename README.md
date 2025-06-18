@@ -65,9 +65,33 @@ The subdirectories of this distribution are:
  - *uci*         examples from the *UCI Machine Learning Repository*, treated by the MCP system, and
  - *kaggle*      examples from the *kaggle* machine learning repository, treated by the MCP system
 
+The sources in *src-noarch* are independent of the used version. The
+sources in *src-seine* and *src-danube* are almost the same, only the
+rows in the former are coded by `vector<bool>` whereas in the latter
+by `dynamic_bitset`. This means that the structures in the *seine*
+version are eight times longer than in the *danube* version.  The
+sources of *src-mekong* are quite different from the previous two.
+
+All modules exist either in the *noarch* version or for all three
+versions. From outside the modules for different version have the same
+appearance.
+
 ### Prerequisites for compilation
 
-Several 
+Several modules are interconnected and call themselves depending of
+the chosen version. To ensure compatibility between them and also to
+avoid potential threat from hackers by supplying a virus named as one
+of the modules, the whole interdependence of the modules is guaranteed
+by means of SHA3 encoding. To be able to use it you need to run the
+following command from your shell: in Fedora, RedHat, CentOS, or
+similar, the command is
+```bash
+   sudo dnf install openssl openssl-devel cryptopp cryptopp-devel
+```
+On Ubuntu, you need to install `libssl` instead of `openssl`:
+```bash
+   sudo apt-get install libssl-dev
+```
 
 ### Compilation
 

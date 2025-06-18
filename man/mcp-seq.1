@@ -1,0 +1,290 @@
+.\" Copyright (c) 2019-2021 Miki Hermann & Gernot Salzer
+.TH MCP-SEQ 1 "2021-03-09" "1.04" "MCP System"
+.
+.SH NAME
+mcp-seq \- MCP core, sequential version
+.br
+mcp-pthread \- MCP core, parallel version using POSIX threads
+.
+.SH SYNOPSIS
+.B mcp-seq
+.RI [\| "OPTION" "\|]\|.\|.\|."
+.br
+.B mcp-pthread
+.RI [\| "OPTION" "\|]\|.\|.\|."
+.
+.SH DESCRIPTION
+.PP
+MCP core generates Horn, dual Horn, 2SAT, or CNF formulas from
+positive and negative samples presented as Boolean (seine and danube versions)
+or natural number (mekong version) matrices,
+where each entry indicates the value of an attribute.
+.
+.SH OPTIONS
+.
+.TP
+\fB\-i\fR, \fB\-\-input\fI input-file
+Input file containing Boolean vectors prefixed by group
+identifiers. The Boolean values must be separated by spaces.
+.IP
+Default: STDIN
+.
+.TP
+\fB\-o\fR, \fB\-\-output\fI output-file
+Output file containing the result of the run of the MCP core.
+.IP
+Default: The \fIbasename\fR of \fIinput-file\fR with \fI.out\fR suffix or STDOUT.
+
+.TP
+\fB\-a\fR, \fB\-\-action \fRone | all | selected\fI STRING\fR
+.IP
+one:
+.br
+Take each group in turn as the positive instances T and some other
+group as negative instances F. For a total of n groups, this will
+result in n*(n-1) formulas, each characterising one group in relation
+to some other group.
+.IP
+all:
+.br
+Take each group in turn as the positive instances T and all other
+groups together as negative instances F. For a total of n groups, this
+will result in n formulas, each characterising one group in relation
+to the union of all other groups.
+.IP
+selected \fI STRING\fR:
+.br
+Like "all", but performed only for the selected group\fI STRING\fR as
+positive instances.
+.IP
+Default: all.
+.
+.TP
+\fB\-\-ns\fR, \fB\-\-nosection\fR
+.IP
+No columns/attributes are removed.
+.
+.TP
+\fB\-c\fR, \fB\-\-closure \fRHorn | dualHorn | 2sat | cnf
+Compute Horn, dual Horn, 2SAT, or general CNF formulas,
+respectively.
+.IP
+Default: Horn.
+.
+.TP
+\fB-d\fR, \fB\-\-direction\fR begin | end | lowscore | highscore | random | precedence
+.IP
+begin:
+.br
+Prefer columns to the left (at the begin) of the matrix.  Columns are
+removed from the right, skipping columns whose removal would render
+the problem unsolvable.
+.IP
+end:
+.br
+Prefer columns to the right (at the end) of the matrix.  Columns are
+removed from the left, skipping columns whose removal would render the
+problem unsolvable.
+.IP
+lowscore:
+.br
+Prefer columns with a lower Hamming weight (more zeros) in the positive part,
+by starting to remove columns with high Hamming weight (many ones).
+.IP
+highscore:
+.br
+Prefer columns with a higher Hamming weight (more ones) in the positive part,
+by starting to remove columns with small Hamming weight (many zeros).
+.IP
+random:
+.br
+Remove columns in random order.
+.IP
+precedence:
+.br
+Remove columns in the order of non-decreasing precedence (see \fB--weights\fR option).
+.IP
+Default: begin.
+.
+.TP
+\fB\-w\fR, \fB\-\-weights\fR weights-file
+.IP
+File with prcedence weights (positive integers) for each attribute coordinate.
+This option is active only with "\fB--direction\fI precedence\fR".
+.IP
+default: The \fIbasename\fR of \fIinput-file\fR with \fI.prc\fR suffix.
+.TP
+\fB\-s\fR, \fB\-\-strategy\fR large | exact
+.IP
+large:
+.br
+The generated formulas characterize the largest closure containing T
+that does not yet intersect with F.
+.IP
+exact:
+.br
+The generated formulas characterize the smallest closure containing T
+that does not yet intersect with F.
+.IP
+Default: large.
+.
+.TP
+\fB\-\-cooking\fR raw | bleu | medium | welldone
+Redundancy elimination.
+.IP
+raw:
+.br
+No redundancy elimination.
+.IP
+bleu:
+.br
+Performs unit resolution, by removing all literals from clauses that
+are complementary to some unit clause.
+.IP
+medium:
+.br
+Performs unit resolution (see above) and subsumption.  A clause
+subsumes another one if it is a subset for the latter.
+.IP
+welldone:
+.br
+Performs unit resolution and subsumption (see above).  Moreover,
+clauses that are implied by several others are removed.
+.IP
+Default: welldone.
+.
+.TP
+\fB\-\-setcover\fR yes | no
+Further reduncancy elimination using a set cover approximation algorithm.
+.IP
+yes:
+.br
+When computing a formula with the strategy 'large', it may contain more clauses
+than are actually necessary to exclude all negative samples. With option 'setcover',
+a set cover algorithm is applied to retain a minimal number of clauses while
+each negative sample is still excluded by at least clause.
+.IP
+no:
+No minimisation by the set cover algorithm.
+.IP
+Default: yes for "\fB--strategy\fR large" (seine and danube versions), no otherwise.
+.
+.TP
+\fB\-l\fR, \fB\-\-formula\fI STRING
+For each group \fIG\fR of samples, write the formula characterising it into
+a file named "\fISTRING_G.log\fR".
+.IP
+Default: No formula output is generated.
+.
+.TP
+\fB\-m\fR, \fB\-\-matrix\fR undefined | hide | peek | section | show
+Controls how input and output matrices are printed.
+.IP
+undefined:
+.br
+Printing of the input matrices is undefined; their status will be
+deduced later from the arity and size of the input. The matrices after
+computing a minimal section will NOT be printed.
+.IP
+hide:
+No matrices will be printed.
+.IP
+peek:
+.br
+The input matrices will be printed, the matrices after minimal section
+will NOT be printed.
+.IP
+section:
+.br
+The input matrices will NOT be printed, the matrices after minimal
+section will be printed.
+.IP
+show:
+.br
+Both the input matrices and matrices after computing the minimal section will be
+printed.
+.IP
+Default: undefined.
+.
+.TP
+\fB\-\-print\fR clause | implication | mix | dimacs
+Controls how the generated formulas are printed.
+.IP
+clause:
+.br
+Clauses are printed as a disjunction of positive and negative literals.
+.br
+Example: (-x0 + x1) * (x0 + -x1).
+.IP
+implication:
+.br
+Print each clause as an implication.
+.br
+Example: (x0 -> x1) * (x1 -> x0).
+.IP
+mix:
+.br
+If there are only literals of one polarity in a clause, then print as
+"clause", otherwise as "implication".
+.IP
+dimacs | DIMACS:
+.br
+Print the formula in DIMACS format, with one clause per line (implies
+\fB\-\-offset\fR greater than 0).
+.IP
+Default: clause for "\fB\-\-closure\fR bijunctive", mix otherwise.
+.
+.TP
+\fB\-\-latex\fI latex-file
+Defines \fIlatex-file\fR where all formulas from the run are stored in
+LaTeX format.
+.IP
+Default: No LaTeX output file is produced.
+.
+.TP
+\fB\-\-offset\fI INTEGER
+Internally, all indices begin with 0. However, when the data is
+displayed in an Excel sheet, the variables may begin in a column
+different from 0. To identify the same variables in an Excel sheet and
+the output of this program, you can define an offset. For example, the
+offset 1 will shift the variable indices by 1 and therefore first
+variable will have the index 1.
+.IP
+Negative offsets are converted to 0.
+.IP
+Default: 0.
+.
+.TP
+\fB\-\-tpath\fI PATH
+(Only for \fBmcp-pthread\fR)
+.br
+Directory for storing intermediate files.
+.IP
+Default: /tmp.
+.
+.TP
+\fB\-\-chunk\fI INTEGER
+(Only for \fBmcp-pthread\fR)
+.br
+Matrices are split into chunks of \fIINTEGER\fR rows that are processed in parallel.
+.IP
+Default: 4000.
+.
+.
+.SH SEE ALSO
+mcp-guess(1),
+mcp-trans(1),
+mcp-split(1),
+mcp-check(1),
+mcp-sparse(1),
+mcp-chk2tst(1),
+mcp-predict(1),
+mpirun(1)
+.
+.SH BUGS
+None we know of (yet).
+.
+.SH AUTHORS
+Miki Hermann <hermann@lix.polytechnique.fr>
+.br
+Gernot Salzer <gernot.salzer@tuwien.ac.at>

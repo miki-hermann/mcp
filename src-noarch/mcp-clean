@@ -1,0 +1,862 @@
+#!/usr/bin/env python3
+
+###########################################################################
+#                                                                         #
+#                                                                         #
+#                Multiple Classification Project (MCP)                    #
+#                                                                         #
+#       Author:  Oskar Dabkowski                                          #
+#       e-mail:  oskar.dabkowski@polytechnique.edu                        #
+#       Address: Ecole Polytechnique, France                              #
+#                                                                         #
+#       Author:   Miki Hermann                                            #
+#       e-mail:   hermann@lix.polytechnique.fr                            #
+#       Address:  LIX (CNRS UMR 7161), Ecole Polytechnique, France        #
+#                                                                         #
+#       Author: Gernot Salzer                                             #
+#       e-mail: gernot.salzer@tuwien.ac.at                                #
+#       Address: Technische Universitaet Wien, Vienna, Austria            #
+#                                                                         #
+#       Version: all                                                      #
+#       File:    mcp-clean                                                #
+#                                                                         #
+#       Copyright (c) 2019 - 2025                                         #
+#                                                                         #
+# Clean raw data from outliers                                            #
+#                                                                         #
+#                                                                         #
+###########################################################################
+
+import argparse
+import re
+import csv
+import os
+parser = argparse.ArgumentParser()
+
+parser.add_argument("-i", "--input", dest = "input", help="Name of the input file", type = str, required=True)
+parser.add_argument("-o", "--output", dest = "output",  help="Name of the output file", type = str, required=False)
+parser.add_argument("-m", "--meta", dest = "meta", help="Name of the meta file", type = str, required=False)
+parser.add_argument("-v", "--verbose", dest = "verbose", help="Output some information", action="store_true")
+parser.add_argument("--debug", dest = "debug", help="Output debug information", action="store_true")
+
+args = parser.parse_args()
+if args.debug:
+    args.verbose = True
+
+
+def debug(msg):
+    if args.debug:
+        print(f">>> {msg}")
+
+
+        
+def datareader(f):
+
+    def spacedData(f):
+        for line in f.readlines():
+            yield line.strip().split()
+
+    try:
+        dialect = csv.Sniffer().sniff(f.read(10240), delimiters=";, ")
+        f.seek(0)
+        return csv.reader(f, dialect)
+    except:
+        f.seek(0)
+        return spacedData(f)
+
+### Global vars ###
+
+
+### Tokens:
+#numbers
+NUM = "NUM" #integers
+FLT = "FLOAT" #floats / real numbers
+INF = "INF" #infinity (+-)
+
+#syntactic sugar and symbols
+HYP = "HYPHEN" # "-"
+COL = "COLON" # ":"
+EQU  = "EQUAL" # "="
+SEM = "SEMI-COLON" # ";"
+LCP = "LEFT CLOSED PARANTHESIS" # "["
+RCP = "RIGHT CLOSED PARANTHESIS" # "]"
+LOP = "LEFT OPEN PARANTHESIS" # "("
+ROP = "RIGHT OPEN PARANTHESIS" # ")"
+DDT = "DOUBLE DOT" # ".."
+IOR = "INTERVAL OR" # "||"
+
+#types
+INT = "INT"
+NAT = "NAT"
+REL = "REAL"
+STR = "STRING"
+
+#statistical cleaning operations
+SG3 = "3SIGMA" # 3 variances from the mean
+SG2 = "2SIGMA" # 2 variances from the mean
+SG1 = "1SIGMA" # 1 variances from the mean
+
+#group/concept
+GRP = "GROUP"  # group/concept operation
+#regex
+RGX = "REGEX" # to save the regex
+
+### IDs:
+digits = "0123456789" # digits
+nzdigits = "123456789" #non-zero digits
+letters = "abcdefghijklmnopqrstuvwxyz_" # accepted letters
+
+###################
+
+
+### Token class ###
+
+
+
+class Token:
+    def __init__(self, type, value, line, column):
+        self.type = type
+        self.value = value
+        self.line = line
+        self.column = column
+    def __repr__(self):
+        return f'({self.type}, {self.value}, {self.line}, {self.column})'
+    def error(self, message = ""):
+        raise RuntimeError(f"At line {self.line}, on a position {self.column}:{message}")
+
+###################
+    
+### Lexer class ###
+
+'''
+Possible tokens:
+~Syntactic sugar:
+HYPHEN: "-"
+COLON: ":"
+EQUAL: "="
+SEMI-COLON: ";"
+COL_NUM: "[1-9][0-9]*"
+TYPE: "real|regex|nat|int|string" #maybe without case-sensitivity?
+ACTION: "1sigma|2sigma|3sigma|..." # not yet completed
+REGEX: any regex before the first appearance of ";" without backslash before it
+'''
+
+
+
+class Lexer:
+
+    def __init__(self, meta, csvin):
+        self.meta = None
+        meta2 = f"{meta}.cln"
+        meta3 = f"{os.path.splitext(csvin)[0]}.cln"
+        for fn_meta in (meta, meta2, meta3):
+            try:
+                self.meta = open(fn_meta, "r")
+                self.fn_meta = fn_meta
+                break
+            except:
+                continue
+        if self.meta is None:
+            raise FileNotFoundError(f"Meta file not found, neither {meta} nor {meta2} nor {meta3}")
+
+        self.lin_num = 1
+        self.pos_num = 1
+        self.is_preregex = False
+        self.is_regex = False
+        self.is_comment = False
+        self.is_char = False
+
+        self.is_slash = False
+        self.is_q1 = False # " <- this symbol (whether open or not)
+        self.is_q2 = False # ' <- this symbol (whether open or not)
+
+        self.is_ddot = False
+        #^ this one is a quick solution to recognition of DDT symbol (we needed to look 2 tokens ahead)
+
+        self.first_reg = True
+    def error(self, message = "", char = ""):
+        raise SyntaxError(f"in line {self.lin_num}, on the position {self.pos_num}\
+: {message}\n{char}{self.meta.read(6)}\n^")
+    def next_token(self):
+        if self.is_ddot:
+            self.is_ddot = False
+            self.pos_num += 2
+            return Token(DDT, "..", self.lin_num, self.pos_num-2)
+        #^ the exception so that we're still able to keep 1 character ahead strategy
+        token_str = []
+        #^where the bigger tokens (usually of length > 2) are kept
+        empty = True
+        #^keeps track to not include the spaces at the beginning of the token 
+        if self.is_char != False:
+                char = self.is_char
+                self.is_char = False
+        else:
+            char = self.meta.read(1)
+        #^ self.is_char keeps the char that we read in advance previously (otherwise false)
+        #^ and here we read it if we saved it
+        #\/ we read chars 1-by-1 as long as there are any there
+        while char:
+            
+            if char in " \t\n" and empty == True:
+                if char == "\n":
+                    self.lin_num += 1
+                    self.pos_num = 1
+                    char = self.meta.read(1)
+                else:
+                    self.pos_num += 1
+                    char = self.meta.read(1)
+                continue
+            else:
+                empty = False
+            #^ for the new token we erase spaces (special cases as regex don't fall here)
+            #^ it only captures regex if it starts with spaces, which should be deleted
+            
+
+            if not self.is_regex:
+                self.first_reg = True
+                if self.is_comment:
+                    if char == "\n":
+                        self.lin_num += 1
+                        self.pos_num = 1
+                        self.is_comment = False
+                    char = self.meta.read(1)
+                    continue
+                #^ if we have a comment, it stays as such until '\n'
+                if char == "#":
+                    self.is_comment = True
+                    char = self.meta.read(1)
+                    continue
+                
+                elif char == "|":
+                    char = self.meta.read(1)
+                    if char != "|":
+                        self.error("\"||\" token unfinished", char)
+                    self.pos_num += 2
+                    return Token(IOR, "||", self.lin_num, self.pos_num-2)
+                         
+                elif char == ":":
+                    self.pos_num += 1
+                    return Token(COL, ":", self.lin_num, self.pos_num-1)
+                elif char == "=":
+                    self.pos_num += 1
+                    if self.is_preregex:
+                        self.is_regex = True
+                        self.is_preregex = False
+                    return Token(EQU, "=", self.lin_num, self.pos_num-1)
+                #^ preregex is triggered as true if we detect STR token, so that after equality we detect regex
+                elif char == ";":
+                    self.pos_num += 1
+                    return Token(SEM, ";", self.lin_num, self.pos_num-1)
+                elif char == "[":
+                    self.pos_num += 1
+                    return Token(LCP, "[", self.lin_num, self.pos_num-1)
+                elif char == "(":
+                    self.pos_num += 1
+                    return Token(LOP, "(", self.lin_num, self.pos_num-1)
+                elif char == "]":
+                    self.pos_num += 1
+                    return Token(RCP, "]", self.lin_num, self.pos_num-1)
+                elif char == ")":
+                    self.pos_num += 1
+                    return Token(ROP, ")", self.lin_num, self.pos_num-1)
+                #\/ now all the "word" tokens
+                elif char in "nirsgc":
+                    token_str.append(char)
+                    char = self.meta.read(1)
+                    while char in letters:
+                        token_str.append(char)
+                        char = self.meta.read(1)
+                    #^ we just read letters until we finish the word, then save the extra char
+                    t = "".join(token_str)
+                    self.is_char = char
+                    if t not in ["inf", "nat", "int", "real", "string", "group", "concept"]:
+                        self.error(f"name \"{t}\" is not defined", char)
+                    if t == "inf":
+                        self.pos_num += 3
+                        return Token(INF, "+", self.lin_num, self.pos_num-3)
+                    elif t == "nat":
+                        self.pos_num += 3
+                        return Token(NAT, "", self.lin_num, self.pos_num-3)
+                    elif t == "int":
+                        self.pos_num += 3
+                        return Token(INT, "", self.lin_num, self.pos_num-3)
+                    elif t == "real":
+                        self.pos_num += 4
+                        return Token(REL, "", self.lin_num, self.pos_num-4)
+                    elif t == "string":
+                        self.is_preregex = True
+                        self.pos_num += 6
+                        return Token(STR, "", self.lin_num, self.pos_num-6)
+                    elif t == "concept":
+                        self.pos_num += 7
+                        return Token(GRP, "", self.lin_num, self.pos_num-7)
+                    elif t == "group":
+                        self.pos_num += 5
+                        return Token(GRP, "", self.lin_num, self.pos_num-5)
+                    #^ to allow metafile syntax with "group" and "concept" keywords
+                #\/ now all the numerical (and DDT) cases: we allow numbers to start with 0 (python handles it)
+                elif char in "+-." + digits:
+                    pm = -1 # variable to determine if we have pos number or negative
+                    dot = False #whether we got a float (the dot from engineering notation is not here)
+                    sci = False #whether we got engeneering notation
+                    if char == "-":
+                        pm = 0
+                    elif char == "+":
+                        pm = 1
+                    token_str.append(char)
+                    if char == ".":
+                        dot = True
+                    char = self.meta.read(1)
+                    if char == "i" and pm >= 0:
+                        while char in letters:
+                            token_str.append(char)
+                            char = self.meta.read(1)
+                        tk = "".join(token_str)
+                        self.is_char = char
+                        if tk == "+inf":
+                            self.pos_num += 4
+                            return Token(INF, "+", self.lin_num, self.pos_num-4)
+                        if tk == "-inf":
+                            self.pos_num += 4
+                            return Token(INF, "-", self.lin_num, self.pos_num-4)
+                        else: self.error(f"name \"{tk}\" is not defined",char)
+                    if char == "s":
+                        while char in letters:
+                            token_str.append(char)
+                            char = self.meta.read(1)
+                        tk = "".join(token_str)
+                        if tk in ["1sigma", "2sigma", "3sigma"]:
+                            self.is_char = char
+                            self.pos_num += 6
+                            if tk == "1sigma":
+                                return Token(SG1, "1sigma", self.lin_num, self.pos_num-6)
+                            if tk == "2sigma":
+                                return Token(SG2, "2sigma", self.lin_num, self.pos_num-6)
+                            if tk == "3sigma":
+                                return Token(SG3, "3sigma", self.lin_num, self.pos_num-6)
+                        else:
+                            raise self.error(f"name \"{tk}\" is not defined",char)
+                    if char == "." and dot == True:
+                        self.pos_num += 2
+                        return Token(DDT, "..", self.lin_num, self.pos_num-2)
+                    while char in ".eE" + digits:
+                        if (char == "." and dot == True):
+                            self.is_char = char
+                            nr = len(token_str)
+                            self.pos_num += nr
+                            return Token(NUM, float("".join(token_str)), self.lin_num, self.pos_num-nr)
+                        elif char == ".":
+                            if sci == True:
+                                self.error('incorrect engineering notation',f'\"{"".join(token_str)}\"')
+                            dot = True
+                            char1 = self.meta.read(1)
+                            #\/ where we distinquish cases like: 22..34
+                            if char1 == ".":
+                                self.is_ddot = True
+                                nr = len(token_str)
+                                self.pos_num += nr
+                                return Token(NUM, int("".join(token_str)), self.lin_num, self.pos_num-nr)
+                            else:   
+                                token_str.append(char)
+                                char = char1
+                        elif char in "eE":
+                            sci = True
+                            token_str.append(char)
+                            char = self.meta.read(1)
+                            if char in "+-":
+                                token_str.append(char)
+                                char = self.meta.read(1)
+                            while char in digits:
+                                token_str.append(char)
+                                char = self.meta.read(1)
+                            self.is_char = char
+                            if dot == True:
+                                try:
+                                    nr = len(token_str)
+                                    self.pos_num += nr
+                                    return Token(FLT, float("".join(token_str)), self.lin_num, self.pos_num-nr)
+                                except:
+                                    self.error("incorrect float notation", char)
+                            else:
+                                try:
+                                    nr = len(token_str)
+                                    self.pos_num += nr
+                                    return Token(NUM, int("".join(token_str)), self.lin_num, self.pos_num-nr)
+                                except:
+                                    self.error("incorrect int notation", char)
+                        elif char in digits:
+                            token_str.append(char)
+                            char = self.meta.read(1)
+                    self.is_char = char
+                    if dot == True:
+                        try:
+                            nr = len(token_str)
+                            self.pos_num += nr
+                            return Token(FLT, float("".join(token_str)), self.lin_num, self.pos_num-nr)
+                        except:
+                            self.error("incorrect float notation", char)
+                    else:
+                        try:
+                            nr = len(token_str)
+                            self.pos_num += nr
+                            return Token(NUM, int("".join(token_str)), self.lin_num, self.pos_num-nr)
+                        except:
+                            self.error("incorrect int notation", char)
+
+                else:
+                    self.error(f"\"{char}\" is an incorrect symbol element", char)
+                    
+            elif self.is_regex:
+                if self.first_reg == True:
+                   self.first_reg = (self.lin_num, self.pos_num)
+                if self.is_comment:
+                    if char == "\n":
+                        self.is_comment = False
+                        self.lin_num += 1
+                        self.pos_num = 1
+                    char = self.meta.read(1)
+                    continue
+                if not self.is_slash and not self.is_q1 and not self.is_q2:
+                    if char == "#":
+                        self.is_comment = True
+                        char = self.meta.read(1)
+                        continue
+                    elif char == "\n":
+                        char = self.meta.read(1)
+                        self.lin_num += 1
+                        self.pos_num = 1
+                        continue
+                    self.pos_num += 1
+                    if char == "\\":
+                        self.is_slash = True
+                        token_str.append(char)
+                        char = self.meta.read(1)
+                        continue
+                    elif char == "\"":
+                        self.is_q1 = True
+                        token_str.append(char)
+                        char = self.meta.read(1)
+                        continue
+                    elif char == "\'":
+                        self.is_q2 = True
+                        token_str.append(char)
+                        char = self.meta.read(1)
+                        continue
+                    elif char == ";":
+                        self.pos_num -= 1
+                        self.is_regex = False
+                        self.is_char = char
+                        return Token(RGX, "".join(token_str), self.first_reg[0], self.first_reg[1])
+                    elif char in " \t":
+                        char = self.meta.read(1)
+                        continue
+                    token_str.append(char)
+                    char = self.meta.read(1)
+                    continue
+                self.pos_num += 1
+                if self.is_slash: self.is_slash = False
+                elif self.is_q1 and char == "\"": self.is_q1 = False
+                elif self.is_q2 and char == "\'": self.is_q2 = False
+                token_str.append(char)
+                char = self.meta.read(1)
+                continue
+
+
+class Parser:
+    def __init__(self, meta, csvin):
+        self.lexer = Lexer(meta, csvin)
+        self.ops = Operations()
+    def close_file(self):
+        self.lexer.meta.close()
+    def parse(self):
+        token = self.lexer.next_token()
+        while token:
+            rng = 0
+            tpe = 0
+            index = 0
+            num1, num2, num3, num4 = (-1,-1,-1,-1)
+            if token.type != NUM:
+                token.error("missing a column number")
+            num1 = token.value
+
+            token = self.lexer.next_token()
+
+            if token.type == DDT:
+                token = self.lexer.next_token()
+                if not token.type == NUM:
+                    token.error("unfinished range")
+                num2 = token.value
+                if num2 < num1:
+                    token.error(f"incorrect range: {num1} is greater than {num2}")
+                rng = range(num1, num2+1)
+                for i in rng:
+                    if i in self.ops.dict_instructions:
+                        token.error(f"more than 1 instruction for the column {i}")
+                token = self.lexer.next_token()
+                if token.type != COL:
+                    token.error("missing colon")
+            elif token.type == COL:
+                rng = range(num1, num1+1)
+                if rng[0] in self.ops.dict_instructions:
+                    token.error(f"more than 1 instruction for the column {rng[0]}")
+            else:
+                token.error("missing colon")   
+            token = self.lexer.next_token()
+            if token.type == GRP:
+                token = self.lexer.next_token()
+                if token.type == SEM:
+                    if len(rng) > 1:
+                        token.error("group/concept declared with range")
+                    else:
+                        self.ops.concept = rng[0]
+                        token = self.lexer.next_token()
+                        continue
+                else:
+                    token.error("missing semicolon")
+            
+            elif token.type in [NAT, INT, REL]:
+                
+                tpe = token.type
+                token = self.lexer.next_token()
+                if token.type != EQU:
+                    token.error("missing equality sign")
+                token = self.lexer.next_token()
+                if token.type in [SG1, SG2, SG3]:
+                    instructions = token.type
+                    token = self.lexer.next_token()
+                else:
+                    instructions = []
+                    while token.type in [LOP, LCP, NUM]:
+                        instruction = []
+                        if token.type == NUM:
+                            instruction.append((token.value, "c"))
+                            token = self.lexer.next_token()
+                            if token.type != DDT: token.error("no double dot as range")
+                            token = self.lexer.next_token()
+                            if token.type == NUM:
+                                instruction.append((token.value, "c"))
+                                instructions.append(instruction)
+                                token = self.lexer.next_token()
+                                if token == IOR:
+                                    token = self.lexer.next_token()
+                                    continue
+                        elif token.type in [LOP, LCP]:
+                            if token.type == LCP:
+                                token = self.lexer.next_token()
+                                if token.type in [NUM, FLT]:
+                                    instruction.append((token.value, "c"))
+                            elif token.type == LOP:
+                                token = self.lexer.next_token()
+                                if token.type in [NUM, FLT]:
+                                    instruction.append((token.value, "o"))
+                            token = self.lexer.next_token()
+                            if token.type != DDT:
+                                token.error("no double dot as range")
+                            token = self.lexer.next_token()
+                            if token.type not in [NUM, FLT]:
+                                token.error("no number in the end of range")
+                            val = token.value
+                            token = self.lexer.next_token()
+                            if token.type == RCP:
+                                instruction.append((val, "c"))
+                            elif token.type == ROP:
+                                instruction.append((val, "o"))
+                            else:
+                                token.error("range unfinished with a parenthesis")
+                            token = self.lexer.next_token()
+                            instructions.append(instruction)
+                            if token.type == IOR:
+                                token = self.lexer.next_token()
+                                continue
+                if token.type != SEM:
+                    token.error(" no semicolon in the end of instruction")
+                else:
+                    for i in rng:
+                        self.ops.dict_instructions[i] = (tpe, instructions)
+                        self.ops.list_instructions.append(i)
+                        if instructions in [SG1, SG2, SG3]:
+                            self.ops.dict_stats[i] = {}
+                            self.ops.list_stats.append(i)
+                    token = self.lexer.next_token()
+                    continue
+
+            elif token.type == STR: 
+                token = self.lexer.next_token()
+                if token.type != EQU:
+                    token.error("missing equality sign")
+                token = self.lexer.next_token()
+                if token.type != RGX:
+                    token.error("no regex for string")
+                for i in rng:
+                    self.ops.dict_instructions[i] = (STR, f"{token.value}")
+                    self.ops.list_instructions.append(i)
+                token = self.lexer.next_token()
+                if token.type != SEM:
+                    token.error("missing semicolon")
+                token = self.lexer.next_token()
+                continue
+        self.ops.list_instructions.sort()
+        self.ops.list_stats.sort()
+        
+### Operations ###
+class Operations:
+    def __init__(self):
+        self.concept = -1 # line of the concept (if any)
+        self.dict_stats = {} # where we need to perform stat cleaning (and also the vals)
+        self.dict_instructions = {} #dict with column keys
+        self.list_stats = [] # list where are the stats (quicker to iterate than dict)
+        self.list_instructions = [] # list where are the instructions (quicker to iterate)
+        self.dict_concept = {}
+        self.nr_rows = 0
+
+
+        
+class Interpreter:
+
+    
+    def __init__(self, operations, csvin, csvout):
+        self.ops = operations
+        
+        self.csvin = open(csvin, "r")
+        self.fn_csvin = csvin
+
+        self.csvout = None
+        fn_split = os.path.splitext(self.fn_csvin)
+        csvout2 = f"{fn_split[0]}_clean{fn_split[1]}"
+        for fn_csvout in (csvout, csvout2):
+            try:
+                self.csvout = open(fn_csvout, "w", newline = "")
+                self.fn_csvout = fn_csvout
+                break
+            except:
+                continue
+        if self.csvout is None:
+            raise PermissionError(f"Can't write neiter to {csvout} nor to {csvout2}")
+        
+        self.reader = datareader(self.csvin)
+        self.writer = csv.writer(self.csvout,dialect="unix",quoting=csv.QUOTE_MINIMAL)
+        self.lines_out = 0
+
+        
+    def interpret(self):
+        if self.ops.concept > -1:
+            self.interpret_con()
+        else:
+            
+            self.interpret_nocon()
+
+    def interpret_nocon(self):
+        for i in self.ops.list_stats:
+            self.ops.dict_stats[i]["sum"] = 0
+            self.ops.dict_stats[i]["sqsum"] = 0
+        for row in self.reader:
+            if len(row) == 0 or (len(row) == 1 and row[0].strip() == ""):
+                continue
+            self.ops.nr_rows += 1
+            for i in self.ops.list_stats:
+                try: x = int(row[i])
+                except:
+                    try: x = float(row[i])
+                    except: continue
+                self.ops.dict_stats[i]["sum"] += x
+                self.ops.dict_stats[i]["sqsum"] += x ** 2
+        for i in self.ops.list_stats:
+            self.ops.dict_stats[i]["mean"] = self.ops.dict_stats[i]["sum"] / self.ops.nr_rows
+            self.ops.dict_stats[i]["var"] = (self.ops.dict_stats[i]["sqsum"] / self.ops.nr_rows - self.ops.dict_stats[i]["mean"] ** 2)**(0.5)
+        
+        self.csvin.seek(0)
+        for row in self.reader:
+            if len(row) == 0 or (len(row) == 1 and row[0].strip() == ""):
+                continue
+            take_row = True
+            for val in range(len(row)):
+                
+                if not take_row:
+                    break
+                data = row[val]
+                if data == "":
+                    row[val] = "?"
+                    continue
+                if val not in self.ops.dict_instructions:
+                    continue
+                typ = self.ops.dict_instructions[val][0]
+                if typ == NAT:
+                    try:
+                        x = int(data)
+                        if x < 0:
+                            take_row = False
+                            debug(f"line {self.ops.nr_rows}, col {val}: {data} is not nat")
+                    except:
+                        take_row = False
+                        debug(f"line {self.ops.nr_rows}, col {val}: {data} is not nat")
+
+                elif typ == INT:
+                    try: x = int(data)
+                    except:
+                        take_row = False
+                        debug(f"line {self.ops.nr_rows}, col {val}: {data} is not int")
+                elif typ == REL:
+                    try: x = float(data)
+                    except:
+                        take_row = False
+                        debug(f"line {self.ops.nr_rows}, col {val}: {data} is not float")
+
+                if not take_row:
+                    continue
+                
+                operation = self.ops.dict_instructions[val][1]
+                if typ == STR:
+                    pattern = rf"{operation}"
+                    if not re.match(pattern, data):
+                        take_row = False
+                        debug(f"line {self.ops.nr_rows}, col {val}: {data} does not match {operation}")
+                    continue
+                if operation in [SG1, SG2, SG3]:
+                    mean = self.ops.dict_stats[val]["mean"]
+                    var = self.ops.dict_stats[val]["var"] 
+                    if operation == SG1:
+                        if not(x > mean - var and x < mean + var):
+                            take_row = False
+                            debug(f"line {self.ops.nr_rows}, col {val}: {x} outside of sigma1")
+                    elif operation == SG2:
+                        if not(x > mean - 2 * var and x < mean + 2 * var):
+                            take_row = False
+                            debug(f"line {self.ops.nr_rows}, col {val}: {x} outside of sigma2")
+                    elif operation == SG3:
+                        if not(x > mean - 3 * var and x < mean + 3 * var):
+                            take_row = False
+                            debug(f"line {self.ops.nr_rows}, col {val}: {x} outside of sigma3")
+                else:
+                    
+                    is_in = False
+                    for interval in operation:
+                        is_in1 = True
+                        if interval[0][1] == "c":
+                            if interval[0][0] > x: is_in1 = False
+                        elif interval[0][1] == "o":
+                            if interval[0][0] >= x: is_in1 = False
+                        
+                        if interval[1][1] == "c":
+                            if interval[1][0] < x: is_in1 = False
+                        elif interval[1][1] == "o":
+                            if interval[1][0] <= x: is_in1 = False
+                        if is_in1: is_in = True
+                    if not is_in:
+                        take_row = False 
+                        debug(f"line {self.ops.nr_rows}, col {val}: {x} not in any of the intervals")
+            if take_row:
+                self.lines_out += 1
+                self.writer.writerow(row)
+        self.csvin.close()
+        self.csvout.close()
+
+
+    def interpret_con(self):
+        for row in self.reader:
+            self.ops.nr_rows += 1
+            concept = row[self.ops.concept]
+            if concept not in self.ops.dict_concept:
+                self.ops.dict_concept[concept] = 0
+                for i in self.ops.list_stats:
+                    self.ops.dict_stats[i][concept] = {}
+                    self.ops.dict_stats[i][concept]["sum"] = 0
+                    self.ops.dict_stats[i][concept]["sqsum"] = 0
+            self.ops.dict_concept[concept] += 1
+            
+            for i in self.ops.list_stats:
+                try: x = int(row[i])
+                except:
+                    try: x = float(row[i])
+                    except: continue
+                self.ops.dict_stats[i][concept]["sum"] += x
+                self.ops.dict_stats[i][concept]["sqsum"] += x ** 2
+        for i in self.ops.list_stats:
+            for concept in self.ops.dict_concept:
+                self.ops.dict_stats[i][concept]["mean"] = self.ops.dict_stats[i][concept]["sum"] / self.ops.dict_concept[concept]
+                self.ops.dict_stats[i][concept]["var"] = (self.ops.dict_stats[i][concept]["sqsum"] / self.ops.dict_concept[concept] - self.ops.dict_stats[i][concept]["mean"] ** 2)**(0.5)
+        self.csvin.seek(0)
+        for row in self.reader:
+            take_row = True
+            for val in range(len(row)):
+                if not take_row:
+                    break
+                data = row[val]
+                if data == "":
+                    row[val] = "?"
+                    continue
+                if val not in self.ops.dict_instructions:
+                    continue
+                typ = self.ops.dict_instructions[val][0]
+                if typ == NAT:
+                    try: x = int(data)
+                    except: take_row = False
+                    if x < 0: take_row = False
+                elif typ == INT:
+                    try: x = int(data)
+                    except: take_row = False
+                elif typ == REL:
+                    try: x = float(data)
+                    except: take_row = False
+                
+                operation = self.ops.dict_instructions[val][1]
+                if typ == STR:
+                    pattern = rf"{operation}"
+                    if not re.match(pattern, data): take_row = False
+                    continue
+                if operation in [SG1, SG2, SG3]:
+                    concept = row[self.ops.concept]
+                    mean = self.ops.dict_stats[val][concept]["mean"]
+                    var = self.ops.dict_stats[val][concept]["var"] 
+                    if operation == SG1:
+                        if not(x > mean - var and x < mean + var): take_row = False
+                    elif operation == SG2:
+                        if not(x > mean - 2 * var and x < mean + 2 * var): take_row = False
+                    elif operation == SG3:
+                        if not(x > mean - 3 * var and x < mean + 3 * var): take_row = False
+                else:
+                    is_in = False
+                    for interval in operation:
+                        is_in1 = True
+                        if interval[0][1] == "c":
+                            if interval[0][0] > x: is_in1 = False
+                        elif interval[0][1] == "o":
+                            if interval[0][0] >= x: is_in1 = False
+                        
+                        if interval[1][1] == "c":
+                            if interval[1][0] < x: is_in1 = False
+                        elif interval[1][1] == "o":
+                            if interval[1][0] <= x: is_in1 = False
+                        if is_in1: is_in = True
+                    if not is_in: take_row = False 
+            if take_row:
+                self.lines_out += 1
+                self.writer.writerow(row)
+        self.csvin.close()
+        self.csvout.close()
+
+
+        
+def main():
+    parser = Parser(args.meta, args.input)
+    # arr =[]
+    # token = parser.lexer.next_token()
+    # while token:
+    #     arr.append(token)
+    #     token = parser.lexer.next_token()
+    # print(arr)
+    parser.parse()
+    parser.close_file()
+    interpreter = Interpreter(parser.ops, args.input, args.output)
+
+    interpreter.interpret()
+    if args.verbose:
+        print(f"@@@ Input file:      {interpreter.fn_csvin}")
+        print(f"@@@ Meta file:       {parser.lexer.fn_meta}")
+        print(f"@@@ Output file:     {interpreter.fn_csvout}")
+        
+    print(f"+++ Lines processed: {interpreter.ops.nr_rows}")
+    print(f"+++ Lines kept:      {interpreter.lines_out}")
+
+
+if __name__ == "__main__":
+    main()

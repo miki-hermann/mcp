@@ -1,0 +1,56 @@
+.\" Copyright (c) 2019-2021 Miki Hermann & Gernot Salzer
+.TH mcp-overview 1 "2024-08-19" "1.04" "MCP System"
+.
+.SH NAME
+mcp-overview - overview of the content of the input data file with percentage
+of different values on a given coordinate, which is usually the concept column,
+and list of defects, represented by missing values, and their percentage.
+.
+.SH SYNOPSIS
+.B mcp-overview
+.RI [\| "OPTION" "\|]\|.\|.\|."
+.
+.SH DESCRIPTION
+.PP
+Prints the percentage of different concept value items in the input file.
+.
+.SH OPTIONS
+.
+.TP
+\fB\-i\fR, \fB\-\-input\fI input-file
+Input file in CSV format. Values in the CSV file can be separated by
+commas, semicolons, space, or tabs. Values can be quoted.
+.IP
+Default: STDIN.
+.
+.TP
+\fB\-o\fR, \fB\-\-output\fI output-file
+Output file containing the overview of the \input-file\fR.
+.IP
+Default: STDOUT, resp. the \fIbasename\fR of \fIinput-file\fR with
+\fI-overview.txt\fR suffix.
+.
+.TP
+\fB\-c\fR, \fB\-\-concept\fI INTEGER
+The column in the input file on which the concept resides. This value must be specified.
+.
+.
+.SH SEE ALSO
+mcp-trans(1),
+mcp-split(1),
+mcp-seq(1),
+mcp-mpi(1),
+mcp-pthread(1),
+mcp-hybrid(1),
+mcp-check(1),
+mcp-sparse(1),
+mcp-chk2tst(1),
+mcp-predict(1)
+.
+.SH BUGS
+There are certanly some.
+.
+.SH AUTHORS
+Miki Hermann <hermann@lix.polytechnique.fr>
+.br
+Gernot Salzer <gernot.salzer@tuwien.ac.at>

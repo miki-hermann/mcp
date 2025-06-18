@@ -1,0 +1,38 @@
+#!/usr/bin/perl
+
+###########################################################################
+#                                                                         #
+#                                                                         #
+#	       Multiple Classification   Problem (MCP)                    #
+#                                                                         #
+#	Author:   Miki Hermann                                            #
+#	e-mail:   hermann@lix.polytechnique.fr                            #
+#	Address:  LIX (CNRS UMR 7161), Ecole Polytechnique, France        #
+#                                                                         #
+#	Author: Gernot Salzer                                             #
+#	e-mail: gernot.salzer@tuwien.ac.at                                #
+#	Address: Technische Universitaet Wien, Vienna, Austria            #
+#                                                                         #
+#	Version: all                                                      #
+#       File:    mcp-mat2csv.pl                                           #
+#                                                                         #
+#      Copyright (c) 2019 - 2025                                          #
+#                                                                         #
+# Transform a matrix file to a CSV file                                   #
+#                                                                         #
+###########################################################################
+
+# my $line = <>;
+# chomp $line;
+# my @line = split / /, $line;
+# if ($line[0] == 1) {
+#     $line = <>;
+# }
+# print "0 0\n";
+
+while ($line = <>) {
+    chomp $line;
+    @line = split / /, $line;
+    $line = join ',', @line;
+    print "$line\n";
+}

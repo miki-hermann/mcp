@@ -2,13 +2,32 @@
 				   
 ## Table of contents
 
+* [General instructions](#general-instructions)
 * [Brief Description](#brief-description)
 * [Compilation and Installation](#compilation-and-installation)
 * [Examples](#examples)
 * [UCI Examples](#uci-examples)
 * [kaggle Examples](#kaggle-examples)
 
+## General instructions
 
+Before downloading the MCP software, you need to install the `git` and
+`git-lfs` packages. Under Fedora, CentOS, and similar systems rung the
+command
+``` bash
+sudo dnf install git git-lfs
+```
+Under Ubuntu, run the command
+
+``` bash
+sudo get-apt install git git-lfs
+```
+Then you can `cd` to the directory where you wish the MCP system to be
+installed and run the command
+
+``` bash
+git clone https://github.com/miki-hermann/mcp.git
+```
 
 ## Brief Description
 

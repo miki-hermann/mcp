@@ -126,7 +126,7 @@ types,  POSIX  threads,  and  for sampling.   Only  the  standard  and
 **`boost`** libraries are used, therefore  there is no need to install
 any additional  C++ libraries.  You  will need to install  the `boost`
 library  for  the `*danube*`  variant,  since  this variant  uses  the
-*dynamic bitset* structure.
+`dynamic bitset` structure.
 
 ### Invocation
 
@@ -226,7 +226,7 @@ performed in the described order.
 
 The first variant to install is *noarch*. You are strongly advised
 **not** to skip this part, otherwise you will loose all prequel
-modules except `mcp-trans`, as well as the equel modules `mcp-chk2tst`
+modules except `mcp-trans`, as well as the sequel modules `mcp-chk2tst`
 and `mcp-mat2csv`. You install the *noarch* modules with the command
 
 ``` bash

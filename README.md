@@ -12,12 +12,12 @@
 ## General instructions
 
 Before downloading the MCP software, you need to install the `git` and
-`git-lfs` packages. Under Fedora, CentOS, and similar systems run the
-command
+`git-lfs` packages. Under RHEL, Fedora, and CentOS based distributions
+run the command
 ``` bash
 sudo dnf install git git-lfs
 ```
-Under Ubuntu, run the command
+Under Debian and Ubuntu based distributions, run the command
 
 ``` bash
 sudo get-apt install git git-lfs
@@ -101,13 +101,14 @@ the chosen version. To ensure compatibility between them and also to
 avoid potential threats from hackers by supplying a virus named as one
 of the modules, the whole interdependence of the modules is guaranteed
 by means of SHA3 encoding. To be able to use it you need to run the
-following command(s) from your shell: in Fedora, RedHat, CentOS, or
-similar, the command is
+following command(s) from your shell: in Fedora, RHEL, and CentOS
+based distributions, the commands are
 ```bash
 sudo dnf install openssl openssl-devel
 sudo dnf install cryptopp cryptopp-devel
 ```
-On Ubuntu, you need to install `libssl` instead of `openssl`:
+On Debian and Ubuntu based distributions, you need to install `libssl`
+instead of `openssl`:
 ```bash
 sudo apt-get install libssl libssl-dev
 sudo get-apt libcrypto libcrypto-dev

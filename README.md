@@ -12,7 +12,7 @@
 ## General instructions
 
 Before downloading the MCP software, you need to install the `git` and
-`git-lfs` packages. Under Fedora, CentOS, and similar systems rung the
+`git-lfs` packages. Under Fedora, CentOS, and similar systems run the
 command
 ``` bash
 sudo dnf install git git-lfs
@@ -104,13 +104,13 @@ by means of SHA3 encoding. To be able to use it you need to run the
 following command(s) from your shell: in Fedora, RedHat, CentOS, or
 similar, the command is
 ```bash
-   sudo dnf install openssl openssl-devel
-   sudo dnf install cryptopp cryptopp-devel
+sudo dnf install openssl openssl-devel
+sudo dnf install cryptopp cryptopp-devel
 ```
 On Ubuntu, you need to install `libssl` instead of `openssl`:
 ```bash
-   sudo apt-get install libssl libssl-dev
-   sudo get-apt libcrypto libcrypto-dev
+sudo apt-get install libssl libssl-dev
+sudo get-apt libcrypto libcrypto-dev
 ```
 
 ### Compilation
@@ -131,7 +131,7 @@ library  for  the `*danube*`  variant,  since  this variant  uses  the
 
 To compile and install the MCP system, write the command
 ```Makefile
-   make
+make
 ```
 in the root directory of this distribution. The system then
 
@@ -143,7 +143,7 @@ in the root directory of this distribution. The system then
 
 The command
 ```Makefile
-   make man
+make man
 ```
 installs the manual pages in the directories
 `/usr/local/share/man/man1` and `/usr/local/share/man/man5`,
@@ -155,19 +155,19 @@ force. To clean the intermediate results of compilation (`*.o` files)
 and the binaries in the local `bin` directory, type
 
 ``` Makefile
-	make clean
+make clean
 ```
 To erase also the switching module together with the previous
 cleaning, type
 
 ``` Makefile
-	make scratch
+make scratch
 ```
 To erase all MCP system binaries from the *EXECUTABLES* directory,
 together with the previous scratching, type
 
 ``` Makefile
-	make eliminate
+make eliminate
 ```
 You need to have superuser privileges for the last command.
 
@@ -181,13 +181,13 @@ compiler `g++` satisfying  the C++23 revision.  If  your installed C++
 compiler has  a different  identifier, set the  variable *GXX*  in the
 `make` command, e.g.
 ```Makefile
-   make GXX="cxx"
+make GXX="cxx"
 ```
 when your C++ compiler identifier is `c++`. If you need to downgrade
 the version of your C++ compiler, use the variable *GXX_VERSION* in
 the `make` command, e.g.
 ```Makefile
-   make GXX="-std=c++17"
+make GXX="-std=c++17"
 ```
 when you need to downgrade to  version C++17. C++ compiler of an older
 version than C++17 will not be able to compile the sources.
@@ -196,13 +196,13 @@ If you do not have superuser privileges or you do not need them, you
 can suppress the call to the `sudo` command by setting the variable
 *SUDO* with
 ```Makefile
-   make SUDO=""
+make SUDO=""
 ```
 If you  you want  to or  you must  store the  binaries in  a different
 directory that `/usr/local/bin`, you can do it by setting the variable
 *EXECUTABLES*, e.g.,
 ```Makefile
-   make EXECUTABLES="~/bin"
+make EXECUTABLES="~/bin"
 ```
 if you want to store the executables in the subdirectory `bin` under
 your home directory.
@@ -211,7 +211,7 @@ If your manual pages reside somewhere else than in the directory
 `/usr/local/share/man`, you can force to store them by the variable
 *MANPAGES*, e.g.
 ```Makefile
-   make man MANPAGES="~/man"
+make man MANPAGES="~/man"
 ```
 if you want to keep them in the subdirectory `man` under your home
 directory.
@@ -229,7 +229,7 @@ modules except `mcp-trans`, as well as the equel modules `mcp-chk2tst`
 and `mcp-mat2csv`. You install the *noarch* modules with the command
 
 ``` bash
-	make noarch
+make noarch
 ```
 
 The second variant to install is  *seine*. All modules in this variant
@@ -242,7 +242,7 @@ the variants  *seine* and *danube*.   You install the  *seine* modules
 with the command
 
 ``` bash
-	make seine
+make seine
 ```
 
 The third variant to install is *danube*. All modules in this variant
@@ -255,7 +255,7 @@ least one of the variants *seine* and *danube*.  You install the
 *danube* modules with the command
 
 ``` bash
-	make danube
+make danube
 ```
 
 This fourth variant to install is *mekong*. All modules have the same
@@ -266,7 +266,7 @@ many-valued logics and you prefer to stick to the classical Boolean
 ones. You install the *mekong*modules with the command
 
 ``` bash
-	make mekong
+make mekong
 ```
 
 Now you must execute a command which prepares the switching and
@@ -274,7 +274,7 @@ interconnection between different variants of the same modules. It is
 performed with the command
 
 ``` bash
-	make switch
+make switch
 ```
 
 Once  your  chosen  combination  of versions  *seine*,  *danube*,  and
@@ -282,7 +282,7 @@ Once  your  chosen  combination  of versions  *seine*,  *danube*,  and
 you need to install them by the command
 
 ``` bash
-	make install
+make install
 ```
 so that the following commands can find them in the execution path.
 
@@ -291,7 +291,7 @@ ensured by SHA3 encoding, and perform the final installation with the
 command
 
 ``` bash
-	make generate-and-install
+make generate-and-install
 ```
 
 You are suggested to clean up after the compilation and installation
@@ -306,20 +306,20 @@ examples or your own examples, you must set the emvironment variable
 version you want to use. It also allows you to easily switch between
 the versions. For instance,
 ```csh
-   setenv MCP_VERSION danube
+setenv MCP_VERSION danube
 ```
 forces the use of the *danube* version of of MCP when you use the
 `[t]csh` shell. With `bash`, this will be written as
 ```bash
-   export MCP_VERSION=danube
+export MCP_VERSION=danube
 ```
 If you want now to switch to the *mekong* version, just write
 ```csh
-   setenv MCP_VERSION mekong
+setenv MCP_VERSION mekong
 ```
 or
 ```bash
-   export MCP_VERSION=mekong
+export MCP_VERSION=mekong
 ```
 depeing on your shell.
 

@@ -97,7 +97,7 @@ On Ubuntu, you need to install `libssl` instead of `openssl`:
 ### Compilation
 
 * [Invocation](#invocation)
-* [Changing compiler variables in Makefile](#changing-compiler-variables-in- Makefile)
+* [Changing compiler variables in Makefile](#changing-compiler-variables-in-Makefile)
 * [Partial compilation](#partial-compilation)
 
 A C++ compiler satisfying the C++17  revision or newer is necessary to

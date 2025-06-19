@@ -24,27 +24,24 @@
 DEFAULT ?= $(shell bash -c 'read -p "Set MCP default version (mekong | danube |  seine): " default; echo $$default')
 GXX   := g++
 GXX_VERSION := -std=c++23
-# variable holding the path to executables, must be part of PATH
 BIN := bin
+# variable holding the path to executables, must be part of PATH
 EXECUTABLES := /usr/local/bin
 MANPAGES := /usr/local/share/man
 SUDO := sudo
 
 .PHONY: all complete \
-	prequel compile \
+	compile \
 	compile-and-install switch-and-install generate-and-install \
 	compile-danube compile-mekong compile-seine \
 	compile-switch \
 	seine danube mekong switch noarch \
 	man install \
-	clean scratch
+	clean scratch eliminate
 
-all: prequel compile-and-install switch-and-install generate-and-install
+all: compile-and-install switch-and-install generate-and-install
 
 complete: all man
-
-prequel:
-	mkdir -p $(BIN)
 
 compile-and-install: compile
 	$(SUDO) mkdir -p $(EXECUTABLES)
@@ -74,18 +71,23 @@ generate:
 	$(MAKE) -C src-switch generate
 
 switch:
+	mkdir -p $(BIN)
 	$(MAKE) -C src-switch compile
 
 danube:
+	mkdir -p $(BIN)
 	$(MAKE) -C src-danube compile GXX=$(GXX) GXX_VERSION=$(GXX_VERSION)
 
 mekong:
+	mkdir -p $(BIN)
 	$(MAKE) -C src-mekong compile GXX=$(GXX) GXX_VERSION=$(GXX_VERSION)
 
 seine:
+	mkdir -p $(BIN)
 	$(MAKE) -C src-seine compile GXX=$(GXX) GXX_VERSION=$(GXX_VERSION)
 
 noarch:
+	mkdir -p $(BIN)
 	$(MAKE) -C src-noarch compile GXX=$(GXX) GXX_VERSION=$(GXX_VERSION)
 
 man:
@@ -98,7 +100,10 @@ install:
 clean:
 	rm -f $(BIN)/mcp-*
 	rm -f src-*/*.o
+	rm -f src-*/*~ *~
 
 scratch: clean
-	$(MAKE) -C src-switch scratch
-	rm -f *~
+	$(MAKE) -C src-switch clean
+
+eliminate: scratch
+	$(SUDO) rm -f $(EXECUTABLES)/mcp-*

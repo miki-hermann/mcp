@@ -50,7 +50,6 @@ Additionally, the distribution contains the following files:
 * [Outline of the distribution](#outline-of-the-distribution)
 * [Prerequisites for compilation](#prerequisites-for-compilation)
 * [Compilation](#compilation)
-* [Invocation](#invocation)
 
 ### Outline of the distribution
 
@@ -78,22 +77,28 @@ appearance.
 
 ### Prerequisites for compilation
 
-Several modules are interconnected and call themselves depending of
+Several modules are interconnected and call themselves depending on
 the chosen version. To ensure compatibility between them and also to
-avoid potential threat from hackers by supplying a virus named as one
+avoid potential threats from hackers by supplying a virus named as one
 of the modules, the whole interdependence of the modules is guaranteed
 by means of SHA3 encoding. To be able to use it you need to run the
-following command from your shell: in Fedora, RedHat, CentOS, or
+following command(s) from your shell: in Fedora, RedHat, CentOS, or
 similar, the command is
 ```bash
-   sudo dnf install openssl openssl-devel cryptopp cryptopp-devel
+   sudo dnf install openssl openssl-devel
+   sudo dnf install cryptopp cryptopp-devel
 ```
 On Ubuntu, you need to install `libssl` instead of `openssl`:
 ```bash
-   sudo apt-get install libssl-dev
+   sudo apt-get install libssl libssl-dev
+   sudo get-apt libcrypto libcrypto-dev
 ```
 
 ### Compilation
+
+* [Invocation](#invocation)
+* [Changing compiler variables in Makefile](#changing-compiler-variables-in- Makefile)
+* [Partial compilation](#partial-compilation)
 
 A C++ compiler satisfying the C++17  revision or newer is necessary to
 successfully  compile the  MCP system,  mainly for  the use  of `auto`
@@ -112,8 +117,8 @@ To compile and install the MCP system, write the command
 in the root directory of this distribution. The system then
 
    - compiles the sources,
-   - links the binaries together,
-   - installs the binaries in the directory `/usr/local/bin`,
+   - links the binaries together using SHA3,
+   - installs the binaries in the *EXECUTABLES* directory `/usr/local/bin`,
    - determines which variant (*seine* or *danube* or *mekong*) will be the
      default version of the MCP system
 
@@ -125,6 +130,32 @@ installs the manual pages in the directories
 `/usr/local/share/man/man1` and `/usr/local/share/man/man5`,
 
 You need to have superuser privileges to execute these commands.
+
+There are three cleaning commands in the Makefile, graded by their
+force. To clean the intermediate results of compilation (`*.o` files)
+and the binaries in the local `bin` directory, type
+
+``` Makefile
+	make clean
+```
+To erase also the switching module together with the previous
+cleaning, type
+
+``` Makefile
+	make scratch
+```
+To erase all MCP system binaries from the *EXECUTABLES* directory,
+together with the previous scratching, type
+
+``` Makefile
+	make eliminate
+```
+You need to have superuser privileges for the last command.
+
+You are suggested to clean up after the compilation and installation
+process with the command `make scratch`.
+
+### Changing compiler variables in Makefile
 
 The sources of the MCP system are compiled by default with the GNU C++
 compiler `g++` satisfying  the C++23 revision.  If  your installed C++
@@ -166,6 +197,87 @@ If your manual pages reside somewhere else than in the directory
 if you want to keep them in the subdirectory `man` under your home
 directory.
 
+### Partial compilation
+
+You do not need to install the whole MCP system, but you can choose
+the variants which you wish to install. The following step-by-step
+procedure explains the precedure to follow. The installation must be
+performed in the described order.
+
+The first variant to install is *noarch*. You are strongly advised
+**not** to skip this part, otherwise you will loose all prequel
+modules except `mcp-trans`, as well as the equel modules `mcp-chk2tst`
+and `mcp-mat2csv`. You install the *noarch* modules with the command
+
+``` bash
+	make noarch
+```
+
+The second variant to install is  *seine*. All modules in this variant
+are equivalent to those in  the *danube* variant.  The only difference
+is that the row structure is coded by `vector<bool>`. You can skip the
+installation  of  this  variant  if you  have  installed  the  `boost`
+library,   since  the   *danube*   version   equivalent  modules   are
+faster. However, you  are strongly advised to install at  least one of
+the variants  *seine* and *danube*.   You install the  *seine* modules
+with the command
+
+``` bash
+	make seine
+```
+
+The third variant to install is *danube*. All modules in this variant
+are equivalent to those in the *seine* variant. The only difference is
+that the row structure is coded by `dynamic_bitset` from the `boost`
+library.  You can skip the installation of this variant if you did not
+install the `boost` library, but the *seine* version equivalent
+modules are slower. However, you are strongly advised to install at
+least one of the variants *seine* and *danube*.  You install the
+*danube* modules with the command
+
+``` bash
+	make danube
+```
+
+This fourth variant to install is *mekong*. All modules have the same
+semantics as those in the *seine* and *danube* variants, but the
+implementation and the results are different. You can skip the
+installation of this variant if you do not wish to produce formulas in
+many-valued logics and you prefer to stick to the classical Boolean
+ones. You install the *mekong*modules with the command
+
+``` bash
+	make mekong
+```
+
+Now you must execute a command which prepares the switching and
+interconnection between different variants of the same modules. It is
+performed with the command
+
+``` bash
+	make switch
+```
+
+Once  your  chosen  combination  of versions  *seine*,  *danube*,  and
+*mekong* has  been compiled, and  the switching was prepared  as well,
+you need to install them by the command
+
+``` bash
+	make install
+```
+so that the following commands can find them in the execution path.
+
+Finally, you need to generate the interconnection between modules,
+ensured by SHA3 encoding, and perform the final installation with the
+command
+
+``` bash
+	make generate-and-install
+```
+
+You are suggested to clean up after the compilation and installation
+process with the command `make scratch`.
+
 ## Examples
 
 All  examples  are  equipped   with  a  `Makefile`,  facilitating  the
@@ -191,6 +303,10 @@ or
    export MCP_VERSION=mekong
 ```
 depeing on your shell.
+
+If  you do  not specify  the *MCP_VERSION*  variable, MCP  system will
+launch  the version  declared as  default during  installation, but  a
+warning will be issued.
 
 ## UCI Examples
 

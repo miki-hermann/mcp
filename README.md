@@ -111,7 +111,7 @@ On Debian and Ubuntu based distributions, you need to install `libssl`
 instead of `openssl`:
 ```bash
 sudo apt-get install libssl libssl-dev
-sudo get-apt libcrypto libcrypto-dev
+sudo get-apt install libcrypto libcrypto-dev
 ```
 
 ### Compilation

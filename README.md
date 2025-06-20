@@ -259,12 +259,12 @@ least one of the variants *seine* and *danube*.  You install the
 make danube
 ```
 
-This fourth variant to install is *mekong*. All modules have the same
+The fourth variant to install is *mekong*. All modules have the same
 semantics as those in the *seine* and *danube* variants, but the
 implementation and the results are different. You can skip the
 installation of this variant if you do not wish to produce formulas in
 many-valued logics and you prefer to stick to the classical Boolean
-ones. You install the *mekong*modules with the command
+ones. You install the *mekong* modules with the command
 
 ``` bash
 make mekong

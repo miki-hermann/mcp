@@ -271,10 +271,6 @@ Formula learnHornLarge (ofstream &p_outfile,
     const Row &f = negativeF[i];
     if (!sat_formula(f, varphi)) {
       continue;
-    } else if (InHornClosure(f, positiveT)) {
-      p_outfile << "+++ negative example present in Horn closure of T" << endl;
-      p_outfile << "+++ the negative culprit is '" << f << "'" << endl;
-      exit(2);
     }
 
     Clause clause;
@@ -285,31 +281,26 @@ Formula learnHornLarge (ofstream &p_outfile,
       Literal lit(sign, 0, val);
       clause.push_back(lit);
     }
-
-    if (sat_clause(positiveT, clause)) {
-      varphi.push_back(std::move(clause));
-    } else {
-      bool eliminated = false;
-      size_t i = 0;
-      Literal old;
-      while (!eliminated && i < arity) {
-        if (f[i] < headlines[A[i]].DMAX) {
-          old = clause[i];
-          clause[i].sign = (Sign)(clause[i].sign | lpos);
-          clause[i].pval = f[i] + 1;
-          if (sat_clause(positiveT, clause)) {
-            varphi.push_back(std::move(clause));
-            eliminated = true;
-          } else {
-            clause[i] = old;
-          }
-        }
-        i++;
+    bool found = sat_clause(positiveT, clause);
+    size_t j = 0;
+    Literal old;
+    while (!found && j < arity) {
+      if (f[j] < headlines[A[j]].DMAX) {
+	old = clause[j];
+	clause[j].sign = (Sign)(clause[j].sign | lpos);
+	clause[j].pval = f[j] + 1;
+	found = sat_clause(positiveT, clause);
+	if (!found)
+	  clause[j] = old;
       }
-      if (!eliminated) {
-        p_outfile << "+++ FAILURE: could not eliminate f = '" << f << "'" << endl;
-      }
+      j++;
     }
+    if (!found) {
+      p_outfile << "+++ negative example present in Horn closure of T" << endl;
+      p_outfile << "+++ the negative culprit is '" << f << "'" << endl;
+      exit(2);
+    }
+    varphi.push_back(std::move(clause));
   }
 
   cook(varphi);

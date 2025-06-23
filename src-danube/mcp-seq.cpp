@@ -234,25 +234,23 @@ Formula learnHornLarge (const Matrix &T, const Matrix &F) {
 
   for (const Row &f : F) {
     Clause clause;			// Clause type is a string
-    bool eliminated = false;
     for (size_t i = 0; i < f.size(); ++i)
       clause += f[i] ? lneg : lnone;
-    if (satisfied_by(clause, T)) {
-      H.push_back(clause);
-      eliminated = true;
-    } else
-      for (size_t i = 0; i < f.size(); ++i)
-	if (! f[i]) {
-	  clause[i] = lpos;
-	  if (satisfied_by(clause, T)) {
-	    H.push_back(clause);
-	    eliminated = true;
-	    break;
-	  }
+    bool found = satisfied_by(clause, T);
+    size_t i = 0;
+    while (!found && i < f.size()) {
+      if (! f[i]) {
+	clause[i] = lpos;
+	found = satisfied_by(clause, T);
+	if (!found)
 	  clause[i] = lnone;
-	}
-    if (! eliminated)
+      }
+      i++;
+    }
+    if (!found)
       cout << "+++ WARNING: vector " << f << " not elminated" << endl;
+    else
+      H.push_back(clause);
   }
 
   if (debug)

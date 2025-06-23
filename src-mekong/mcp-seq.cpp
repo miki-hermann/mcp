@@ -252,44 +252,36 @@ Formula learnHornLarge(const Matrix &positiveT, const Matrix &negativeF, const v
     const Row &f = negativeF[i];
     if (!sat_formula(f, varphi)) {
       continue;
-    } else if (InHornClosure(f, positiveT)) {
-      cerr << "+++ negative example present in Horn closure of T" << endl;
-      cerr << "+++ the negative culprit is '" << f << "'" << endl;
-      exit(2);
     }
 
     Clause c;
     c.reserve(arity);
-    for (size_t i = 0; i < arity; ++i) {
-      Sign sign = f[i] > 0 ? lneg : lnone;
-      integer val = f[i] > 0 ? f[i] - 1 : 0;
+    for (size_t j = 0; j < arity; ++j) {
+      Sign sign = f[j] > 0 ? lneg : lnone;
+      integer val = f[j] > 0 ? f[j] - 1 : 0;
       Literal lit(sign, 0, val);
       c.push_back(lit);
     }
-    if (sat_clause(positiveT, c)) {
-      varphi.push_back(std::move(c));
-    } else {
-      bool eliminated = false;
-      size_t i = 0;
-      Literal old;
-      while (!eliminated && i < arity) {
-        if (f[i] < headlines[A[i]].DMAX) {
-          old = c[i];
-          c[i].sign = (Sign)(c[i].sign | lpos);
-          c[i].pval = f[i] + 1;
-          if (sat_clause(positiveT, c)) {
-            varphi.push_back(std::move(c));
-            eliminated = true;
-          } else {
-            c[i] = old;
-          }
-        }
-        i++;
+    bool found = sat_clause(positiveT, c);
+    size_t j = 0;
+    Literal old;
+    while (!found && j < arity) {
+      if (f[j] < headlines[A[j]].DMAX) {
+	old = c[j];
+	c[j].sign = (Sign)(c[j].sign | lpos);
+	c[j].pval = f[j] + 1;
+	found = sat_clause(positiveT, c);
+	if (!found)
+	  c[j] = old;
       }
-      if (!eliminated) {
-        cerr << "+++ FAILURE: could not eliminate f = '" << f << "'" << endl;
-      }
+      j++;
     }
+    if (!found) {
+      cerr << "+++ negative example present in Horn closure of T" << endl;
+      cerr << "+++ the negative culprit is '" << f << "'" << endl;
+      exit(2);
+    }
+    varphi.push_back(std::move(c));
   }
 
   cook(varphi);

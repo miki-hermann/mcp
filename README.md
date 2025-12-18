@@ -20,7 +20,7 @@ sudo dnf install git git-lfs
 Under Debian and Ubuntu based distributions, run the command
 
 ``` bash
-sudo get-apt install git git-lfs
+sudo apt-get install git git-lfs
 ```
 Then you can `cd` to the directory where you wish the MCP system to be
 installed and run the command
